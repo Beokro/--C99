@@ -191,3 +191,111 @@
 				x[3] = 22
 				x[4] = 3
 				x[5] = 33
+
+10. pointer
+	•	void * can point to any kind of pointer
+	• 	pointer can be initalize without a malloc : 
+			char s[] = "abc";
+			char* sp = s;
+			int x = 5;
+			int* xp = &x;
+
+	• 	== is used to test if two pointer is point to the same address
+	• 	pointer + index = pointer[index]
+	• 	p1 - p2 = index difference :
+			int x[] = { 1, 2, 3 };
+			int* p = x;
+			p++; p++;
+			int index = p - x;
+			printf("x[%d] = %d\n", index, x[index]);
+
+		expected output:
+			x[2] = 3;
+
+	•	compare two pointer == compare the idnex 
+	• 	use &x[i] to get the pointer point to the specific index element of array
+	• 	/* may implement */ int const * p and int * const p
+
+11. struct 
+	• 	struct can not use itself as memeber but can have a pointer point to same type : 
+			struct list_node{
+				struct list_node* prev;
+				struct list_node* next;
+				void* value;
+			};
+
+			struct list_node{
+				struct list_node* prev;
+				struct list_node* next;
+				void* value;
+			} a;
+
+	•	use typedef correctly : 
+			typedef struct node_t{
+				struct node_t* prev;
+				struct node_t* next;
+				void* value;
+			} node_t;
+
+	• 	can define a anonymous struct : 
+			int main(int argc, char * argv[]){
+				struct { int a; char b[100]; } d = { .a = 100, .b = "abcd" };
+				printf("%d\n%s\n", d.a, d.b);
+				return EXIT_SUCCESS;
+			}
+
+	• 	different ways to initalize a struct : 
+			struct { int x; short y; } a = { 1, 2 }, a2 = {};
+			printf("a.x = %d, a.y = %d\n", a.x, a.y);
+
+			struct data { int x; short y; };
+			struct data b = { .y = 3 };
+			printf("b.x = %d, b.y = %d\n", b.x, b.y);
+
+12. preprocessor
+	• 	preprocessor will expand macro : 
+			#define SIZE 10
+			int main(int argc, char* argv[]){
+				int x[SIZE] = {};
+				return EXIT_SUCCESS;
+			}
+
+			int main(int argc, char* argv[]){
+			int x[10] = {};
+			return 0;
+			}
+
+	• 	macro function :
+			#define test(x, y) ({ \
+			int _z = x + y; \
+			_z; })
+			int main(int argc, char* argv[]){
+				printf("%d\n", test(1, 2));
+				return EXIT_SUCCESS;
+			}
+
+			int main(int argc, char* argv[]){
+				printf("%d\n", ({ int _z = 1 + 2; _z; }));
+				return 0;
+			}
+
+	• 	## concatenate left and right term :
+			name ## 1
+
+			name1
+
+	• 	/* may implement */ conditional compilation "#if ... #elif ... #else ... #endif"、#define、#undef :
+
+				#define V1
+				#if defined(V1) || defined(V2)
+				printf("Old\n");
+				#else
+				printf("New\n");
+				#endif
+				#undef V1
+
+				int main(int argc, char* argv[])
+				{
+					printf("Old\n");
+					return 0;
+				}
