@@ -1,0 +1,301 @@
+--C99 Implementation goal
+1.	Types (Assume all unsigned at this point)
+	•	char: 8 bits
+	•	short: 16 bits
+	•	int: signed 32 bits
+	•	long: 64 bits
+	•	long long: 64 bits
+	•	bool: 8 bits
+	•	‘a’ = 32 bits
+	•	pointer = 32 bits
+	•	does not support floating point at this point
+	•	does not support complex at this point
+
+2.	enum 
+ 	•	enum test1 : basic enum functionality 
+	 		enum color { black, red = 5, green, yellow };
+			enum color b = black;
+			printf("black = %d\n", b);
+			enum color r = red;
+			printf("red = %d\n", r);
+			enum color g = green;
+			printf("green = %d\n", g);
+			9
+			enum color y = yellow;
+			printf("yellow = %d\n", y);
+
+		expected output:
+			black = 0
+			red = 5
+			green = 6
+			yellow = 7
+
+	• 	enum test2 : enum can have the same number inside
+			enum { BLACK = 1, RED, GREEN = 1, YELLOW };
+			printf("black = %d\n", BLACK);
+			printf("red = %d\n", RED);
+			printf("green = %d\n", GREEN);
+			printf("yellow = %d\n", YELLOW);
+
+		expected output:
+			black = 1
+			red = 2
+			green = 1
+			yellow = 2
+
+3. numbers
+	• 	decimal : 	no prefix
+	• 	hex : 		0x or 0X
+	• 	binary: 	0b
+	• 	does not support postfix at this point
+	• 	number test 1 :
+			char c = 0x61;
+			char c2 = 'a';
+			printf("%c, %c\n", c, c2);
+
+		expected output:
+			a, a
+
+4.	string literal
+	• 	char array end with a NULL(\0)
+	• 	empty string literal's size is 8 bits
+	• 	does not support sizeof at this point
+	• 	can use '\' to switch line at the end of the line
+	•	strign literal test 1 :
+			char s[] = "Hello, World!";
+			char* s2 = "Hello, C!";
+
+5. 	type inference/convert 
+	• 	char, int, long and long long can be converted during arithmetic operation
+	• 	char < int < long < long long
+	•	during function call, lower type can be infer to higher type
+	• 	does not support (type) type conversion
+	• 	any type of pointer can be use as void *, void * can be use as any type of pointer
+	• 	any type can be infered as stronger type (const)
+	• 	NULL can be assign to any type of pointer
+	• 	pointer can be assigned to a int 
+
+
+6. 	operator
+ 	• 	comma left -> right, return the type of the right most expression 
+ 	• 	precedence is listed in parser already, with some flaw
+
+7. 	statement
+	• 	last expression is the return value of a statement
+	• 	loop statement
+		•	for loop, declare int i at loop or outside the loop
+		• 	while and do... while
+	• 	switch statement
+		•	switch test 1 : 
+				int x = 10;
+				switch (x)
+				{
+				case 0 : printf("0\n"); break;
+				case 10 : printf("10\n"); break;
+				default: printf("default\n"); break;
+				}
+
+			expected output : 
+				10
+	•	unconditional jump
+		• 	break
+		•	continue
+		• 	goto
+		• 	return 
+		• 	does not support long jump
+
+8.	function
+	• 	function can only be defined once(in the same scope) but can be declare and use more than once
+	• 	find the function defination in the closest scope 
+	• 	must be one and only one main
+	•	argument get push in the stack from right to left
+	•	everything in C is pass by value
+
+9. 	array
+	• 	array can be declare with a non constant, since there is no static here
+	• 	test 1 : 
+			void test(int n){
+			int x[n];
+			for (int i = 0; i < n; i++){
+			x[i] = i;
+			}
+			struct data { int x[n]; } d;
+			printf("%d\n", sizeof(d));
+			}
+			int main(int argc, char* argv[]){
+			int x[] = { 1, 2, 3, 4 };
+			printf("%d\n", sizeof(x));
+			test(2);
+			return EXIT_SUCCESS;
+			} 
+	•	x[i] = *(x+i)
+	• 	will not the bound
+	• 	declare a array : 
+		int x[] = { 1, 2, 3 };
+		int y[5] = { 1, 2 };
+		int a[3] = {};
+		int z[][2] ={
+		{ 1, 1 },
+		{ 2, 1 },
+		{ 3, 1 },
+		};
+	• 	array can be declare with no size only if it is initalize at the same time
+	• 	if the length of the array is not provided in delcation, last element of the initalizer will determine it
+	• 	does not support /*int x[] = { 1, 2, [6] = 10, 11 }; */ this kind of initalization
+	•	string is the char array end with '\0' : 
+			char s[10] = "abc";
+			char x[] = "abc";
+			printf("s, size=%d, len=%d\n", sizeof(s), strlen(s));
+			printf("x, size=%d, len=%d\n", sizeof(x), strlen(x));
+
+		expected output:
+			s, size=10, len=3
+			x, size=4, len=3
+	•	two dimensional array 
+		• 	first dimensional's size does not need to be provided during initalization ': 
+				int x[][2] ={
+					{ 1, 11 },
+					{ 2, 22 },
+					{ 3, 33 }
+				};
+				int col = 2, row = sizeof(x) / sizeof(int) / col;
+				for (int r = 0; r < row; r++){
+					for (int c = 0; c < col; c++){
+						printf("x[%d][%d] = %d\n", r, c, x[r][c]);
+					}
+				}
+
+			expected output:
+				x[0][0] = 1
+				x[0][1] = 11
+				x[1][0] = 2
+				x[1][1] = 22
+				x[2][0] = 3
+				x[2][1] = 33
+		• 	two dimensional array is store continuously in memory :
+				int x[][2] =
+				{
+					{ 1, 11 },
+					{ 2, 22 },
+					{ 3, 33 }
+				};
+				int len = sizeof(x) / sizeof(int);
+				int* p = (int*)x;
+				for (int i = 0; i < len; i++){
+					printf("x[%d] = %d\n", i, p[i]);
+				}
+			expected output:
+				x[0] = 1
+				x[1] = 11
+				x[2] = 2
+				x[3] = 22
+				x[4] = 3
+				x[5] = 33
+
+10. pointer
+	•	void * can point to any kind of pointer
+	• 	pointer can be initalize without a malloc : 
+			char s[] = "abc";
+			char* sp = s;
+			int x = 5;
+			int* xp = &x;
+
+	• 	== is used to test if two pointer is point to the same address
+	• 	pointer + index = pointer[index]
+	• 	p1 - p2 = index difference :
+			int x[] = { 1, 2, 3 };
+			int* p = x;
+			p++; p++;
+			int index = p - x;
+			printf("x[%d] = %d\n", index, x[index]);
+
+		expected output:
+			x[2] = 3;
+
+	•	compare two pointer == compare the idnex 
+	• 	use &x[i] to get the pointer point to the specific index element of array
+	• 	/* may implement */ int const * p and int * const p
+
+11. struct 
+	• 	struct can not use itself as memeber but can have a pointer point to same type : 
+			struct list_node{
+				struct list_node* prev;
+				struct list_node* next;
+				void* value;
+			};
+
+			struct list_node{
+				struct list_node* prev;
+				struct list_node* next;
+				void* value;
+			} a;
+
+	•	use typedef correctly : 
+			typedef struct node_t{
+				struct node_t* prev;
+				struct node_t* next;
+				void* value;
+			} node_t;
+
+	• 	can define a anonymous struct : 
+			int main(int argc, char * argv[]){
+				struct { int a; char b[100]; } d = { .a = 100, .b = "abcd" };
+				printf("%d\n%s\n", d.a, d.b);
+				return EXIT_SUCCESS;
+			}
+
+	• 	different ways to initalize a struct : 
+			struct { int x; short y; } a = { 1, 2 }, a2 = {};
+			printf("a.x = %d, a.y = %d\n", a.x, a.y);
+
+			struct data { int x; short y; };
+			struct data b = { .y = 3 };
+			printf("b.x = %d, b.y = %d\n", b.x, b.y);
+
+12. preprocessor
+	• 	preprocessor will expand macro : 
+			#define SIZE 10
+			int main(int argc, char* argv[]){
+				int x[SIZE] = {};
+				return EXIT_SUCCESS;
+			}
+
+			int main(int argc, char* argv[]){
+			int x[10] = {};
+			return 0;
+			}
+
+	• 	macro function :
+			#define test(x, y) ({ \
+			int _z = x + y; \
+			_z; })
+			int main(int argc, char* argv[]){
+				printf("%d\n", test(1, 2));
+				return EXIT_SUCCESS;
+			}
+
+			int main(int argc, char* argv[]){
+				printf("%d\n", ({ int _z = 1 + 2; _z; }));
+				return 0;
+			}
+
+	• 	## concatenate left and right term :
+			name ## 1
+
+			name1
+
+	• 	/* may implement */ conditional compilation "#if ... #elif ... #else ... #endif"、#define、#undef :
+
+				#define V1
+				#if defined(V1) || defined(V2)
+				printf("Old\n");
+				#else
+				printf("New\n");
+				#endif
+				#undef V1
+
+				int main(int argc, char* argv[])
+				{
+					printf("Old\n");
+					return 0;
+				}
