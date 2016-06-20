@@ -3,7 +3,7 @@ int main(){
     short * s;
     int * i;
     long *  l;
-    long * long ll;
+    long long * ll;
     bool * b;
     return 0;
 }

@@ -203,22 +203,24 @@
 
 	• 	== is used to test if two pointer is point to the same address
 	• 	pointer + index = pointer[index]
-	• 	p1 - p2 = index difference :
+	• 	/* not now
+      p1 - p2 = index difference :
 			int x[] = { 1, 2, 3 };
 			int* p = x;
 			p++; p++;
 			int index = p - x;
 			printf("x[%d] = %d\n", index, x[index]);
-
+            
 		expected output:
 			x[2] = 3;
+      */
 
-	•	compare two pointer == compare the idnex 
-	• 	use &x[i] to get the pointer point to the specific index element of array
+	•	compare two pointer == compare the index 
+	• use &x[i] to get the pointer point to the specific index element of array
 	• 	/* may implement */ int const * p and int * const p
 
 11. struct 
-	• 	struct can not use itself as memeber but can have a pointer point to same type : 
+	• 	struct can not use itself as memeber but can have a pointer point to same type (member of the struct must be a primary type): 
 			struct list_node{
 				struct list_node* prev;
 				struct list_node* next;
@@ -231,27 +233,34 @@
 				void* value;
 			} a;
 
-	•	use typedef correctly : 
+	•	/* not now
+    use typedef correctly : 
 			typedef struct node_t{
 				struct node_t* prev;
 				struct node_t* next;
 				void* value;
 			} node_t;
 
-	• 	can define a anonymous struct : 
+      */
+
+	• 	/* not now
+      can define a anonymous struct : 
 			int main(int argc, char * argv[]){
 				struct { int a; char b[100]; } d = { .a = 100, .b = "abcd" };
 				printf("%d\n%s\n", d.a, d.b);
 				return EXIT_SUCCESS;
 			}
+      */
 
-	• 	different ways to initalize a struct : 
+	• 	/* not now
+      different ways to initalize a struct : 
 			struct { int x; short y; } a = { 1, 2 }, a2 = {};
 			printf("a.x = %d, a.y = %d\n", a.x, a.y);
 
 			struct data { int x; short y; };
 			struct data b = { .y = 3 };
 			printf("b.x = %d, b.y = %d\n", b.x, b.y);
+      */
 
 12. preprocessor
 	• 	preprocessor will expand macro : 
