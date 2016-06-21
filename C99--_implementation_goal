@@ -265,17 +265,26 @@
 12. preprocessor
 	• 	preprocessor will expand macro : 
 			#define SIZE 10
+			#define SIZ  10 + 15
+			#define TEST 1\
+			+3 \
+			+5 
 			int main(int argc, char* argv[]){
 				int x[SIZE] = {};
+				int x[SIZ] = {};
+				int x[TEST] = {};
 				return EXIT_SUCCESS;
 			}
 
 			int main(int argc, char* argv[]){
 			int x[10] = {};
+			int x[10 + 15] = {};
+			int x[1+3 +5] = {}; 
 			return 0;
 			}
 
-	• 	macro function :
+	• 	/* not support
+		macro function :
 			#define test(x, y) ({ \
 			int _z = x + y; \
 			_z; })
@@ -288,6 +297,7 @@
 				printf("%d\n", ({ int _z = 1 + 2; _z; }));
 				return 0;
 			}
+		*/
 
 	• 	## concatenate left and right term :
 			name ## 1
