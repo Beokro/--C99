@@ -1,0 +1,312 @@
+%{
+    #include <cstdio>
+    #include <cstdlib>
+
+    #include "ast.hpp"
+    #include "primitive.hpp"
+    #include "symtab.hpp"
+
+    #define YYDEBUG 1
+
+    extern Program_ptr ast;
+    int yylex(void);
+    void yyerror(const char *);
+%}
+
+/* Enables verbose error messages */
+%error-verbose
+
+%token BOOL CHAR INT FLOAT DOUBLE SHORT UNSIGNED SIGNED VOID CONST STRING LONG
+%token SWITCH BREAK ENUM CASE CONTINUE GOTO SIZEOF DEFAULT STRUCT
+%token DO TYPEDEF IF FOR ELSE WHILE RETURN NULLX TRUE FALSE
+%left ','
+%right '=' ADDASSIGN MINUSASSIGN TIMESASSIGN DIVASSIGN REMASSIGN SLASSIGN SRASSIGN ANDASSIGN XORASSIGN ORASSIGN
+%left OR
+%left AND
+%left '|'
+%left '^'
+%left '&'
+%left EQ NEQ
+%left '<' '>'  LE GE
+%left SR SL
+%left '+' '-'
+%left '*' '/' '%'
+%right SECOND ADDADD MINUSMINUS
+%left  FIRST '(' ')' '[' ']' '.' ARROW  
+
+%%
+s			: outermosts
+        		;
+
+outermosts		: outermosts outermost
+			|
+			;
+
+outermost 		: decl
+			| procedure
+			; 	
+				
+
+procedures  	 	: procedures procedure
+            		|
+            		;
+
+procedure   		: type ID '(' parameter ')'  '{' procedureContents returnStmt '}'
+            		;
+
+procedureContents	: procedureContents procedureContent
+			|
+			;
+
+procedureContent	: decl
+			| procedure
+			| stmt
+			;
+
+
+
+decl    		: type ID optionAssign declFollow ';'
+        		;
+
+declFollow		: ',' ID optionAssign declFollow
+			|
+			;
+
+optionAssign 		: '=' exprs
+			|
+			;
+
+stmts  			: stmts stmt
+        		|
+
+stmtsCanReturn 		: stmtsCanReturn stmtCanReturn
+			|
+			;
+
+stmtCanReturn 		: stmt
+			| returnStmt
+			;
+
+stmt   			: lhs '=' exprs ';'
+        		| lhs '=' STRINGV ';'
+
+        		| lhs '=' ID '(' arguments ')' ';'
+
+        		| IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+
+        		| IF '(' exprs ')'  '{' stmtsCanReturn '}'
+
+        		| WHILE '(' exprs ')' '{' stmts '}'
+
+			| FOR '('exprs ; exprs ; exprs ')' '{ stmts '}'
+
+			| DO '{' stmts '}' WHILE '(' exprs ')'
+
+			| SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmts '}'
+
+			| BREAK
+
+			| CONTINUE
+
+        		;
+
+cases 			: cases CASE ':' stmts 
+			| 
+			;
+
+
+
+returnStmt  : RETURN exprs ';'
+
+            ;
+
+
+exprs   : exprs '*' exprs
+
+        | exprs '/' exprs
+
+        | exprs '+' exprs
+
+        | exprs '-' exprs
+
+        | exprs EQ  exprs
+
+        | exprs GE  exprs
+
+        | exprs LE  exprs
+
+        | exprs NEQ exprs
+
+        | exprs '>' exprs
+
+        | exprs '<' exprs
+
+        | exprs AND exprs
+
+        | exprs OR  exprs
+
+	| exprs SR  exprs
+
+	| exprs SL  exprs
+
+	| exprs ANDASSIGN  exprs
+
+	| exprs XORASSIGN  exprs
+
+	| exprs ORASSIGN  exprs
+
+	| exprs SLASSIGN  exprs
+
+	| exprs SRASSIGN  exprs
+
+	| exprs TIMESASSIGN  exprs
+
+	| exprs DIVASSIGN  exprs
+
+	| exprs REMASSIGN  exprs
+
+	| exprs ADDASSIGN  exprs
+
+	| exprs MINUSASSIGN  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+	| exprs SL  exprs
+
+        | term
+
+        ;
+
+
+term    : ID sbarket
+
+        | ID
+
+        | literal
+
+        | '(' exprs ')'
+
+        | '|' exprs '|'
+
+        | '!' exprs                     %prec Dummy
+
+        | '^' exprs                     %prec Dummy
+
+        | '-' exprs                     %prec Dummy
+
+        | '+' exprs                     %prec Dummy
+
+        | '&' lhs                     %prec Dummy
+
+        ;
+
+lhs     : ID sbarket
+
+        | ID
+
+        | '^' ID
+
+        ;
+
+literal : NUMBER
+
+        | CHARV
+
+        | TRUE
+
+        | FALSE
+
+        | NULLX
+
+        ;
+
+sbarket : '[' exprs ']'
+
+        ;
+
+
+
+
+returnType  : BOOLEAN
+        | INTEGER    
+        | CHAR       
+        | CHARPTR    
+        | INTPTR     
+        ;
+
+declareType : BOOLEAN
+        | INTEGER    
+        | CHAR       
+        | CHARPTR    
+        | INTPTR     
+        | STRING '[' NUMBER ']' 
+        ;
+
+
+
+arguments : exprs argumentsPrime
+
+        |
+
+        ;
+
+argumentsPrime: ',' exprs argumentsPrime
+
+        |
+
+        ;
+
+
+parameter: ID idPrime ':' returnType parameterPrime
+
+        |
+
+        ;
+
+parameterPrime : ';' ID idPrime ':' returnType parameterPrime
+
+        |
+
+        ;
+
+idPrime : ',' ID idPrime
+
+        |
+
+        ;
+
+
+
+%%
+
+/** You shall not pass!
+ *  You should not  have to do or edit anything past this.
+ */
+
+extern int yylineno;
+
+void yyerror(const char *s)
+{
+    fprintf(stderr, "%s at line %d\n", s, yylineno);
+    return;
+}
