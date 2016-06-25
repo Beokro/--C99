@@ -30,7 +30,7 @@ void yyerror(const char *);
 "break"             {return BREAK;}
 "enum"              {return ENUM;}
 "case"              {return CASE;}
-"continue"          {return CONTINUE;}
+"2continue"          {return CONTINUE;}
 "goto"              {return GOTO;}
 "sizeof"            {return SIZEOF;}
 "default"           {return DEFAULT;}
@@ -46,6 +46,7 @@ void yyerror(const char *);
 "NULL"		    {return NULLX;}
 "true"		    {return TRUE;}
 "false"		    {return FALSE;}
+"include"           {return INCLUDE;}
 
 "->"                {return ARROW;}
 "&&"		    {return AND;}
@@ -79,7 +80,7 @@ yylval.u_base_charptr = temp;  return STRINGV;
 
 [\'][a-zA-Z][\']      {yylval.u_base_int=(int)(*(yytext+1));   return CHARV;}
 
-[\/\=\>\<\-\!\+\*\&\^\;\:\,\|\{\}\(\)\[\]\?\%\~]  	{return *yytext; }
+[\/\=\>\<\-\!\+\*\&\^\;\:\,\|\{\}\(\)\[\]\?\%\~\#]  	{return *yytext; }
 
 0[0-7]* 				{
 yylval.u_base_int = strtol(yytext,NULL,8);
