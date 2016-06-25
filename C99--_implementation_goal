@@ -100,7 +100,6 @@
 	•	/* not now unconditional jump
 		• 	break
 		•	continue
-		• 	goto
 		• 	return 
 		• 	does not support long jump
 		*/
@@ -143,6 +142,8 @@
 	• 	array can be declare with no size only if it is initalize at the same time
 	• 	if the length of the array is not provided in delcation, last element of the initalizer will determine it
 	• 	does not support /*int x[] = { 1, 2, [6] = 10, 11 }; */ this kind of initalization
+	
+	•	does not support string pointer
 	•	string is the char array end with '\0' : 
 			char s[10] = "abc";
 			char x[] = "abc";
@@ -227,11 +228,12 @@
 				void* value;
 			};
 
+			/*
 			struct list_node{
 				struct list_node* prev;
 				struct list_node* next;
 				void* value;
-			} a;
+			} a; */
 
 	•	/* not now
     use typedef correctly : 
@@ -319,3 +321,7 @@
 					printf("Old\n");
 					return 0;
 				}
+
+• IF
+  • only support if and if {} else{}.
+  • if and else must come with {} "if() stmt" is not allowed
