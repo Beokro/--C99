@@ -4,7 +4,6 @@
 %{
 #include <cstdlib>
 #include <cstring>
-#include "ast.hpp"
 #include "parser.hpp"
 
 void yyerror(const char *);
@@ -75,24 +74,25 @@ void yyerror(const char *);
 char * temp = strdup(yytext);
 temp+=1;
 temp[strlen(temp)-1] = '\0';
-yylval.u_base_charptr = temp;  return STRINGV;
+/*yylval.u_base_charptr = temp;*/
+return STRINGV;
 }
 
-[\'][a-zA-Z][\']      {yylval.u_base_int=(int)(*(yytext+1));   return CHARV;}
+[\'][a-zA-Z][\']      {/*yylval.u_base_int=(int)(*(yytext+1));*/   return CHARV;}
 
 [\/\=\>\<\-\!\+\*\&\^\;\:\,\|\{\}\(\)\[\]\?\%\~\#]  	{return *yytext; }
 
 0[0-7]* 				{
-yylval.u_base_int = strtol(yytext,NULL,8);
+/*yylval.u_base_int = strtol(yytext,NULL,8);*/
 return NUMBER;
 }
 
-0X[0-9A-F][0-9A-F]* 		{yylval.u_base_int=strtol(yytext,NULL,16); return NUMBER;}
-0x[0-9A-F][0-9A-F]* 		{yylval.u_base_int=strtol(yytext,NULL,16); return NUMBER;}
-0|[1-9][0-9]*         		{yylval.u_base_int=strtol(yytext,NULL,10); return NUMBER; }
-0[0-1]*b		        {yylval.u_base_int=strtol(yytext,NULL,2);  return NUMBER; }
+0X[0-9A-F][0-9A-F]* 		{/*yylval.u_base_int=strtol(yytext,NULL,16);*/ return NUMBER;}
+0x[0-9A-F][0-9A-F]* 		{/*yylval.u_base_int=strtol(yytext,NULL,16);*/ return NUMBER;}
+0|[1-9][0-9]*         		{/*yylval.u_base_int=strtol(yytext,NULL,10);*/ return NUMBER; }
+0[0-1]*b		        {/*yylval.u_base_int=strtol(yytext,NULL,2);*/  return NUMBER; }
 
-[a-zA-Z][0-9a-zA-Z_]*		{yylval.u_base_charptr = strdup(yytext); return ID;}
+[a-zA-Z][0-9a-zA-Z_]*		{/*yylval.u_base_charptr = strdup(yytext);*/ return ID;}
 
 
 [ \t\n]				; /* skip whitespace */

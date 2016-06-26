@@ -2,13 +2,8 @@
     #include <cstdio>
     #include <cstdlib>
 
-    #include "ast.hpp"
-    #include "primitive.hpp"
-    #include "symtab.hpp"
-
     #define YYDEBUG 1
 
-    extern Program_ptr ast;
     int yylex(void);
     void yyerror(const char *);
 %}
@@ -18,7 +13,7 @@
 
 %token BOOL CHAR INT FLOAT DOUBLE SHORT UNSIGNED SIGNED VOID CONST STRING LONG
 %token SWITCH BREAK ENUM CASE CONTINUE GOTO SIZEOF DEFAULT STRUCT INCLUDE
-%token DO TYPEDEF IF FOR ELSE WHILE RETURN NULLX TRUE FALSE
+%token DO TYPEDEF IF FOR ELSE WHILE RETURN NULLX TRUE FALSE STRINGV ID CHARV NUMBER
 %left ','
 %right '=' ADDASSIGN MINUSASSIGN TIMESASSIGN DIVASSIGN REMASSIGN SLASSIGN SRASSIGN ANDASSIGN XORASSIGN ORASSIGN
 %left OR
@@ -49,14 +44,11 @@ outermost 		: decl
 			| include
 			;
  	
-include 		: INCLUDE '<' ID '.' ID '>
+include 		: INCLUDE '<' ID '.' ID '>'
 			| INCLUDE '\"' ID '.' ID '\"'
 			;
 				
 
-procedures  	 	: procedures procedure
-            		|
-            		;
 
 procedure   		: type ID '(' parameter ')'  '{' procedureContents returnStmt '}'
             		;
@@ -75,7 +67,8 @@ structDefine 		: STRUCT ID '{' decls '}' ';'
 			;
 
 enumDefine 		: ENUM ID '{' ID idPrime  '}' ';'
-
+              ;
+              
 idPrime 		: ',' ID idPrime
 			;
 
@@ -117,7 +110,7 @@ stmt   			: lhs '=' exprs ';'
 
         		| WHILE '(' exprs ')' '{' stmts '}'
 
-			| FOR '('stmt ; exprs ; stmt ')' '{ stmts '}'
+			      | FOR '(' stmt ';' exprs ';' stmt ')' '{' stmts '}'
 
 			| DO '{' stmts '}' WHILE '(' exprs ')'
 
@@ -270,7 +263,7 @@ type  			: BOOL
 			| BOOL '*'
         		| INT '*'    
         		| CHAR '*'       
-        		| SHOR '*'   
+        		| SHORT'*'   
         		| UNSIGNED '*'
 			| SIGNED '*'
 			| VOID '*'
