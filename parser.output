@@ -1,0 +1,5787 @@
+Terminals which are not used
+
+   FLOAT
+   DOUBLE
+   GOTO
+   SIZEOF
+   TYPEDEF
+   FIRST
+
+
+Grammar
+
+    0 $accept: s $end
+
+    1 s: outermosts
+
+    2 outermosts: outermosts outermost
+    3           | /* empty */
+
+    4 outermost: enumDefine
+    5          | decl
+    6          | procedure
+    7          | structDefine
+    8          | include
+
+    9 include: INCLUDE '<' ID '.' ID '>'
+   10        | INCLUDE '"' ID '.' ID '"'
+
+   11 procedure: type ID '(' parameter ')' '{' procedureContents returnStmt '}'
+
+   12 procedureContents: procedureContents procedureContent
+   13                  | /* empty */
+
+   14 procedureContent: procedure
+   15                 | stmt
+
+   16 structDefine: STRUCT ID '{' decls '}' ';'
+
+   17 enumDefine: ENUM ID '{' ID idPrime '}' ';'
+
+   18 idPrime: ',' ID idPrime
+   19        | /* empty */
+
+   20 decls: decls decl
+   21      | /* empty */
+
+   22 decl: type ID sbarket optionAssign declFollow ';'
+   23     | CONST type ID sbarket optionAssign declFollow ';'
+
+   24 declFollow: ',' ID optionAssign declFollow
+   25           | /* empty */
+
+   26 optionAssign: '=' exprs
+   27             | /* empty */
+
+   28 stmts: stmts stmt
+   29      | /* empty */
+
+   30 stmtsCanReturn: stmtsCanReturn stmtCanReturn
+   31               | /* empty */
+
+   32 stmtCanReturn: stmt
+   33              | returnStmt
+
+   34 stmt: lhs '=' exprs ';'
+   35     | lhs '=' STRINGV ';'
+   36     | lhs '=' ID '(' arguments ')' ';'
+   37     | IF '(' exprs ')' '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+   38     | IF '(' exprs ')' '{' stmtsCanReturn '}'
+   39     | WHILE '(' exprs ')' '{' stmts '}'
+   40     | FOR '(' stmt ';' exprs ';' stmt ')' '{' stmts '}'
+   41     | DO '{' stmts '}' WHILE '(' exprs ')'
+   42     | SWITCH '(' exprs ')' '{' cases DEFAULT ':' stmts '}'
+   43     | BREAK
+   44     | term ADDADD
+   45     | term MINUSMINUS
+   46     | ADDADD term
+   47     | MINUSMINUS term
+   48     | CONTINUE
+   49     | structDefine
+   50     | enumDefine
+   51     | decl
+
+   52 cases: cases CASE ':' stmts
+   53      | /* empty */
+
+   54 returnStmt: RETURN exprs ';'
+
+   55 exprs: exprs '*' exprs
+   56      | exprs '/' exprs
+   57      | exprs '+' exprs
+   58      | exprs '-' exprs
+   59      | exprs EQ exprs
+   60      | exprs GE exprs
+   61      | exprs LE exprs
+   62      | exprs NEQ exprs
+   63      | exprs '>' exprs
+   64      | exprs '<' exprs
+   65      | exprs '&' exprs
+   66      | exprs '^' exprs
+   67      | exprs '|' exprs
+   68      | exprs '%' exprs
+   69      | exprs AND exprs
+   70      | exprs OR exprs
+   71      | exprs SR exprs
+   72      | exprs SL exprs
+   73      | exprs ANDASSIGN exprs
+   74      | exprs XORASSIGN exprs
+   75      | exprs ORASSIGN exprs
+   76      | exprs SLASSIGN exprs
+   77      | exprs SRASSIGN exprs
+   78      | exprs TIMESASSIGN exprs
+   79      | exprs DIVASSIGN exprs
+   80      | exprs REMASSIGN exprs
+   81      | exprs ADDASSIGN exprs
+   82      | exprs MINUSASSIGN exprs
+   83      | term
+
+   84 term: ID sbarket
+   85     | ID
+   86     | ID '.' ID
+   87     | ID ARROW ID
+   88     | literal
+   89     | '(' exprs ')'
+   90     | '!' exprs
+   91     | '*' exprs
+   92     | '-' exprs
+   93     | '+' exprs
+   94     | '&' lhs
+
+   95 lhs: ID sbarket
+   96    | ID
+   97    | '*' ID
+   98    | ID ARROW ID
+   99    | ID '.' ID
+
+  100 literal: NUMBER
+  101        | CHARV
+  102        | TRUE
+  103        | FALSE
+  104        | NULLX
+
+  105 sbarket: '[' exprs ']'
+
+  106 type: BOOL
+  107     | INT
+  108     | CHAR
+  109     | SHORT
+  110     | UNSIGNED
+  111     | SIGNED
+  112     | VOID
+  113     | LONG
+  114     | LONG LONG
+  115     | STRUCT ID
+  116     | ENUM ID
+  117     | STRING
+  118     | BOOL '*'
+  119     | INT '*'
+  120     | CHAR '*'
+  121     | SHORT '*'
+  122     | UNSIGNED '*'
+  123     | SIGNED '*'
+  124     | VOID '*'
+  125     | LONG '*'
+  126     | LONG LONG '*'
+  127     | STRUCT ID '*'
+
+  128 arguments: exprs argumentsPrime
+  129          | /* empty */
+
+  130 argumentsPrime: ',' exprs argumentsPrime
+  131               | /* empty */
+
+  132 parameter: type ID parameterPrime
+  133          | /* empty */
+
+  134 parameterPrime: ',' type ID parameterPrime
+  135               | /* empty */
+
+
+Terminals, with rules where they appear
+
+$end (0) 0
+'!' (33) 90
+'"' (34) 10
+'%' (37) 68
+'&' (38) 65 94
+'(' (40) 11 36 37 38 39 40 41 42 89
+')' (41) 11 36 37 38 39 40 41 42 89
+'*' (42) 55 91 97 118 119 120 121 122 123 124 125 126 127
+'+' (43) 57 93
+',' (44) 18 24 130 134
+'-' (45) 58 92
+'.' (46) 9 10 86 99
+'/' (47) 56
+':' (58) 42 52
+';' (59) 16 17 22 23 34 35 36 40 54
+'<' (60) 9 64
+'=' (61) 26 34 35 36
+'>' (62) 9 63
+'[' (91) 105
+']' (93) 105
+'^' (94) 66
+'{' (123) 11 16 17 37 38 39 40 41 42
+'|' (124) 67
+'}' (125) 11 16 17 37 38 39 40 41 42
+error (256)
+BOOL (258) 106 118
+CHAR (259) 108 120
+INT (260) 107 119
+FLOAT (261)
+DOUBLE (262)
+SHORT (263) 109 121
+UNSIGNED (264) 110 122
+SIGNED (265) 111 123
+VOID (266) 112 124
+CONST (267) 23
+STRING (268) 117
+LONG (269) 113 114 125 126
+SWITCH (270) 42
+BREAK (271) 43
+ENUM (272) 17 116
+CASE (273) 52
+CONTINUE (274) 48
+GOTO (275)
+SIZEOF (276)
+DEFAULT (277) 42
+STRUCT (278) 16 115 127
+INCLUDE (279) 9 10
+DO (280) 41
+TYPEDEF (281)
+IF (282) 37 38
+FOR (283) 40
+ELSE (284) 37
+WHILE (285) 39 41
+RETURN (286) 54
+NULLX (287) 104
+TRUE (288) 102
+FALSE (289) 103
+STRINGV (290) 35
+ID (291) 9 10 11 16 17 18 22 23 24 36 84 85 86 87 95 96 97 98 99 115
+    116 127 132 134
+CHARV (292) 101
+NUMBER (293) 100
+ORASSIGN (294) 75
+XORASSIGN (295) 74
+ANDASSIGN (296) 73
+SRASSIGN (297) 77
+SLASSIGN (298) 76
+REMASSIGN (299) 80
+DIVASSIGN (300) 79
+TIMESASSIGN (301) 78
+MINUSASSIGN (302) 82
+ADDASSIGN (303) 81
+OR (304) 70
+AND (305) 69
+NEQ (306) 62
+EQ (307) 59
+GE (308) 60
+LE (309) 61
+SL (310) 72
+SR (311) 71
+MINUSMINUS (312) 45 47
+ADDADD (313) 44 46
+SECOND (314)
+ARROW (315) 87 98
+FIRST (316)
+
+
+Nonterminals, with rules where they appear
+
+$accept (85)
+    on left: 0
+s (86)
+    on left: 1, on right: 0
+outermosts (87)
+    on left: 2 3, on right: 1 2
+outermost (88)
+    on left: 4 5 6 7 8, on right: 2
+include (89)
+    on left: 9 10, on right: 8
+procedure (90)
+    on left: 11, on right: 6 14
+procedureContents (91)
+    on left: 12 13, on right: 11 12
+procedureContent (92)
+    on left: 14 15, on right: 12
+structDefine (93)
+    on left: 16, on right: 7 49
+enumDefine (94)
+    on left: 17, on right: 4 50
+idPrime (95)
+    on left: 18 19, on right: 17 18
+decls (96)
+    on left: 20 21, on right: 16 20
+decl (97)
+    on left: 22 23, on right: 5 20 51
+declFollow (98)
+    on left: 24 25, on right: 22 23 24
+optionAssign (99)
+    on left: 26 27, on right: 22 23 24
+stmts (100)
+    on left: 28 29, on right: 28 39 40 41 42 52
+stmtsCanReturn (101)
+    on left: 30 31, on right: 30 37 38
+stmtCanReturn (102)
+    on left: 32 33, on right: 30
+stmt (103)
+    on left: 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51
+   , on right: 15 28 32 40
+cases (104)
+    on left: 52 53, on right: 42 52
+returnStmt (105)
+    on left: 54, on right: 11 33
+exprs (106)
+    on left: 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72
+    73 74 75 76 77 78 79 80 81 82 83, on right: 26 34 37 38 39 40 41
+    42 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73
+    74 75 76 77 78 79 80 81 82 89 90 91 92 93 105 128 130
+term (107)
+    on left: 84 85 86 87 88 89 90 91 92 93 94, on right: 44 45 46 47
+    83
+lhs (108)
+    on left: 95 96 97 98 99, on right: 34 35 36 94
+literal (109)
+    on left: 100 101 102 103 104, on right: 88
+sbarket (110)
+    on left: 105, on right: 22 23 84 95
+type (111)
+    on left: 106 107 108 109 110 111 112 113 114 115 116 117 118 119
+    120 121 122 123 124 125 126 127, on right: 11 22 23 132 134
+arguments (112)
+    on left: 128 129, on right: 36
+argumentsPrime (113)
+    on left: 130 131, on right: 128 130
+parameter (114)
+    on left: 132 133, on right: 11
+parameterPrime (115)
+    on left: 134 135, on right: 132 134
+
+
+state 0
+
+    0 $accept: . s $end
+
+    $default  reduce using rule 3 (outermosts)
+
+    s           go to state 1
+    outermosts  go to state 2
+
+
+state 1
+
+    0 $accept: s . $end
+
+    $end  shift, and go to state 3
+
+
+state 2
+
+    1 s: outermosts .
+    2 outermosts: outermosts . outermost
+
+    BOOL      shift, and go to state 4
+    CHAR      shift, and go to state 5
+    INT       shift, and go to state 6
+    SHORT     shift, and go to state 7
+    UNSIGNED  shift, and go to state 8
+    SIGNED    shift, and go to state 9
+    VOID      shift, and go to state 10
+    CONST     shift, and go to state 11
+    STRING    shift, and go to state 12
+    LONG      shift, and go to state 13
+    ENUM      shift, and go to state 14
+    STRUCT    shift, and go to state 15
+    INCLUDE   shift, and go to state 16
+
+    $default  reduce using rule 1 (s)
+
+    outermost     go to state 17
+    include       go to state 18
+    procedure     go to state 19
+    structDefine  go to state 20
+    enumDefine    go to state 21
+    decl          go to state 22
+    type          go to state 23
+
+
+state 3
+
+    0 $accept: s $end .
+
+    $default  accept
+
+
+state 4
+
+  106 type: BOOL .
+  118     | BOOL . '*'
+
+    '*'  shift, and go to state 24
+
+    $default  reduce using rule 106 (type)
+
+
+state 5
+
+  108 type: CHAR .
+  120     | CHAR . '*'
+
+    '*'  shift, and go to state 25
+
+    $default  reduce using rule 108 (type)
+
+
+state 6
+
+  107 type: INT .
+  119     | INT . '*'
+
+    '*'  shift, and go to state 26
+
+    $default  reduce using rule 107 (type)
+
+
+state 7
+
+  109 type: SHORT .
+  121     | SHORT . '*'
+
+    '*'  shift, and go to state 27
+
+    $default  reduce using rule 109 (type)
+
+
+state 8
+
+  110 type: UNSIGNED .
+  122     | UNSIGNED . '*'
+
+    '*'  shift, and go to state 28
+
+    $default  reduce using rule 110 (type)
+
+
+state 9
+
+  111 type: SIGNED .
+  123     | SIGNED . '*'
+
+    '*'  shift, and go to state 29
+
+    $default  reduce using rule 111 (type)
+
+
+state 10
+
+  112 type: VOID .
+  124     | VOID . '*'
+
+    '*'  shift, and go to state 30
+
+    $default  reduce using rule 112 (type)
+
+
+state 11
+
+   23 decl: CONST . type ID sbarket optionAssign declFollow ';'
+
+    BOOL      shift, and go to state 4
+    CHAR      shift, and go to state 5
+    INT       shift, and go to state 6
+    SHORT     shift, and go to state 7
+    UNSIGNED  shift, and go to state 8
+    SIGNED    shift, and go to state 9
+    VOID      shift, and go to state 10
+    STRING    shift, and go to state 12
+    LONG      shift, and go to state 13
+    ENUM      shift, and go to state 31
+    STRUCT    shift, and go to state 32
+
+    type  go to state 33
+
+
+state 12
+
+  117 type: STRING .
+
+    $default  reduce using rule 117 (type)
+
+
+state 13
+
+  113 type: LONG .
+  114     | LONG . LONG
+  125     | LONG . '*'
+  126     | LONG . LONG '*'
+
+    LONG  shift, and go to state 34
+    '*'   shift, and go to state 35
+
+    $default  reduce using rule 113 (type)
+
+
+state 14
+
+   17 enumDefine: ENUM . ID '{' ID idPrime '}' ';'
+  116 type: ENUM . ID
+
+    ID  shift, and go to state 36
+
+
+state 15
+
+   16 structDefine: STRUCT . ID '{' decls '}' ';'
+  115 type: STRUCT . ID
+  127     | STRUCT . ID '*'
+
+    ID  shift, and go to state 37
+
+
+state 16
+
+    9 include: INCLUDE . '<' ID '.' ID '>'
+   10        | INCLUDE . '"' ID '.' ID '"'
+
+    '<'  shift, and go to state 38
+    '"'  shift, and go to state 39
+
+
+state 17
+
+    2 outermosts: outermosts outermost .
+
+    $default  reduce using rule 2 (outermosts)
+
+
+state 18
+
+    8 outermost: include .
+
+    $default  reduce using rule 8 (outermost)
+
+
+state 19
+
+    6 outermost: procedure .
+
+    $default  reduce using rule 6 (outermost)
+
+
+state 20
+
+    7 outermost: structDefine .
+
+    $default  reduce using rule 7 (outermost)
+
+
+state 21
+
+    4 outermost: enumDefine .
+
+    $default  reduce using rule 4 (outermost)
+
+
+state 22
+
+    5 outermost: decl .
+
+    $default  reduce using rule 5 (outermost)
+
+
+state 23
+
+   11 procedure: type . ID '(' parameter ')' '{' procedureContents returnStmt '}'
+   22 decl: type . ID sbarket optionAssign declFollow ';'
+
+    ID  shift, and go to state 40
+
+
+state 24
+
+  118 type: BOOL '*' .
+
+    $default  reduce using rule 118 (type)
+
+
+state 25
+
+  120 type: CHAR '*' .
+
+    $default  reduce using rule 120 (type)
+
+
+state 26
+
+  119 type: INT '*' .
+
+    $default  reduce using rule 119 (type)
+
+
+state 27
+
+  121 type: SHORT '*' .
+
+    $default  reduce using rule 121 (type)
+
+
+state 28
+
+  122 type: UNSIGNED '*' .
+
+    $default  reduce using rule 122 (type)
+
+
+state 29
+
+  123 type: SIGNED '*' .
+
+    $default  reduce using rule 123 (type)
+
+
+state 30
+
+  124 type: VOID '*' .
+
+    $default  reduce using rule 124 (type)
+
+
+state 31
+
+  116 type: ENUM . ID
+
+    ID  shift, and go to state 41
+
+
+state 32
+
+  115 type: STRUCT . ID
+  127     | STRUCT . ID '*'
+
+    ID  shift, and go to state 42
+
+
+state 33
+
+   23 decl: CONST type . ID sbarket optionAssign declFollow ';'
+
+    ID  shift, and go to state 43
+
+
+state 34
+
+  114 type: LONG LONG .
+  126     | LONG LONG . '*'
+
+    '*'  shift, and go to state 44
+
+    $default  reduce using rule 114 (type)
+
+
+state 35
+
+  125 type: LONG '*' .
+
+    $default  reduce using rule 125 (type)
+
+
+state 36
+
+   17 enumDefine: ENUM ID . '{' ID idPrime '}' ';'
+  116 type: ENUM ID .
+
+    '{'  shift, and go to state 45
+
+    $default  reduce using rule 116 (type)
+
+
+state 37
+
+   16 structDefine: STRUCT ID . '{' decls '}' ';'
+  115 type: STRUCT ID .
+  127     | STRUCT ID . '*'
+
+    '*'  shift, and go to state 46
+    '{'  shift, and go to state 47
+
+    $default  reduce using rule 115 (type)
+
+
+state 38
+
+    9 include: INCLUDE '<' . ID '.' ID '>'
+
+    ID  shift, and go to state 48
+
+
+state 39
+
+   10 include: INCLUDE '"' . ID '.' ID '"'
+
+    ID  shift, and go to state 49
+
+
+state 40
+
+   11 procedure: type ID . '(' parameter ')' '{' procedureContents returnStmt '}'
+   22 decl: type ID . sbarket optionAssign declFollow ';'
+
+    '('  shift, and go to state 50
+    '['  shift, and go to state 51
+
+    sbarket  go to state 52
+
+
+state 41
+
+  116 type: ENUM ID .
+
+    $default  reduce using rule 116 (type)
+
+
+state 42
+
+  115 type: STRUCT ID .
+  127     | STRUCT ID . '*'
+
+    '*'  shift, and go to state 46
+
+    $default  reduce using rule 115 (type)
+
+
+state 43
+
+   23 decl: CONST type ID . sbarket optionAssign declFollow ';'
+
+    '['  shift, and go to state 51
+
+    sbarket  go to state 53
+
+
+state 44
+
+  126 type: LONG LONG '*' .
+
+    $default  reduce using rule 126 (type)
+
+
+state 45
+
+   17 enumDefine: ENUM ID '{' . ID idPrime '}' ';'
+
+    ID  shift, and go to state 54
+
+
+state 46
+
+  127 type: STRUCT ID '*' .
+
+    $default  reduce using rule 127 (type)
+
+
+state 47
+
+   16 structDefine: STRUCT ID '{' . decls '}' ';'
+
+    $default  reduce using rule 21 (decls)
+
+    decls  go to state 55
+
+
+state 48
+
+    9 include: INCLUDE '<' ID . '.' ID '>'
+
+    '.'  shift, and go to state 56
+
+
+state 49
+
+   10 include: INCLUDE '"' ID . '.' ID '"'
+
+    '.'  shift, and go to state 57
+
+
+state 50
+
+   11 procedure: type ID '(' . parameter ')' '{' procedureContents returnStmt '}'
+
+    BOOL      shift, and go to state 4
+    CHAR      shift, and go to state 5
+    INT       shift, and go to state 6
+    SHORT     shift, and go to state 7
+    UNSIGNED  shift, and go to state 8
+    SIGNED    shift, and go to state 9
+    VOID      shift, and go to state 10
+    STRING    shift, and go to state 12
+    LONG      shift, and go to state 13
+    ENUM      shift, and go to state 31
+    STRUCT    shift, and go to state 32
+
+    $default  reduce using rule 133 (parameter)
+
+    type       go to state 58
+    parameter  go to state 59
+
+
+state 51
+
+  105 sbarket: '[' . exprs ']'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 72
+    term     go to state 73
+    literal  go to state 74
+
+
+state 52
+
+   22 decl: type ID sbarket . optionAssign declFollow ';'
+
+    '='  shift, and go to state 75
+
+    $default  reduce using rule 27 (optionAssign)
+
+    optionAssign  go to state 76
+
+
+state 53
+
+   23 decl: CONST type ID sbarket . optionAssign declFollow ';'
+
+    '='  shift, and go to state 75
+
+    $default  reduce using rule 27 (optionAssign)
+
+    optionAssign  go to state 77
+
+
+state 54
+
+   17 enumDefine: ENUM ID '{' ID . idPrime '}' ';'
+
+    ','  shift, and go to state 78
+
+    $default  reduce using rule 19 (idPrime)
+
+    idPrime  go to state 79
+
+
+state 55
+
+   16 structDefine: STRUCT ID '{' decls . '}' ';'
+   20 decls: decls . decl
+
+    BOOL      shift, and go to state 4
+    CHAR      shift, and go to state 5
+    INT       shift, and go to state 6
+    SHORT     shift, and go to state 7
+    UNSIGNED  shift, and go to state 8
+    SIGNED    shift, and go to state 9
+    VOID      shift, and go to state 10
+    CONST     shift, and go to state 11
+    STRING    shift, and go to state 12
+    LONG      shift, and go to state 13
+    ENUM      shift, and go to state 31
+    STRUCT    shift, and go to state 32
+    '}'       shift, and go to state 80
+
+    decl  go to state 81
+    type  go to state 82
+
+
+state 56
+
+    9 include: INCLUDE '<' ID '.' . ID '>'
+
+    ID  shift, and go to state 83
+
+
+state 57
+
+   10 include: INCLUDE '"' ID '.' . ID '"'
+
+    ID  shift, and go to state 84
+
+
+state 58
+
+  132 parameter: type . ID parameterPrime
+
+    ID  shift, and go to state 85
+
+
+state 59
+
+   11 procedure: type ID '(' parameter . ')' '{' procedureContents returnStmt '}'
+
+    ')'  shift, and go to state 86
+
+
+state 60
+
+  104 literal: NULLX .
+
+    $default  reduce using rule 104 (literal)
+
+
+state 61
+
+  102 literal: TRUE .
+
+    $default  reduce using rule 102 (literal)
+
+
+state 62
+
+  103 literal: FALSE .
+
+    $default  reduce using rule 103 (literal)
+
+
+state 63
+
+   84 term: ID . sbarket
+   85     | ID .
+   86     | ID . '.' ID
+   87     | ID . ARROW ID
+
+    '['    shift, and go to state 51
+    '.'    shift, and go to state 87
+    ARROW  shift, and go to state 88
+
+    $default  reduce using rule 85 (term)
+
+    sbarket  go to state 89
+
+
+state 64
+
+  101 literal: CHARV .
+
+    $default  reduce using rule 101 (literal)
+
+
+state 65
+
+  100 literal: NUMBER .
+
+    $default  reduce using rule 100 (literal)
+
+
+state 66
+
+   94 term: '&' . lhs
+
+    ID   shift, and go to state 90
+    '*'  shift, and go to state 91
+
+    lhs  go to state 92
+
+
+state 67
+
+   93 term: '+' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 93
+    term     go to state 73
+    literal  go to state 74
+
+
+state 68
+
+   92 term: '-' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 94
+    term     go to state 73
+    literal  go to state 74
+
+
+state 69
+
+   91 term: '*' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 95
+    term     go to state 73
+    literal  go to state 74
+
+
+state 70
+
+   89 term: '(' . exprs ')'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 96
+    term     go to state 73
+    literal  go to state 74
+
+
+state 71
+
+   90 term: '!' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 97
+    term     go to state 73
+    literal  go to state 74
+
+
+state 72
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+  105 sbarket: '[' exprs . ']'
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ']'          shift, and go to state 126
+
+
+state 73
+
+   83 exprs: term .
+
+    $default  reduce using rule 83 (exprs)
+
+
+state 74
+
+   88 term: literal .
+
+    $default  reduce using rule 88 (term)
+
+
+state 75
+
+   26 optionAssign: '=' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 127
+    term     go to state 73
+    literal  go to state 74
+
+
+state 76
+
+   22 decl: type ID sbarket optionAssign . declFollow ';'
+
+    ','  shift, and go to state 128
+
+    $default  reduce using rule 25 (declFollow)
+
+    declFollow  go to state 129
+
+
+state 77
+
+   23 decl: CONST type ID sbarket optionAssign . declFollow ';'
+
+    ','  shift, and go to state 128
+
+    $default  reduce using rule 25 (declFollow)
+
+    declFollow  go to state 130
+
+
+state 78
+
+   18 idPrime: ',' . ID idPrime
+
+    ID  shift, and go to state 131
+
+
+state 79
+
+   17 enumDefine: ENUM ID '{' ID idPrime . '}' ';'
+
+    '}'  shift, and go to state 132
+
+
+state 80
+
+   16 structDefine: STRUCT ID '{' decls '}' . ';'
+
+    ';'  shift, and go to state 133
+
+
+state 81
+
+   20 decls: decls decl .
+
+    $default  reduce using rule 20 (decls)
+
+
+state 82
+
+   22 decl: type . ID sbarket optionAssign declFollow ';'
+
+    ID  shift, and go to state 134
+
+
+state 83
+
+    9 include: INCLUDE '<' ID '.' ID . '>'
+
+    '>'  shift, and go to state 135
+
+
+state 84
+
+   10 include: INCLUDE '"' ID '.' ID . '"'
+
+    '"'  shift, and go to state 136
+
+
+state 85
+
+  132 parameter: type ID . parameterPrime
+
+    ','  shift, and go to state 137
+
+    $default  reduce using rule 135 (parameterPrime)
+
+    parameterPrime  go to state 138
+
+
+state 86
+
+   11 procedure: type ID '(' parameter ')' . '{' procedureContents returnStmt '}'
+
+    '{'  shift, and go to state 139
+
+
+state 87
+
+   86 term: ID '.' . ID
+
+    ID  shift, and go to state 140
+
+
+state 88
+
+   87 term: ID ARROW . ID
+
+    ID  shift, and go to state 141
+
+
+state 89
+
+   84 term: ID sbarket .
+
+    $default  reduce using rule 84 (term)
+
+
+state 90
+
+   95 lhs: ID . sbarket
+   96    | ID .
+   98    | ID . ARROW ID
+   99    | ID . '.' ID
+
+    '['    shift, and go to state 51
+    '.'    shift, and go to state 142
+    ARROW  shift, and go to state 143
+
+    $default  reduce using rule 96 (lhs)
+
+    sbarket  go to state 144
+
+
+state 91
+
+   97 lhs: '*' . ID
+
+    ID  shift, and go to state 145
+
+
+state 92
+
+   94 term: '&' lhs .
+
+    $default  reduce using rule 94 (term)
+
+
+state 93
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+   93 term: '+' exprs .
+
+    $default  reduce using rule 93 (term)
+
+
+state 94
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+   92 term: '-' exprs .
+
+    $default  reduce using rule 92 (term)
+
+
+state 95
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+   91 term: '*' exprs .
+
+    $default  reduce using rule 91 (term)
+
+
+state 96
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+   89 term: '(' exprs . ')'
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ')'          shift, and go to state 146
+
+
+state 97
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+   90 term: '!' exprs .
+
+    $default  reduce using rule 90 (term)
+
+
+state 98
+
+   75 exprs: exprs ORASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 147
+    term     go to state 73
+    literal  go to state 74
+
+
+state 99
+
+   74 exprs: exprs XORASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 148
+    term     go to state 73
+    literal  go to state 74
+
+
+state 100
+
+   73 exprs: exprs ANDASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 149
+    term     go to state 73
+    literal  go to state 74
+
+
+state 101
+
+   77 exprs: exprs SRASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 150
+    term     go to state 73
+    literal  go to state 74
+
+
+state 102
+
+   76 exprs: exprs SLASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 151
+    term     go to state 73
+    literal  go to state 74
+
+
+state 103
+
+   80 exprs: exprs REMASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 152
+    term     go to state 73
+    literal  go to state 74
+
+
+state 104
+
+   79 exprs: exprs DIVASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 153
+    term     go to state 73
+    literal  go to state 74
+
+
+state 105
+
+   78 exprs: exprs TIMESASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 154
+    term     go to state 73
+    literal  go to state 74
+
+
+state 106
+
+   82 exprs: exprs MINUSASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 155
+    term     go to state 73
+    literal  go to state 74
+
+
+state 107
+
+   81 exprs: exprs ADDASSIGN . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 156
+    term     go to state 73
+    literal  go to state 74
+
+
+state 108
+
+   70 exprs: exprs OR . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 157
+    term     go to state 73
+    literal  go to state 74
+
+
+state 109
+
+   69 exprs: exprs AND . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 158
+    term     go to state 73
+    literal  go to state 74
+
+
+state 110
+
+   67 exprs: exprs '|' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 159
+    term     go to state 73
+    literal  go to state 74
+
+
+state 111
+
+   66 exprs: exprs '^' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 160
+    term     go to state 73
+    literal  go to state 74
+
+
+state 112
+
+   65 exprs: exprs '&' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 161
+    term     go to state 73
+    literal  go to state 74
+
+
+state 113
+
+   62 exprs: exprs NEQ . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 162
+    term     go to state 73
+    literal  go to state 74
+
+
+state 114
+
+   59 exprs: exprs EQ . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 163
+    term     go to state 73
+    literal  go to state 74
+
+
+state 115
+
+   64 exprs: exprs '<' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 164
+    term     go to state 73
+    literal  go to state 74
+
+
+state 116
+
+   63 exprs: exprs '>' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 165
+    term     go to state 73
+    literal  go to state 74
+
+
+state 117
+
+   60 exprs: exprs GE . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 166
+    term     go to state 73
+    literal  go to state 74
+
+
+state 118
+
+   61 exprs: exprs LE . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 167
+    term     go to state 73
+    literal  go to state 74
+
+
+state 119
+
+   72 exprs: exprs SL . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 168
+    term     go to state 73
+    literal  go to state 74
+
+
+state 120
+
+   71 exprs: exprs SR . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 169
+    term     go to state 73
+    literal  go to state 74
+
+
+state 121
+
+   57 exprs: exprs '+' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 170
+    term     go to state 73
+    literal  go to state 74
+
+
+state 122
+
+   58 exprs: exprs '-' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 171
+    term     go to state 73
+    literal  go to state 74
+
+
+state 123
+
+   55 exprs: exprs '*' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 172
+    term     go to state 73
+    literal  go to state 74
+
+
+state 124
+
+   56 exprs: exprs '/' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 173
+    term     go to state 73
+    literal  go to state 74
+
+
+state 125
+
+   68 exprs: exprs '%' . exprs
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 174
+    term     go to state 73
+    literal  go to state 74
+
+
+state 126
+
+  105 sbarket: '[' exprs ']' .
+
+    $default  reduce using rule 105 (sbarket)
+
+
+state 127
+
+   26 optionAssign: '=' exprs .
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 26 (optionAssign)
+
+
+state 128
+
+   24 declFollow: ',' . ID optionAssign declFollow
+
+    ID  shift, and go to state 175
+
+
+state 129
+
+   22 decl: type ID sbarket optionAssign declFollow . ';'
+
+    ';'  shift, and go to state 176
+
+
+state 130
+
+   23 decl: CONST type ID sbarket optionAssign declFollow . ';'
+
+    ';'  shift, and go to state 177
+
+
+state 131
+
+   18 idPrime: ',' ID . idPrime
+
+    ','  shift, and go to state 78
+
+    $default  reduce using rule 19 (idPrime)
+
+    idPrime  go to state 178
+
+
+state 132
+
+   17 enumDefine: ENUM ID '{' ID idPrime '}' . ';'
+
+    ';'  shift, and go to state 179
+
+
+state 133
+
+   16 structDefine: STRUCT ID '{' decls '}' ';' .
+
+    $default  reduce using rule 16 (structDefine)
+
+
+state 134
+
+   22 decl: type ID . sbarket optionAssign declFollow ';'
+
+    '['  shift, and go to state 51
+
+    sbarket  go to state 52
+
+
+state 135
+
+    9 include: INCLUDE '<' ID '.' ID '>' .
+
+    $default  reduce using rule 9 (include)
+
+
+state 136
+
+   10 include: INCLUDE '"' ID '.' ID '"' .
+
+    $default  reduce using rule 10 (include)
+
+
+state 137
+
+  134 parameterPrime: ',' . type ID parameterPrime
+
+    BOOL      shift, and go to state 4
+    CHAR      shift, and go to state 5
+    INT       shift, and go to state 6
+    SHORT     shift, and go to state 7
+    UNSIGNED  shift, and go to state 8
+    SIGNED    shift, and go to state 9
+    VOID      shift, and go to state 10
+    STRING    shift, and go to state 12
+    LONG      shift, and go to state 13
+    ENUM      shift, and go to state 31
+    STRUCT    shift, and go to state 32
+
+    type  go to state 180
+
+
+state 138
+
+  132 parameter: type ID parameterPrime .
+
+    $default  reduce using rule 132 (parameter)
+
+
+state 139
+
+   11 procedure: type ID '(' parameter ')' '{' . procedureContents returnStmt '}'
+
+    $default  reduce using rule 13 (procedureContents)
+
+    procedureContents  go to state 181
+
+
+state 140
+
+   86 term: ID '.' ID .
+
+    $default  reduce using rule 86 (term)
+
+
+state 141
+
+   87 term: ID ARROW ID .
+
+    $default  reduce using rule 87 (term)
+
+
+state 142
+
+   99 lhs: ID '.' . ID
+
+    ID  shift, and go to state 182
+
+
+state 143
+
+   98 lhs: ID ARROW . ID
+
+    ID  shift, and go to state 183
+
+
+state 144
+
+   95 lhs: ID sbarket .
+
+    $default  reduce using rule 95 (lhs)
+
+
+state 145
+
+   97 lhs: '*' ID .
+
+    $default  reduce using rule 97 (lhs)
+
+
+state 146
+
+   89 term: '(' exprs ')' .
+
+    $default  reduce using rule 89 (term)
+
+
+state 147
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   75      | exprs ORASSIGN exprs .
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 75 (exprs)
+
+
+state 148
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   74      | exprs XORASSIGN exprs .
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 74 (exprs)
+
+
+state 149
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   73      | exprs ANDASSIGN exprs .
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 73 (exprs)
+
+
+state 150
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   77      | exprs SRASSIGN exprs .
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 77 (exprs)
+
+
+state 151
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   76      | exprs SLASSIGN exprs .
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 76 (exprs)
+
+
+state 152
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   80      | exprs REMASSIGN exprs .
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 80 (exprs)
+
+
+state 153
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   79      | exprs DIVASSIGN exprs .
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 79 (exprs)
+
+
+state 154
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   78      | exprs TIMESASSIGN exprs .
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 78 (exprs)
+
+
+state 155
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+   82      | exprs MINUSASSIGN exprs .
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 82 (exprs)
+
+
+state 156
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   81      | exprs ADDASSIGN exprs .
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 81 (exprs)
+
+
+state 157
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   70      | exprs OR exprs .
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    AND  shift, and go to state 109
+    '|'  shift, and go to state 110
+    '^'  shift, and go to state 111
+    '&'  shift, and go to state 112
+    NEQ  shift, and go to state 113
+    EQ   shift, and go to state 114
+    '<'  shift, and go to state 115
+    '>'  shift, and go to state 116
+    GE   shift, and go to state 117
+    LE   shift, and go to state 118
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 70 (exprs)
+
+
+state 158
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   69      | exprs AND exprs .
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '|'  shift, and go to state 110
+    '^'  shift, and go to state 111
+    '&'  shift, and go to state 112
+    NEQ  shift, and go to state 113
+    EQ   shift, and go to state 114
+    '<'  shift, and go to state 115
+    '>'  shift, and go to state 116
+    GE   shift, and go to state 117
+    LE   shift, and go to state 118
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 69 (exprs)
+
+
+state 159
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   67      | exprs '|' exprs .
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '^'  shift, and go to state 111
+    '&'  shift, and go to state 112
+    NEQ  shift, and go to state 113
+    EQ   shift, and go to state 114
+    '<'  shift, and go to state 115
+    '>'  shift, and go to state 116
+    GE   shift, and go to state 117
+    LE   shift, and go to state 118
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 67 (exprs)
+
+
+state 160
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   66      | exprs '^' exprs .
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '&'  shift, and go to state 112
+    NEQ  shift, and go to state 113
+    EQ   shift, and go to state 114
+    '<'  shift, and go to state 115
+    '>'  shift, and go to state 116
+    GE   shift, and go to state 117
+    LE   shift, and go to state 118
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 66 (exprs)
+
+
+state 161
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   65      | exprs '&' exprs .
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    NEQ  shift, and go to state 113
+    EQ   shift, and go to state 114
+    '<'  shift, and go to state 115
+    '>'  shift, and go to state 116
+    GE   shift, and go to state 117
+    LE   shift, and go to state 118
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 65 (exprs)
+
+
+state 162
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   62      | exprs NEQ exprs .
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '<'  shift, and go to state 115
+    '>'  shift, and go to state 116
+    GE   shift, and go to state 117
+    LE   shift, and go to state 118
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 62 (exprs)
+
+
+state 163
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   59      | exprs EQ exprs .
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '<'  shift, and go to state 115
+    '>'  shift, and go to state 116
+    GE   shift, and go to state 117
+    LE   shift, and go to state 118
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 59 (exprs)
+
+
+state 164
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   64      | exprs '<' exprs .
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 64 (exprs)
+
+
+state 165
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   63      | exprs '>' exprs .
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 63 (exprs)
+
+
+state 166
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   60      | exprs GE exprs .
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 60 (exprs)
+
+
+state 167
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   61      | exprs LE exprs .
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    SL   shift, and go to state 119
+    SR   shift, and go to state 120
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 61 (exprs)
+
+
+state 168
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   72      | exprs SL exprs .
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 72 (exprs)
+
+
+state 169
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   71      | exprs SR exprs .
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '+'  shift, and go to state 121
+    '-'  shift, and go to state 122
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 71 (exprs)
+
+
+state 170
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   57      | exprs '+' exprs .
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 57 (exprs)
+
+
+state 171
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   58      | exprs '-' exprs .
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    '*'  shift, and go to state 123
+    '/'  shift, and go to state 124
+    '%'  shift, and go to state 125
+
+    $default  reduce using rule 58 (exprs)
+
+
+state 172
+
+   55 exprs: exprs . '*' exprs
+   55      | exprs '*' exprs .
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    $default  reduce using rule 55 (exprs)
+
+
+state 173
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   56      | exprs '/' exprs .
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    $default  reduce using rule 56 (exprs)
+
+
+state 174
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   68      | exprs '%' exprs .
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    $default  reduce using rule 68 (exprs)
+
+
+state 175
+
+   24 declFollow: ',' ID . optionAssign declFollow
+
+    '='  shift, and go to state 75
+
+    $default  reduce using rule 27 (optionAssign)
+
+    optionAssign  go to state 184
+
+
+state 176
+
+   22 decl: type ID sbarket optionAssign declFollow ';' .
+
+    $default  reduce using rule 22 (decl)
+
+
+state 177
+
+   23 decl: CONST type ID sbarket optionAssign declFollow ';' .
+
+    $default  reduce using rule 23 (decl)
+
+
+state 178
+
+   18 idPrime: ',' ID idPrime .
+
+    $default  reduce using rule 18 (idPrime)
+
+
+state 179
+
+   17 enumDefine: ENUM ID '{' ID idPrime '}' ';' .
+
+    $default  reduce using rule 17 (enumDefine)
+
+
+state 180
+
+  134 parameterPrime: ',' type . ID parameterPrime
+
+    ID  shift, and go to state 185
+
+
+state 181
+
+   11 procedure: type ID '(' parameter ')' '{' procedureContents . returnStmt '}'
+   12 procedureContents: procedureContents . procedureContent
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    RETURN      shift, and go to state 193
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '!'         shift, and go to state 71
+
+    procedure         go to state 198
+    procedureContent  go to state 199
+    structDefine      go to state 200
+    enumDefine        go to state 201
+    decl              go to state 202
+    stmt              go to state 203
+    returnStmt        go to state 204
+    term              go to state 205
+    lhs               go to state 206
+    literal           go to state 74
+    type              go to state 23
+
+
+state 182
+
+   99 lhs: ID '.' ID .
+
+    $default  reduce using rule 99 (lhs)
+
+
+state 183
+
+   98 lhs: ID ARROW ID .
+
+    $default  reduce using rule 98 (lhs)
+
+
+state 184
+
+   24 declFollow: ',' ID optionAssign . declFollow
+
+    ','  shift, and go to state 128
+
+    $default  reduce using rule 25 (declFollow)
+
+    declFollow  go to state 207
+
+
+state 185
+
+  134 parameterPrime: ',' type ID . parameterPrime
+
+    ','  shift, and go to state 137
+
+    $default  reduce using rule 135 (parameterPrime)
+
+    parameterPrime  go to state 208
+
+
+state 186
+
+   42 stmt: SWITCH . '(' exprs ')' '{' cases DEFAULT ':' stmts '}'
+
+    '('  shift, and go to state 209
+
+
+state 187
+
+   43 stmt: BREAK .
+
+    $default  reduce using rule 43 (stmt)
+
+
+state 188
+
+   48 stmt: CONTINUE .
+
+    $default  reduce using rule 48 (stmt)
+
+
+state 189
+
+   41 stmt: DO . '{' stmts '}' WHILE '(' exprs ')'
+
+    '{'  shift, and go to state 210
+
+
+state 190
+
+   37 stmt: IF . '(' exprs ')' '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+   38     | IF . '(' exprs ')' '{' stmtsCanReturn '}'
+
+    '('  shift, and go to state 211
+
+
+state 191
+
+   40 stmt: FOR . '(' stmt ';' exprs ';' stmt ')' '{' stmts '}'
+
+    '('  shift, and go to state 212
+
+
+state 192
+
+   39 stmt: WHILE . '(' exprs ')' '{' stmts '}'
+
+    '('  shift, and go to state 213
+
+
+state 193
+
+   54 returnStmt: RETURN . exprs ';'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 214
+    term     go to state 73
+    literal  go to state 74
+
+
+state 194
+
+   84 term: ID . sbarket
+   85     | ID .
+   86     | ID . '.' ID
+   87     | ID . ARROW ID
+   95 lhs: ID . sbarket
+   96    | ID .
+   98    | ID . ARROW ID
+   99    | ID . '.' ID
+
+    '['    shift, and go to state 51
+    '.'    shift, and go to state 215
+    ARROW  shift, and go to state 216
+
+    '='       reduce using rule 96 (lhs)
+    $default  reduce using rule 85 (term)
+
+    sbarket  go to state 217
+
+
+state 195
+
+   91 term: '*' . exprs
+   97 lhs: '*' . ID
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 218
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 95
+    term     go to state 73
+    literal  go to state 74
+
+
+state 196
+
+   47 stmt: MINUSMINUS . term
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    term     go to state 219
+    literal  go to state 74
+
+
+state 197
+
+   46 stmt: ADDADD . term
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    term     go to state 220
+    literal  go to state 74
+
+
+state 198
+
+   14 procedureContent: procedure .
+
+    $default  reduce using rule 14 (procedureContent)
+
+
+state 199
+
+   12 procedureContents: procedureContents procedureContent .
+
+    $default  reduce using rule 12 (procedureContents)
+
+
+state 200
+
+   49 stmt: structDefine .
+
+    $default  reduce using rule 49 (stmt)
+
+
+state 201
+
+   50 stmt: enumDefine .
+
+    $default  reduce using rule 50 (stmt)
+
+
+state 202
+
+   51 stmt: decl .
+
+    $default  reduce using rule 51 (stmt)
+
+
+state 203
+
+   15 procedureContent: stmt .
+
+    $default  reduce using rule 15 (procedureContent)
+
+
+state 204
+
+   11 procedure: type ID '(' parameter ')' '{' procedureContents returnStmt . '}'
+
+    '}'  shift, and go to state 221
+
+
+state 205
+
+   44 stmt: term . ADDADD
+   45     | term . MINUSMINUS
+
+    MINUSMINUS  shift, and go to state 222
+    ADDADD      shift, and go to state 223
+
+
+state 206
+
+   34 stmt: lhs . '=' exprs ';'
+   35     | lhs . '=' STRINGV ';'
+   36     | lhs . '=' ID '(' arguments ')' ';'
+
+    '='  shift, and go to state 224
+
+
+state 207
+
+   24 declFollow: ',' ID optionAssign declFollow .
+
+    $default  reduce using rule 24 (declFollow)
+
+
+state 208
+
+  134 parameterPrime: ',' type ID parameterPrime .
+
+    $default  reduce using rule 134 (parameterPrime)
+
+
+state 209
+
+   42 stmt: SWITCH '(' . exprs ')' '{' cases DEFAULT ':' stmts '}'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 225
+    term     go to state 73
+    literal  go to state 74
+
+
+state 210
+
+   41 stmt: DO '{' . stmts '}' WHILE '(' exprs ')'
+
+    $default  reduce using rule 29 (stmts)
+
+    stmts  go to state 226
+
+
+state 211
+
+   37 stmt: IF '(' . exprs ')' '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+   38     | IF '(' . exprs ')' '{' stmtsCanReturn '}'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 227
+    term     go to state 73
+    literal  go to state 74
+
+
+state 212
+
+   40 stmt: FOR '(' . stmt ';' exprs ';' stmt ')' '{' stmts '}'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '!'         shift, and go to state 71
+
+    structDefine  go to state 200
+    enumDefine    go to state 201
+    decl          go to state 202
+    stmt          go to state 228
+    term          go to state 205
+    lhs           go to state 206
+    literal       go to state 74
+    type          go to state 82
+
+
+state 213
+
+   39 stmt: WHILE '(' . exprs ')' '{' stmts '}'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 229
+    term     go to state 73
+    literal  go to state 74
+
+
+state 214
+
+   54 returnStmt: RETURN exprs . ';'
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ';'          shift, and go to state 230
+
+
+state 215
+
+   86 term: ID '.' . ID
+   99 lhs: ID '.' . ID
+
+    ID  shift, and go to state 231
+
+
+state 216
+
+   87 term: ID ARROW . ID
+   98 lhs: ID ARROW . ID
+
+    ID  shift, and go to state 232
+
+
+state 217
+
+   84 term: ID sbarket .
+   95 lhs: ID sbarket .
+
+    '='       reduce using rule 95 (lhs)
+    $default  reduce using rule 84 (term)
+
+
+state 218
+
+   84 term: ID . sbarket
+   85     | ID .
+   86     | ID . '.' ID
+   87     | ID . ARROW ID
+   97 lhs: '*' ID .
+
+    '['    shift, and go to state 51
+    '.'    shift, and go to state 87
+    ARROW  shift, and go to state 88
+
+    '='       reduce using rule 97 (lhs)
+    $default  reduce using rule 85 (term)
+
+    sbarket  go to state 89
+
+
+state 219
+
+   47 stmt: MINUSMINUS term .
+
+    $default  reduce using rule 47 (stmt)
+
+
+state 220
+
+   46 stmt: ADDADD term .
+
+    $default  reduce using rule 46 (stmt)
+
+
+state 221
+
+   11 procedure: type ID '(' parameter ')' '{' procedureContents returnStmt '}' .
+
+    $default  reduce using rule 11 (procedure)
+
+
+state 222
+
+   45 stmt: term MINUSMINUS .
+
+    $default  reduce using rule 45 (stmt)
+
+
+state 223
+
+   44 stmt: term ADDADD .
+
+    $default  reduce using rule 44 (stmt)
+
+
+state 224
+
+   34 stmt: lhs '=' . exprs ';'
+   35     | lhs '=' . STRINGV ';'
+   36     | lhs '=' . ID '(' arguments ')' ';'
+
+    NULLX    shift, and go to state 60
+    TRUE     shift, and go to state 61
+    FALSE    shift, and go to state 62
+    STRINGV  shift, and go to state 233
+    ID       shift, and go to state 234
+    CHARV    shift, and go to state 64
+    NUMBER   shift, and go to state 65
+    '&'      shift, and go to state 66
+    '+'      shift, and go to state 67
+    '-'      shift, and go to state 68
+    '*'      shift, and go to state 69
+    '('      shift, and go to state 70
+    '!'      shift, and go to state 71
+
+    exprs    go to state 235
+    term     go to state 73
+    literal  go to state 74
+
+
+state 225
+
+   42 stmt: SWITCH '(' exprs . ')' '{' cases DEFAULT ':' stmts '}'
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ')'          shift, and go to state 236
+
+
+state 226
+
+   28 stmts: stmts . stmt
+   41 stmt: DO '{' stmts . '}' WHILE '(' exprs ')'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '}'         shift, and go to state 237
+    '!'         shift, and go to state 71
+
+    structDefine  go to state 200
+    enumDefine    go to state 201
+    decl          go to state 202
+    stmt          go to state 238
+    term          go to state 205
+    lhs           go to state 206
+    literal       go to state 74
+    type          go to state 82
+
+
+state 227
+
+   37 stmt: IF '(' exprs . ')' '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+   38     | IF '(' exprs . ')' '{' stmtsCanReturn '}'
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ')'          shift, and go to state 239
+
+
+state 228
+
+   40 stmt: FOR '(' stmt . ';' exprs ';' stmt ')' '{' stmts '}'
+
+    ';'  shift, and go to state 240
+
+
+state 229
+
+   39 stmt: WHILE '(' exprs . ')' '{' stmts '}'
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ')'          shift, and go to state 241
+
+
+state 230
+
+   54 returnStmt: RETURN exprs ';' .
+
+    $default  reduce using rule 54 (returnStmt)
+
+
+state 231
+
+   86 term: ID '.' ID .
+   99 lhs: ID '.' ID .
+
+    '='       reduce using rule 99 (lhs)
+    $default  reduce using rule 86 (term)
+
+
+state 232
+
+   87 term: ID ARROW ID .
+   98 lhs: ID ARROW ID .
+
+    '='       reduce using rule 98 (lhs)
+    $default  reduce using rule 87 (term)
+
+
+state 233
+
+   35 stmt: lhs '=' STRINGV . ';'
+
+    ';'  shift, and go to state 242
+
+
+state 234
+
+   36 stmt: lhs '=' ID . '(' arguments ')' ';'
+   84 term: ID . sbarket
+   85     | ID .
+   86     | ID . '.' ID
+   87     | ID . ARROW ID
+
+    '('    shift, and go to state 243
+    '['    shift, and go to state 51
+    '.'    shift, and go to state 87
+    ARROW  shift, and go to state 88
+
+    $default  reduce using rule 85 (term)
+
+    sbarket  go to state 89
+
+
+state 235
+
+   34 stmt: lhs '=' exprs . ';'
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ';'          shift, and go to state 244
+
+
+state 236
+
+   42 stmt: SWITCH '(' exprs ')' . '{' cases DEFAULT ':' stmts '}'
+
+    '{'  shift, and go to state 245
+
+
+state 237
+
+   41 stmt: DO '{' stmts '}' . WHILE '(' exprs ')'
+
+    WHILE  shift, and go to state 246
+
+
+state 238
+
+   28 stmts: stmts stmt .
+
+    $default  reduce using rule 28 (stmts)
+
+
+state 239
+
+   37 stmt: IF '(' exprs ')' . '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+   38     | IF '(' exprs ')' . '{' stmtsCanReturn '}'
+
+    '{'  shift, and go to state 247
+
+
+state 240
+
+   40 stmt: FOR '(' stmt ';' . exprs ';' stmt ')' '{' stmts '}'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 248
+    term     go to state 73
+    literal  go to state 74
+
+
+state 241
+
+   39 stmt: WHILE '(' exprs ')' . '{' stmts '}'
+
+    '{'  shift, and go to state 249
+
+
+state 242
+
+   35 stmt: lhs '=' STRINGV ';' .
+
+    $default  reduce using rule 35 (stmt)
+
+
+state 243
+
+   36 stmt: lhs '=' ID '(' . arguments ')' ';'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    $default  reduce using rule 129 (arguments)
+
+    exprs      go to state 250
+    term       go to state 73
+    literal    go to state 74
+    arguments  go to state 251
+
+
+state 244
+
+   34 stmt: lhs '=' exprs ';' .
+
+    $default  reduce using rule 34 (stmt)
+
+
+state 245
+
+   42 stmt: SWITCH '(' exprs ')' '{' . cases DEFAULT ':' stmts '}'
+
+    $default  reduce using rule 53 (cases)
+
+    cases  go to state 252
+
+
+state 246
+
+   41 stmt: DO '{' stmts '}' WHILE . '(' exprs ')'
+
+    '('  shift, and go to state 253
+
+
+state 247
+
+   37 stmt: IF '(' exprs ')' '{' . stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+   38     | IF '(' exprs ')' '{' . stmtsCanReturn '}'
+
+    $default  reduce using rule 31 (stmtsCanReturn)
+
+    stmtsCanReturn  go to state 254
+
+
+state 248
+
+   40 stmt: FOR '(' stmt ';' exprs . ';' stmt ')' '{' stmts '}'
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ';'          shift, and go to state 255
+
+
+state 249
+
+   39 stmt: WHILE '(' exprs ')' '{' . stmts '}'
+
+    $default  reduce using rule 29 (stmts)
+
+    stmts  go to state 256
+
+
+state 250
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+  128 arguments: exprs . argumentsPrime
+
+    ','          shift, and go to state 257
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 131 (argumentsPrime)
+
+    argumentsPrime  go to state 258
+
+
+state 251
+
+   36 stmt: lhs '=' ID '(' arguments . ')' ';'
+
+    ')'  shift, and go to state 259
+
+
+state 252
+
+   42 stmt: SWITCH '(' exprs ')' '{' cases . DEFAULT ':' stmts '}'
+   52 cases: cases . CASE ':' stmts
+
+    CASE     shift, and go to state 260
+    DEFAULT  shift, and go to state 261
+
+
+state 253
+
+   41 stmt: DO '{' stmts '}' WHILE '(' . exprs ')'
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 262
+    term     go to state 73
+    literal  go to state 74
+
+
+state 254
+
+   30 stmtsCanReturn: stmtsCanReturn . stmtCanReturn
+   37 stmt: IF '(' exprs ')' '{' stmtsCanReturn . '}' ELSE '{' stmtsCanReturn '}'
+   38     | IF '(' exprs ')' '{' stmtsCanReturn . '}'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    RETURN      shift, and go to state 193
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '}'         shift, and go to state 263
+    '!'         shift, and go to state 71
+
+    structDefine   go to state 200
+    enumDefine     go to state 201
+    decl           go to state 202
+    stmtCanReturn  go to state 264
+    stmt           go to state 265
+    returnStmt     go to state 266
+    term           go to state 205
+    lhs            go to state 206
+    literal        go to state 74
+    type           go to state 82
+
+
+state 255
+
+   40 stmt: FOR '(' stmt ';' exprs ';' . stmt ')' '{' stmts '}'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '!'         shift, and go to state 71
+
+    structDefine  go to state 200
+    enumDefine    go to state 201
+    decl          go to state 202
+    stmt          go to state 267
+    term          go to state 205
+    lhs           go to state 206
+    literal       go to state 74
+    type          go to state 82
+
+
+state 256
+
+   28 stmts: stmts . stmt
+   39 stmt: WHILE '(' exprs ')' '{' stmts . '}'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '}'         shift, and go to state 268
+    '!'         shift, and go to state 71
+
+    structDefine  go to state 200
+    enumDefine    go to state 201
+    decl          go to state 202
+    stmt          go to state 238
+    term          go to state 205
+    lhs           go to state 206
+    literal       go to state 74
+    type          go to state 82
+
+
+state 257
+
+  130 argumentsPrime: ',' . exprs argumentsPrime
+
+    NULLX   shift, and go to state 60
+    TRUE    shift, and go to state 61
+    FALSE   shift, and go to state 62
+    ID      shift, and go to state 63
+    CHARV   shift, and go to state 64
+    NUMBER  shift, and go to state 65
+    '&'     shift, and go to state 66
+    '+'     shift, and go to state 67
+    '-'     shift, and go to state 68
+    '*'     shift, and go to state 69
+    '('     shift, and go to state 70
+    '!'     shift, and go to state 71
+
+    exprs    go to state 269
+    term     go to state 73
+    literal  go to state 74
+
+
+state 258
+
+  128 arguments: exprs argumentsPrime .
+
+    $default  reduce using rule 128 (arguments)
+
+
+state 259
+
+   36 stmt: lhs '=' ID '(' arguments ')' . ';'
+
+    ';'  shift, and go to state 270
+
+
+state 260
+
+   52 cases: cases CASE . ':' stmts
+
+    ':'  shift, and go to state 271
+
+
+state 261
+
+   42 stmt: SWITCH '(' exprs ')' '{' cases DEFAULT . ':' stmts '}'
+
+    ':'  shift, and go to state 272
+
+
+state 262
+
+   41 stmt: DO '{' stmts '}' WHILE '(' exprs . ')'
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+    ')'          shift, and go to state 273
+
+
+state 263
+
+   37 stmt: IF '(' exprs ')' '{' stmtsCanReturn '}' . ELSE '{' stmtsCanReturn '}'
+   38     | IF '(' exprs ')' '{' stmtsCanReturn '}' .
+
+    ELSE  shift, and go to state 274
+
+    $default  reduce using rule 38 (stmt)
+
+
+state 264
+
+   30 stmtsCanReturn: stmtsCanReturn stmtCanReturn .
+
+    $default  reduce using rule 30 (stmtsCanReturn)
+
+
+state 265
+
+   32 stmtCanReturn: stmt .
+
+    $default  reduce using rule 32 (stmtCanReturn)
+
+
+state 266
+
+   33 stmtCanReturn: returnStmt .
+
+    $default  reduce using rule 33 (stmtCanReturn)
+
+
+state 267
+
+   40 stmt: FOR '(' stmt ';' exprs ';' stmt . ')' '{' stmts '}'
+
+    ')'  shift, and go to state 275
+
+
+state 268
+
+   39 stmt: WHILE '(' exprs ')' '{' stmts '}' .
+
+    $default  reduce using rule 39 (stmt)
+
+
+state 269
+
+   55 exprs: exprs . '*' exprs
+   56      | exprs . '/' exprs
+   57      | exprs . '+' exprs
+   58      | exprs . '-' exprs
+   59      | exprs . EQ exprs
+   60      | exprs . GE exprs
+   61      | exprs . LE exprs
+   62      | exprs . NEQ exprs
+   63      | exprs . '>' exprs
+   64      | exprs . '<' exprs
+   65      | exprs . '&' exprs
+   66      | exprs . '^' exprs
+   67      | exprs . '|' exprs
+   68      | exprs . '%' exprs
+   69      | exprs . AND exprs
+   70      | exprs . OR exprs
+   71      | exprs . SR exprs
+   72      | exprs . SL exprs
+   73      | exprs . ANDASSIGN exprs
+   74      | exprs . XORASSIGN exprs
+   75      | exprs . ORASSIGN exprs
+   76      | exprs . SLASSIGN exprs
+   77      | exprs . SRASSIGN exprs
+   78      | exprs . TIMESASSIGN exprs
+   79      | exprs . DIVASSIGN exprs
+   80      | exprs . REMASSIGN exprs
+   81      | exprs . ADDASSIGN exprs
+   82      | exprs . MINUSASSIGN exprs
+  130 argumentsPrime: ',' exprs . argumentsPrime
+
+    ','          shift, and go to state 257
+    ORASSIGN     shift, and go to state 98
+    XORASSIGN    shift, and go to state 99
+    ANDASSIGN    shift, and go to state 100
+    SRASSIGN     shift, and go to state 101
+    SLASSIGN     shift, and go to state 102
+    REMASSIGN    shift, and go to state 103
+    DIVASSIGN    shift, and go to state 104
+    TIMESASSIGN  shift, and go to state 105
+    MINUSASSIGN  shift, and go to state 106
+    ADDASSIGN    shift, and go to state 107
+    OR           shift, and go to state 108
+    AND          shift, and go to state 109
+    '|'          shift, and go to state 110
+    '^'          shift, and go to state 111
+    '&'          shift, and go to state 112
+    NEQ          shift, and go to state 113
+    EQ           shift, and go to state 114
+    '<'          shift, and go to state 115
+    '>'          shift, and go to state 116
+    GE           shift, and go to state 117
+    LE           shift, and go to state 118
+    SL           shift, and go to state 119
+    SR           shift, and go to state 120
+    '+'          shift, and go to state 121
+    '-'          shift, and go to state 122
+    '*'          shift, and go to state 123
+    '/'          shift, and go to state 124
+    '%'          shift, and go to state 125
+
+    $default  reduce using rule 131 (argumentsPrime)
+
+    argumentsPrime  go to state 276
+
+
+state 270
+
+   36 stmt: lhs '=' ID '(' arguments ')' ';' .
+
+    $default  reduce using rule 36 (stmt)
+
+
+state 271
+
+   52 cases: cases CASE ':' . stmts
+
+    $default  reduce using rule 29 (stmts)
+
+    stmts  go to state 277
+
+
+state 272
+
+   42 stmt: SWITCH '(' exprs ')' '{' cases DEFAULT ':' . stmts '}'
+
+    $default  reduce using rule 29 (stmts)
+
+    stmts  go to state 278
+
+
+state 273
+
+   41 stmt: DO '{' stmts '}' WHILE '(' exprs ')' .
+
+    $default  reduce using rule 41 (stmt)
+
+
+state 274
+
+   37 stmt: IF '(' exprs ')' '{' stmtsCanReturn '}' ELSE . '{' stmtsCanReturn '}'
+
+    '{'  shift, and go to state 279
+
+
+state 275
+
+   40 stmt: FOR '(' stmt ';' exprs ';' stmt ')' . '{' stmts '}'
+
+    '{'  shift, and go to state 280
+
+
+state 276
+
+  130 argumentsPrime: ',' exprs argumentsPrime .
+
+    $default  reduce using rule 130 (argumentsPrime)
+
+
+state 277
+
+   28 stmts: stmts . stmt
+   52 cases: cases CASE ':' stmts .
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '!'         shift, and go to state 71
+
+    $default  reduce using rule 52 (cases)
+
+    structDefine  go to state 200
+    enumDefine    go to state 201
+    decl          go to state 202
+    stmt          go to state 238
+    term          go to state 205
+    lhs           go to state 206
+    literal       go to state 74
+    type          go to state 82
+
+
+state 278
+
+   28 stmts: stmts . stmt
+   42 stmt: SWITCH '(' exprs ')' '{' cases DEFAULT ':' stmts . '}'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '}'         shift, and go to state 281
+    '!'         shift, and go to state 71
+
+    structDefine  go to state 200
+    enumDefine    go to state 201
+    decl          go to state 202
+    stmt          go to state 238
+    term          go to state 205
+    lhs           go to state 206
+    literal       go to state 74
+    type          go to state 82
+
+
+state 279
+
+   37 stmt: IF '(' exprs ')' '{' stmtsCanReturn '}' ELSE '{' . stmtsCanReturn '}'
+
+    $default  reduce using rule 31 (stmtsCanReturn)
+
+    stmtsCanReturn  go to state 282
+
+
+state 280
+
+   40 stmt: FOR '(' stmt ';' exprs ';' stmt ')' '{' . stmts '}'
+
+    $default  reduce using rule 29 (stmts)
+
+    stmts  go to state 283
+
+
+state 281
+
+   42 stmt: SWITCH '(' exprs ')' '{' cases DEFAULT ':' stmts '}' .
+
+    $default  reduce using rule 42 (stmt)
+
+
+state 282
+
+   30 stmtsCanReturn: stmtsCanReturn . stmtCanReturn
+   37 stmt: IF '(' exprs ')' '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn . '}'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    RETURN      shift, and go to state 193
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '}'         shift, and go to state 284
+    '!'         shift, and go to state 71
+
+    structDefine   go to state 200
+    enumDefine     go to state 201
+    decl           go to state 202
+    stmtCanReturn  go to state 264
+    stmt           go to state 265
+    returnStmt     go to state 266
+    term           go to state 205
+    lhs            go to state 206
+    literal        go to state 74
+    type           go to state 82
+
+
+state 283
+
+   28 stmts: stmts . stmt
+   40 stmt: FOR '(' stmt ';' exprs ';' stmt ')' '{' stmts . '}'
+
+    BOOL        shift, and go to state 4
+    CHAR        shift, and go to state 5
+    INT         shift, and go to state 6
+    SHORT       shift, and go to state 7
+    UNSIGNED    shift, and go to state 8
+    SIGNED      shift, and go to state 9
+    VOID        shift, and go to state 10
+    CONST       shift, and go to state 11
+    STRING      shift, and go to state 12
+    LONG        shift, and go to state 13
+    SWITCH      shift, and go to state 186
+    BREAK       shift, and go to state 187
+    ENUM        shift, and go to state 14
+    CONTINUE    shift, and go to state 188
+    STRUCT      shift, and go to state 15
+    DO          shift, and go to state 189
+    IF          shift, and go to state 190
+    FOR         shift, and go to state 191
+    WHILE       shift, and go to state 192
+    NULLX       shift, and go to state 60
+    TRUE        shift, and go to state 61
+    FALSE       shift, and go to state 62
+    ID          shift, and go to state 194
+    CHARV       shift, and go to state 64
+    NUMBER      shift, and go to state 65
+    '&'         shift, and go to state 66
+    '+'         shift, and go to state 67
+    '-'         shift, and go to state 68
+    '*'         shift, and go to state 195
+    MINUSMINUS  shift, and go to state 196
+    ADDADD      shift, and go to state 197
+    '('         shift, and go to state 70
+    '}'         shift, and go to state 285
+    '!'         shift, and go to state 71
+
+    structDefine  go to state 200
+    enumDefine    go to state 201
+    decl          go to state 202
+    stmt          go to state 238
+    term          go to state 205
+    lhs           go to state 206
+    literal       go to state 74
+    type          go to state 82
+
+
+state 284
+
+   37 stmt: IF '(' exprs ')' '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}' .
+
+    $default  reduce using rule 37 (stmt)
+
+
+state 285
+
+   40 stmt: FOR '(' stmt ';' exprs ';' stmt ')' '{' stmts '}' .
+
+    $default  reduce using rule 40 (stmt)

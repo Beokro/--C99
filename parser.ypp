@@ -37,10 +37,10 @@ outermosts		: outermosts outermost
 			|
 			;
 
-outermost 		: decl
+outermost 		: enumDefine
+      | decl
 			| procedure
 			| structDefine
-			| enumDefine
 			| include
 			;
  	
@@ -57,8 +57,7 @@ procedureContents	: procedureContents procedureContent
 			|
 			;
 
-procedureContent	: decl
-			| procedure
+procedureContent	:procedure
 			| stmt
 			;
 
@@ -68,16 +67,18 @@ structDefine 		: STRUCT ID '{' decls '}' ';'
 
 enumDefine 		: ENUM ID '{' ID idPrime  '}' ';'
               ;
-              
+
 idPrime 		: ',' ID idPrime
-			;
+            |
+            ;
 
 decls 			: decls decl
 			| 
 			; 
 
 decl    		: type ID sbarket optionAssign declFollow ';'
-        		;
+            | CONST type ID sbarket optionAssign declFollow ';' 
+            ;
 
 declFollow		: ',' ID optionAssign declFollow
 			|
@@ -166,6 +167,14 @@ returnStmt  		: RETURN exprs ';'
 
 			| exprs '<' exprs
 
+      | exprs '&' exprs
+
+      | exprs '^' exprs
+
+      | exprs '|' exprs
+
+      | exprs '%' exprs
+
 			| exprs AND exprs
 
 			| exprs OR  exprs
@@ -203,11 +212,13 @@ term    		: ID sbarket
 
          		| ID
 
+            | ID '.' ID
+
+            | ID ARROW ID
+
         		| literal
 
         		| '(' exprs ')'
-
-        		| '|' exprs '|'
 
         		| '!' exprs                     %prec SECOND
 
@@ -225,7 +236,11 @@ lhs     		: ID sbarket
 
         		| ID
 
-        		| '^' ID
+        		| '*' ID
+
+            | ID ARROW ID
+
+            | ID '.' ID
 
         		;
 
@@ -258,8 +273,8 @@ type  			: BOOL
 			| LONG
 			| LONG LONG
 			| STRUCT ID
-			| STRING
-			| ENUM
+      | ENUM ID
+      | STRING
 			| BOOL '*'
         		| INT '*'    
         		| CHAR '*'       
