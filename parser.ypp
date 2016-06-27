@@ -1,9 +1,9 @@
 %{
     #include <cstdio>
     #include <cstdlib>
-
+    #include <iostream>
     #define YYDEBUG 1
-
+    using namespace std;
     int yylex(void);
     void yyerror(const char *);
 %}
@@ -27,23 +27,24 @@
 %left '+' '-'
 %left '*' '/' '%'
 %right SECOND ADDADD MINUSMINUS
-%left  FIRST '(' ')' '[' ']' '.' ARROW  
+%left  FIRST ';' '(' ')' '[' ']' '.' ARROW  
 
 %%
-s			: outermosts
+s           : outermosts
         		;
 
 outermosts		: outermosts outermost
-			|
-			;
 
-outermost 		: enumDefine
-      | decl
-			| procedure
-			| structDefine
-			| include
-			;
- 	
+              |
+			        ;
+
+outermost 		: enumDefine 
+              | decl          {cout<<"outmost enter decl";}
+			        | procedure     {cout<<"outmost enter procedure\n";}
+			        | structDefine  {cout<<"outmost enter structDefine\n";}
+			        | include       
+			        ;
+ 	            
 include 		: INCLUDE '<' ID '.' ID '>'
 			| INCLUDE '\"' ID '.' ID '\"'
 			;
@@ -51,7 +52,8 @@ include 		: INCLUDE '<' ID '.' ID '>'
 
 
 procedure   		: type ID '(' parameter ')'  '{' procedureContents returnStmt '}'
-            		;
+
+                ;
 
 procedureContents	: procedureContents procedureContent
 			|
@@ -66,6 +68,7 @@ structDefine 		: STRUCT ID '{' decls '}' ';'
 			;
 
 enumDefine 		: ENUM ID '{' ID idPrime  '}' ';'
+              | ENUM '{' ID idPrime  '}' ';'
               ;
 
 idPrime 		: ',' ID idPrime
@@ -77,6 +80,10 @@ decls 			: decls decl
 			; 
 
 decl    		: type ID sbarket optionAssign declFollow ';'
+            | type ID '[' ']' optionAssign declFollow ';'
+            | type ID optionAssign declFollow ';' {cout<<"stmt get!\n"}
+            | CONST type ID optionAssign declFollow ';'
+            | CONST type ID '[' ']'optionAssign declFollow ';' 
             | CONST type ID sbarket optionAssign declFollow ';' 
             ;
 
@@ -101,9 +108,9 @@ stmtCanReturn 		: stmt
 
 stmt   			: lhs '=' exprs ';'
 			
-        		| lhs '=' STRINGV ';'
-
         		| lhs '=' ID '(' arguments ')' ';'
+
+            | opAssign
 
         		| IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
 
@@ -113,27 +120,29 @@ stmt   			: lhs '=' exprs ';'
 
 			      | FOR '(' stmt ';' exprs ';' stmt ')' '{' stmts '}'
 
-			| DO '{' stmts '}' WHILE '(' exprs ')'
+			      | DO '{' stmts '}' WHILE '(' exprs ')'
 
-			| SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmts '}'
+			      | SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmts '}'
 
-			| BREAK
+			      | BREAK ';'
 
-			| term ADDADD
+       			| term ADDADD ';'
+
+            | ID '(' arguments ')' ';'
 			
-			| term MINUSMINUS
+            | term MINUSMINUS ';'
 			
-			| ADDADD term
+            | ADDADD term ';'
 
-			| MINUSMINUS term
+			      | MINUSMINUS term ';'
 
-			| CONTINUE
+			      | CONTINUE ';'
 
-			| structDefine
+			      | structDefine 
 
-			| enumDefine
+			      | enumDefine
 
-			| decl
+			      | decl
         		;
 
 cases 			: cases CASE ':' stmts 
@@ -147,7 +156,7 @@ returnStmt  		: RETURN exprs ';'
             		;
 
 
-			exprs   : exprs '*' exprs
+exprs   : exprs '*' exprs
 
 			| exprs '/' exprs
 
@@ -183,29 +192,30 @@ returnStmt  		: RETURN exprs ';'
 
 			| exprs SL  exprs
 
-			| exprs ANDASSIGN  exprs
-
-			| exprs XORASSIGN  exprs
-
-			| exprs ORASSIGN  exprs
-
-			| exprs SLASSIGN  exprs
-
-			| exprs SRASSIGN  exprs
-
-			| exprs TIMESASSIGN  exprs
-
-			| exprs DIVASSIGN  exprs
-
-			| exprs REMASSIGN  exprs
-
-			| exprs ADDASSIGN  exprs
-
-			| exprs MINUSASSIGN  exprs
-
 			| term
 
 			;
+
+opAssign : lhs ANDASSIGN  exprs ';'
+
+			   | lhs XORASSIGN  exprs ';'
+
+		     | lhs ORASSIGN  exprs ';'
+
+			   | lhs SLASSIGN  exprs ';'
+
+			   | lhs SRASSIGN  exprs ';'
+
+			   | lhs TIMESASSIGN  exprs ';'
+
+			   | lhs DIVASSIGN  exprs ';'
+
+			   | lhs REMASSIGN  exprs ';'
+
+			   | lhs ADDASSIGN  exprs ';'
+
+			   | lhs MINUSASSIGN  exprs ';'
+
 
 
 term    		: ID sbarket
@@ -254,6 +264,8 @@ literal 		: NUMBER
 
         		| NULLX
 
+            | STRINGV
+
         		;
 
 sbarket 		: '[' exprs ']'
@@ -290,7 +302,7 @@ type  			: BOOL
 
 
 
-arguments : exprs argumentsPrime
+arguments : exprs argumentsPrime {cout<<"Enter arguments \n";}
 
         |
 

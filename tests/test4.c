@@ -1,5 +1,5 @@
 int main(){
-    enum { BLACK = 1, RED, GREEN = 1, YELLOW };
+    enum { BLACK,  RED, GREEN, YELLOW };
     printf("black = %d\n", BLACK);
     printf("red = %d\n", RED);
     printf("green = %d\n", GREEN);

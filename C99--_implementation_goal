@@ -314,3 +314,5 @@
 • IF
   • only support if and if {} else{}.
   • if and else must come with {} "if() stmt" is not allowed
+
+• result of a function call can not be used in arithmetical operation

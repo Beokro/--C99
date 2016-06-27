@@ -9,7 +9,8 @@ int main(){
     lp = NULL;
     bp = NULL;
 
-    if(ip == NULL && cp == NULL)
+    if(ip == NULL && cp == NULL){
     	  return 0;
+    }
     return 1;
 }
