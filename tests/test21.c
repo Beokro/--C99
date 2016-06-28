@@ -5,12 +5,13 @@ int main(){
       { 2, 22 },
       { 3, 33 }
     };
-  int len = sizeof(x) / sizeof(int);
-  int* p = (int*)x;
+  int len = 6;
+  int* p = x;
   for (int i = 0; i < len; i++){
     printf("x[%d] = %d\n", i, p[i]);
   }
-  if(x[5] == 33)
+  if(x[5] == 33){
     return 1;
+  }
   return 0;
 }

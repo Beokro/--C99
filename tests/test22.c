@@ -9,7 +9,8 @@ struct list_node{
 int main(){
   struct list_node a;
   a.test = 5;
-  if(a.test == 5 )
+  if(a.test == 5 ){
     return 1;
+  }
   return 0;
 }

@@ -7,6 +7,6 @@ struct list_node{
 
 
 int main(){
-  
+  return 1;
 }
 

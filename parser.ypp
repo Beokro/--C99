@@ -79,9 +79,14 @@ decls 			: decls decl
 			| 
 			; 
 
+
+
 decl    		: type ID sbarket optionAssign declFollow ';'
             | type ID '[' ']' optionAssign declFollow ';'
             | type ID optionAssign declFollow ';' {cout<<"stmt get!\n"}
+            | type ID '(' parameter ')' ';'
+            | type ID '[' ']' sbarket optionAssign ';'
+            | type ID sbarket sbarket optionAssign ';'
             | CONST type ID optionAssign declFollow ';'
             | CONST type ID '[' ']'optionAssign declFollow ';' 
             | CONST type ID sbarket optionAssign declFollow ';' 
@@ -91,9 +96,23 @@ declFollow		: ',' ID optionAssign declFollow
 			|
 			;
 
+lists : list listPrime
+      ;
+
+list  : '{' arguments '}'
+      ;
+
+listPrime : ',' list listPrime
+          |
+          ;
+
+
 optionAssign 		: '=' exprs
-			|
-			;
+			          | '=' ID '(' arguments ')'
+                | '=' '{' arguments '}'
+                | '=' '{' lists '}'
+                | 
+                ;
 
 stmts  			: stmts stmt
         		|
@@ -106,11 +125,22 @@ stmtCanReturn 		: stmt
 			| returnStmt
 			;
 
+init  : type ID optionAssign
+      | ID optionAssign
+      ;
+
+incre : opAssign
+      | term ADDADD
+      | term MINUSMINUS
+      | ADDADD term
+      | MINUSMINUS term
+      ;
+
 stmt   			: lhs '=' exprs ';'
 			
         		| lhs '=' ID '(' arguments ')' ';'
 
-            | opAssign
+            | opAssign ';'
 
         		| IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
 
@@ -118,11 +148,11 @@ stmt   			: lhs '=' exprs ';'
 
         		| WHILE '(' exprs ')' '{' stmts '}'
 
-			      | FOR '(' stmt ';' exprs ';' stmt ')' '{' stmts '}'
+			      | FOR '(' init ';' exprs ';' incre ')' '{' stmts '}'
 
-			      | DO '{' stmts '}' WHILE '(' exprs ')'
+			      | DO '{' stmts '}' WHILE '(' exprs ')' ';'
 
-			      | SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmts '}'
+			      | SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmtsCanReturn '}'
 
 			      | BREAK ';'
 
@@ -145,7 +175,7 @@ stmt   			: lhs '=' exprs ';'
 			      | decl
         		;
 
-cases 			: cases CASE ':' stmts 
+cases 			: cases CASE exprs ':' stmtsCanReturn 
 			| 
 			;
 
@@ -196,31 +226,33 @@ exprs   : exprs '*' exprs
 
 			;
 
-opAssign : lhs ANDASSIGN  exprs ';'
+opAssign : lhs ANDASSIGN  exprs
 
-			   | lhs XORASSIGN  exprs ';'
+			   | lhs XORASSIGN  exprs
 
-		     | lhs ORASSIGN  exprs ';'
+		     | lhs ORASSIGN  exprs
 
-			   | lhs SLASSIGN  exprs ';'
+			   | lhs SLASSIGN  exprs
 
-			   | lhs SRASSIGN  exprs ';'
+			   | lhs SRASSIGN  exprs
 
-			   | lhs TIMESASSIGN  exprs ';'
+			   | lhs TIMESASSIGN  exprs
 
-			   | lhs DIVASSIGN  exprs ';'
+			   | lhs DIVASSIGN  exprs
 
-			   | lhs REMASSIGN  exprs ';'
+			   | lhs REMASSIGN  exprs
 
-			   | lhs ADDASSIGN  exprs ';'
+			   | lhs ADDASSIGN  exprs
 
-			   | lhs MINUSASSIGN  exprs ';'
+			   | lhs MINUSASSIGN  exprs
 
 
 
 term    		: ID sbarket
 
-         		| ID
+            | ID sbarket sbarket
+
+            | ID
 
             | ID '.' ID
 
@@ -244,7 +276,9 @@ term    		: ID sbarket
 
 lhs     		: ID sbarket
 
-        		| ID
+            | ID sbarket sbarket
+
+            | ID
 
         		| '*' ID
 

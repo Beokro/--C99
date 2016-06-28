@@ -80,7 +80,7 @@ return STRINGV;
 
 [\'][a-zA-Z][\']      {/*yylval.u_base_int=(int)(*(yytext+1));*/   return CHARV;}
 
-[\/\=\>\<\-\!\+\*\&\^\;\:\,\|\{\}\(\)\[\]\?\%\~\#]  	{return *yytext; }
+[\/\=\>\<\-\!\+\*\&\^\;\:\,\|\{\}\(\)\[\]\?\%\~\#\.]  	{return *yytext; }
 
 0[0-7]* 				{
 /*yylval.u_base_int = strtol(yytext,NULL,8);*/
