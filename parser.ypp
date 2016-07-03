@@ -111,6 +111,7 @@ optionAssign 		: '=' exprs
 			          | '=' ID '(' arguments ')'
                 | '=' '{' arguments '}'
                 | '=' '{' lists '}'
+                | '=' STRINGV
                 | 
                 ;
 
@@ -139,6 +140,8 @@ incre : opAssign
 stmt   			: lhs '=' exprs ';'
 			
         		| lhs '=' ID '(' arguments ')' ';'
+
+            | lhs '=' STRINGV
 
             | opAssign ';'
 
@@ -297,8 +300,6 @@ literal 		: NUMBER
         		| FALSE
 
         		| NULLX
-
-            | STRINGV
 
         		;
 
