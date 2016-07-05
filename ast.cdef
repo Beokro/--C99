@@ -7,29 +7,43 @@ Outermost:Out_decl ==> Decl
 Outermost:Out_procedure ==> Procedure
 Outermost:Out_struct_define ==> Struct_Define
 
-Enum_define ==> Primitive *Symname
-Decl ==> *Primitive *Symname Type Expr
-Procedure ==> Type Symname *Decl *PConttent Return_stat
+Enum_define ==> Primitive Symname *Symname
+#const, assign, one dimention, second dimention
+Decl ==> Primitive Primitive Primitive Primitive *Symname Type *Expr
+Procedure ==> Type Symname *Decl *PContent Return_stat
 Struct_define ==> Symname *Decl
 Call ==> Lhs SymName *Expr
 
 PContent:PProcedure ==> Procedure
 PContent:PStat ==> Stat
 
+
+Init:Init_new ==> Type Symname Primitive *Expr
+
+Stat_can_return:NStat ==> Stat
+Stat_can_return:RStat ==> Return_stat
+
 Stat:Assignment ==> Lhs Expr
 Stat:String_assignment ==> Lhs StringPrimitive
-Stat:Function_assignment ==> Lhs  
+Stat:Function_assignment ==> Lhs Call
 
-Stat:Call ==> Lhs SymName *Expr 
-Stat:IfNoElse ==> Expr Nested_block
-Stat:IfWithElse ==> Expr Nested_block Nested_block
-Stat:WhileLoop ==>  Expr Nested_block
+Stat:Function_call ==> Call
+Stat:If_no_else ==> Expr *Stat_can_return 
+Stat:If_with_else ==> Expr *Stat_can_return *Stat_can_return 
+Stat:While_loop ==>  Expr *Stat_can_return 
+Stat:Do_while ==> Expr *Stat_can_return 
 
 Return_stat:Return ==> Expr
 
-Type:TInteger ==>
-Type:TCharacter ==>
-Type:TBoolean ==>
+Type:TInt ==>
+Type:TChar ==>
+Type:TBool ==>
+Type:TShort ==>
+Type:TVoid ==>
+Type:TLong ==>
+Type:TStruct ==> Symname
+Type:TEnum ==> Symname
+
 Type:TCharPtr ==>
 Type:TIntPtr ==>
 Type:TString ==> Primitive

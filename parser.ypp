@@ -31,57 +31,53 @@
 
 %%
 s           : outermosts
-        		;
+            ;
 
-outermosts		: outermosts outermost
+outermosts    : outermosts outermost
 
               |
-			        ;
+              ;
 
-outermost 		: enumDefine 
+outermost     : enumDefine 
               | decl          {cout<<"outmost enter decl";}
-			        | procedure     {cout<<"outmost enter procedure\n";}
-			        | structDefine  {cout<<"outmost enter structDefine\n";}
-			        | include       
-			        ;
- 	            
-include 		: INCLUDE '<' ID '.' ID '>'
-			| INCLUDE '\"' ID '.' ID '\"'
-			;
-				
+              | procedure     {cout<<"outmost enter procedure\n";}
+              | structDefine  {cout<<"outmost enter structDefine\n";}
+              ;
+              
+        
 
 
-procedure   		: type ID '(' parameter ')'  '{' procedureContents returnStmt '}'
+procedure       : type ID '(' parameter ')'  '{' procedureContents returnStmt '}'
 
                 ;
 
-procedureContents	: procedureContents procedureContent
-			|
-			;
+procedureContents : procedureContents procedureContent
+                  |
+                  ;
 
-procedureContent	:procedure
-			| stmt
-			;
+procedureContent  : procedure
+                  | stmt
+                  ;
 
 
-structDefine 		: STRUCT ID '{' decls '}' ';'
-			;
+structDefine    : STRUCT ID '{' decls '}' ';'
+                ;
 
-enumDefine 		: ENUM ID '{' ID idPrime  '}' ';'
+enumDefine    : ENUM ID '{' ID idPrime  '}' ';'
               | ENUM '{' ID idPrime  '}' ';'
               ;
 
-idPrime 		: ',' ID idPrime
+idPrime     : ',' ID idPrime
             |
             ;
 
-decls 			: decls decl
-			| 
-			; 
+decls       : decls decl
+            | 
+            ; 
 
 
 
-decl    		: type ID sbarket optionAssign declFollow ';'
+decl        : type ID sbarket optionAssign declFollow ';'
             | type ID '[' ']' optionAssign declFollow ';'
             | type ID optionAssign declFollow ';' {cout<<"stmt get!\n"}
             | type ID '(' parameter ')' ';'
@@ -92,9 +88,9 @@ decl    		: type ID sbarket optionAssign declFollow ';'
             | CONST type ID sbarket optionAssign declFollow ';' 
             ;
 
-declFollow		: ',' ID optionAssign declFollow
-			|
-			;
+declFollow    : ',' ID optionAssign declFollow
+              |
+              ;
 
 lists : list listPrime
       ;
@@ -107,24 +103,24 @@ listPrime : ',' list listPrime
           ;
 
 
-optionAssign 		: '=' exprs
-			          | '=' ID '(' arguments ')'
+optionAssign    : '=' exprs
+                | '=' ID '(' arguments ')'
                 | '=' '{' arguments '}'
                 | '=' '{' lists '}'
                 | '=' STRINGV
                 | 
                 ;
 
-stmts  			: stmts stmt
-        		|
+stmts       : stmts stmt
+            |
 
-stmtsCanReturn 		: stmtsCanReturn stmtCanReturn
-			|
-			;
+stmtsCanReturn    : stmtsCanReturn stmtCanReturn
+                  |
+                  ;
 
-stmtCanReturn 		: stmt
-			| returnStmt
-			;
+stmtCanReturn     : stmt
+                  | returnStmt
+                  ;
 
 init  : type ID optionAssign
       | ID optionAssign
@@ -137,121 +133,121 @@ incre : opAssign
       | MINUSMINUS term
       ;
 
-stmt   			: lhs '=' exprs ';'
-			
-        		| lhs '=' ID '(' arguments ')' ';'
+stmt        : lhs '=' exprs ';'
+      
+            | lhs '=' ID '(' arguments ')' ';'
 
             | lhs '=' STRINGV
 
             | opAssign ';'
 
-        		| IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+            | IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
 
-        		| IF '(' exprs ')'  '{' stmtsCanReturn '}'
+            | IF '(' exprs ')'  '{' stmtsCanReturn '}'
 
-        		| WHILE '(' exprs ')' '{' stmts '}'
+            | WHILE '(' exprs ')' '{' stmts '}'
 
-			      | FOR '(' init ';' exprs ';' incre ')' '{' stmts '}'
+            | FOR '(' init ';' exprs ';' incre ')' '{' stmts '}'
 
-			      | DO '{' stmts '}' WHILE '(' exprs ')' ';'
+            | DO '{' stmts '}' WHILE '(' exprs ')' ';'
 
-			      | SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmtsCanReturn '}'
+            | SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmtsCanReturn '}'
 
-			      | BREAK ';'
+            | BREAK ';'
 
-       			| term ADDADD ';'
+            | term ADDADD ';'
 
             | ID '(' arguments ')' ';'
-			
+      
             | term MINUSMINUS ';'
-			
+      
             | ADDADD term ';'
 
-			      | MINUSMINUS term ';'
+            | MINUSMINUS term ';'
 
-			      | CONTINUE ';'
+            | CONTINUE ';'
 
-			      | structDefine 
+            | structDefine 
 
-			      | enumDefine
+            | enumDefine
 
-			      | decl
-        		;
+            | decl
+            ;
 
-cases 			: cases CASE exprs ':' stmtsCanReturn 
-			| 
-			;
+cases       : cases CASE exprs ':' stmtsCanReturn 
+            | 
+            ;
 
 
 
-returnStmt  		: RETURN exprs ';'
+returnStmt      : RETURN exprs ';'
 
-            		;
+                ;
 
 
 exprs   : exprs '*' exprs
 
-			| exprs '/' exprs
+        | exprs '/' exprs
 
-			| exprs '+' exprs
+        | exprs '+' exprs
 
-			| exprs '-' exprs
+        | exprs '-' exprs
 
-			| exprs EQ  exprs
+        | exprs EQ  exprs
 
-			| exprs GE  exprs
+        | exprs GE  exprs
 
-			| exprs LE  exprs
+        | exprs LE  exprs
 
-			| exprs NEQ exprs
+        | exprs NEQ exprs
 
-			| exprs '>' exprs
+        | exprs '>' exprs
 
-			| exprs '<' exprs
+        | exprs '<' exprs
 
-      | exprs '&' exprs
+        | exprs '&' exprs
 
-      | exprs '^' exprs
+        | exprs '^' exprs
 
-      | exprs '|' exprs
+        | exprs '|' exprs
 
-      | exprs '%' exprs
+        | exprs '%' exprs
 
-			| exprs AND exprs
+        | exprs AND exprs
 
-			| exprs OR  exprs
+        | exprs OR  exprs
 
-			| exprs SR  exprs
+        | exprs SR  exprs
 
-			| exprs SL  exprs
+        | exprs SL  exprs
 
-			| term
+        | term
 
-			;
+        ;
 
 opAssign : lhs ANDASSIGN  exprs
 
-			   | lhs XORASSIGN  exprs
+         | lhs XORASSIGN  exprs
 
-		     | lhs ORASSIGN  exprs
+         | lhs ORASSIGN  exprs
 
-			   | lhs SLASSIGN  exprs
+         | lhs SLASSIGN  exprs
 
-			   | lhs SRASSIGN  exprs
+         | lhs SRASSIGN  exprs
 
-			   | lhs TIMESASSIGN  exprs
+         | lhs TIMESASSIGN  exprs
 
-			   | lhs DIVASSIGN  exprs
+         | lhs DIVASSIGN  exprs
 
-			   | lhs REMASSIGN  exprs
+         | lhs REMASSIGN  exprs
 
-			   | lhs ADDASSIGN  exprs
+         | lhs ADDASSIGN  exprs
 
-			   | lhs MINUSASSIGN  exprs
+         | lhs MINUSASSIGN  exprs
 
 
 
-term    		: ID sbarket
+term        : ID sbarket
 
             | ID sbarket sbarket
 
@@ -261,107 +257,107 @@ term    		: ID sbarket
 
             | ID ARROW ID
 
-        		| literal
+            | literal
 
-        		| '(' exprs ')'
+            | '(' exprs ')'
 
-        		| '!' exprs                     %prec SECOND
+            | '!' exprs                     %prec SECOND
 
-        		| '*' exprs                     %prec SECOND
+            | '*' exprs                     %prec SECOND
 
-        		| '-' exprs                     %prec SECOND
+            | '-' exprs                     %prec SECOND
 
-        		| '+' exprs                     %prec SECOND
+            | '+' exprs                     %prec SECOND
 
-       			| '&' lhs                     	%prec SECOND
+            | '&' lhs                       %prec SECOND
 
-        		;
+            ;
 
-lhs     		: ID sbarket
+lhs         : ID sbarket
 
             | ID sbarket sbarket
 
             | ID
 
-        		| '*' ID
+            | '*' ID
 
             | ID ARROW ID
 
             | ID '.' ID
 
-        		;
+            ;
 
-literal 		: NUMBER
+literal     : NUMBER
 
-        		| CHARV
+            | CHARV
 
-        		| TRUE
+            | TRUE
 
-        		| FALSE
+            | FALSE
 
-        		| NULLX
+            | NULLX
 
-        		;
+            ;
 
-sbarket 		: '[' exprs ']'
+sbarket     : '[' exprs ']'
 
-        		;
-
-
+            ;
 
 
-type  			: BOOL
-        		| INT    
-        		| CHAR       
-        		| SHORT    
-        		| UNSIGNED
-			| SIGNED
-			| VOID
-			| LONG
-			| LONG LONG
-			| STRUCT ID
-      | ENUM ID
-      | STRING
-			| BOOL '*'
-        		| INT '*'    
-        		| CHAR '*'       
-        		| SHORT'*'   
-        		| UNSIGNED '*'
-			| SIGNED '*'
-			| VOID '*'
-			| LONG '*'
-			| LONG LONG '*'
-			| STRUCT ID '*'     
-			;
+
+
+type        : BOOL
+            | INT    
+            | CHAR       
+            | SHORT    
+            | UNSIGNED
+            | SIGNED
+            | VOID
+            | LONG
+            | LONG LONG
+            | STRUCT ID
+            | ENUM ID
+            | STRING
+            | BOOL '*'
+            | INT '*'    
+            | CHAR '*'       
+            | SHORT'*'   
+            | UNSIGNED '*'
+            | SIGNED '*'
+            | VOID '*'
+            | LONG '*'
+            | LONG LONG '*'
+            | STRUCT ID '*'     
+            ;
 
 
 
 
 arguments : exprs argumentsPrime {cout<<"Enter arguments \n";}
 
-        |
+          |
 
-        ;
+          ;
 
-argumentsPrime: ',' exprs argumentsPrime
+argumentsPrime  : ',' exprs argumentsPrime
 
-        |
+                |
 
-        ;
+                ;
 
 
-parameter: type ID parameterPrime 
+parameter : type ID parameterPrime 
 
-        |
+          |
 
-        ;
+          ;
 
 
 parameterPrime : ',' type ID parameterPrime
 
-        |
+               |
 
-        ;
+               ;
 
 
 
