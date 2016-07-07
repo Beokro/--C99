@@ -56,7 +56,7 @@ procedureContents : procedureContents procedureContent
                   ;
 
 procedureContent  : procedure
-                  | stmt
+                  | stmt  {cout<<"stmt get from content\n";}
                   ;
 
 
@@ -327,7 +327,6 @@ type        : BOOL
             | VOID '*'
             | LONG '*'
             | LONG LONG '*'
-            | STRUCT ID '*'     
             ;
 
 
@@ -335,11 +334,15 @@ type        : BOOL
 
 arguments : exprs argumentsPrime {cout<<"Enter arguments \n";}
 
+          | STRINGV argumentsPrime {cout<<"Enter arguments \n";}
+
           |
 
           ;
 
 argumentsPrime  : ',' exprs argumentsPrime
+
+                | ',' STRINGV argumentsPrime
 
                 |
 
