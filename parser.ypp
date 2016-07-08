@@ -4,6 +4,11 @@
     #include <iostream>
     #define YYDEBUG 1
     using namespace std;
+
+    #include "ast.hpp"
+    #include "primitive.hpp"
+    #include "symtab.hpp"
+
     int yylex(void);
     void yyerror(const char *);
 %}
@@ -79,7 +84,7 @@ decls       : decls decl
 
 decl        : type ID sbarket optionAssign declFollow ';'
             | type ID '[' ']' optionAssign declFollow ';'
-            | type ID optionAssign declFollow ';' {cout<<"stmt get!\n"}
+            | type ID optionAssign declFollow ';' {cout<<"stmt get!\n";}
             | type ID '(' parameter ')' ';'
             | type ID '[' ']' sbarket optionAssign ';'
             | type ID sbarket sbarket optionAssign ';'

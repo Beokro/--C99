@@ -5,7 +5,7 @@ Program ==> *Outermost
 Outermost:Out_enum_define ==> Enum_define
 Outermost:Out_decl ==> Decl
 Outermost:Out_procedure ==> Procedure
-Outermost:Out_struct_define ==> Struct_Define
+Outermost:Out_struct_define ==> Struct_define
 
 Enum_define ==> Primitive Symname *Symname
 #const, assign, one dimention, second dimention
@@ -81,7 +81,6 @@ Expr:Minus ==> Expr Expr
 Expr:Noteq ==> Expr Expr
 Expr:Or ==> Expr Expr
 Expr:Plus ==> Expr Expr
-Expr:Times ==> Expr Expr
 Expr:Not ==> Expr
 Expr:Uminus ==> Expr
 Expr:Ident ==> SymName
