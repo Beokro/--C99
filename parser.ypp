@@ -9,6 +9,7 @@
     #include "primitive.hpp"
     #include "symtab.hpp"
 
+    extern Program_ptr ast;
     int yylex(void);
     void yyerror(const char *);
 %}
@@ -142,9 +143,9 @@ stmt        : lhs '=' exprs ';'
       
             | lhs '=' ID '(' arguments ')' ';'
 
-            | lhs '=' STRINGV
+            | incre ';'
 
-            | opAssign ';'
+            | lhs '=' STRINGV
 
             | IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
 
@@ -160,16 +161,8 @@ stmt        : lhs '=' exprs ';'
 
             | BREAK ';'
 
-            | term ADDADD ';'
-
             | ID '(' arguments ')' ';'
       
-            | term MINUSMINUS ';'
-      
-            | ADDADD term ';'
-
-            | MINUSMINUS term ';'
-
             | CONTINUE ';'
 
             | structDefine 

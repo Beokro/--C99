@@ -316,3 +316,6 @@
   • if and else must come with {} "if() stmt" is not allowed
 
 • result of a function call can not be used in arithmetical operation
+
+• To do
+  • multiple incre in for loop

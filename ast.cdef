@@ -7,18 +7,19 @@ Outermost:Out_decl ==> Decl
 Outermost:Out_procedure ==> Procedure
 Outermost:Out_struct_define ==> Struct_define
 
-Enum_define ==> Primitive Symname *Symname
+Enum_define ==> Primitive SymName *SymName
 #const, assign, one dimention, second dimention
-Decl ==> Primitive Primitive Primitive Primitive *Symname Type *Expr
-Procedure ==> Type Symname *Decl *PContent Return_stat
-Struct_define ==> Symname *Decl
+Decl ==> Primitive Primitive Primitive Primitive *SymName Type *Expr
+Procedure ==> Type SymName *Decl *PContent Return_stat
+Struct_define ==> SymName *Decl
 Call ==> Lhs SymName *Expr
+Case ==> Expr *Stat_can_return
 
 PContent:PProcedure ==> Procedure
 PContent:PStat ==> Stat
 
-
-Init:Init_new ==> Type Symname Primitive *Expr
+Init:Init_new ==> Type SymName Expr
+Init:Init_old ==> SymName Expr
 
 Stat_can_return:NStat ==> Stat
 Stat_can_return:RStat ==> Return_stat
@@ -32,6 +33,13 @@ Stat:If_no_else ==> Expr *Stat_can_return
 Stat:If_with_else ==> Expr *Stat_can_return *Stat_can_return 
 Stat:While_loop ==>  Expr *Stat_can_return 
 Stat:Do_while ==> Expr *Stat_can_return 
+Stat:For_loop ==> Init Expr Incre *Stat
+Stat:Switch ==> Expr *Case *Stat_can_return
+Stat:Break ==>
+Stat:Continue ==>
+Stat:Stat_struct_define ==> Struct_define
+Stat:Stat_enum_define ==> Enum_define
+Stat:Stat_decl ==> Decl
 
 Return_stat:Return ==> Expr
 
@@ -41,8 +49,8 @@ Type:TBool ==>
 Type:TShort ==>
 Type:TVoid ==>
 Type:TLong ==>
-Type:TStruct ==> Symname
-Type:TEnum ==> Symname
+Type:TStruct ==> SymName
+Type:TEnum ==> SymName
 
 Type:TCharPtr ==>
 Type:TIntPtr ==>
@@ -60,7 +68,25 @@ Type:TLongArray ==>
 
 
 Type:TString ==>
+Type:No_type ==>
 
+
+Incre:Incre_op ==> Opassign
+Incre:Incre_t_add ==> Lhs
+Incre:Incre_t_min ==> Lhs
+Incre:Incre_add_t ==> Lhs
+Incre:Incre_min_t ==> Lhs
+
+Opassign:And_assign ==> Lhs Expr
+Opassign:Xor_assign ==> Lhs Expr
+Opassign:Or_assign ==> Lhs Expr
+Opassign:Sl_assign ==> Lhs Expr
+Opassign:Sr_assign ==> Lhs Expr
+Opassign:Times_assign ==> Lhs Expr
+Opassign:Div_assign ==> Lhs Expr
+Opassign:Rem_assign ==> Lhs Expr
+Opassign:Add_assign ==> Lhs Expr
+Opassign:Minus_assign ==> Lhs Expr
 
 
 Expr:And ==> Expr Expr
