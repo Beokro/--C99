@@ -40,50 +40,118 @@ s           : outermosts
             ;
 
 outermosts    : outermosts outermost
-
+              {
+                $1.u_outermost_list->push_back($2.u_outermost);
+                $$.u_outermost_list = $1.u_outermost_list;
+              }
               |
+              {
+                $$.u_outermost_list = new std::list<Outermost_ptr>();
+              }
               ;
 
-outermost     : enumDefine 
-              | decl          {cout<<"outmost enter decl";}
-              | procedure     {cout<<"outmost enter procedure\n";}
-              | structDefine  {cout<<"outmost enter structDefine\n";}
+outermost     : enumDefine
+              {
+                $$.u_outermost = new Out_enum_define($1.u_enum_define);
+              }
+              | decl          
+              {
+                $$.u_outermost = new Out_decl($1.u_decl);
+              }
+              | procedure
+              {
+                $$.u_outermost = new Out_procedure($1.u_procedure);
+              }
+              | structDefine
+              {
+                $$.u_outermost = new Out_struct_define($1.u_struct_define);
+              }
               ;
-              
-        
-
-
+             
 procedure       : type ID '(' parameter ')'  '{' procedureContents returnStmt '}'
-
+                {
+                  $$.u_procedure = new ProcedureImpl( $1.u_type,
+                                                      new SymName($2.u_base_charptr),
+                                                      $4.u_decl_list, $7.u_pcontent_list,
+                                                      $8.u_return_stat );
+                }
                 ;
 
 procedureContents : procedureContents procedureContent
+                  {
+                    $1.u_pcontent_list->push_back($2.u_pcontent);
+                    $$.u_pcontent_list = $1.u_pcontent_list;  
+                  }
                   |
+                  {
+                    $$.u_pcontent_list = new std::list<PContent_ptr>();
+                  }
                   ;
 
 procedureContent  : procedure
-                  | stmt  {cout<<"stmt get from content\n";}
+                  {
+                    $$.u_pcontent = new PProcedure($1.u_procedure);
+                  }
+                  | stmt
+                  {
+                    $$.u_pcontent = new PStat($1.u_stat);
+                  }
                   ;
 
 
 structDefine    : STRUCT ID '{' decls '}' ';'
+                {
+                  $$.u_struct_define = new Struct_defineImpl( new SymName( $2.u_base_charptr ),
+                                                              $4.u_decl_list);
+                }
                 ;
 
 enumDefine    : ENUM ID '{' ID idPrime  '}' ';'
+              {
+                $5.u_symname_list->push_front( new SymName( $4.u_base_charptr ) );
+                $$.u_enum_define = new Enum_defineImpl( new Primitive( 1 ),
+                                                        new SymName( $2.u_base_charptr ),
+                                                        $5.u_symname_list );
+              }
               | ENUM '{' ID idPrime  '}' ';'
+              {
+                $4.u_symname_list->push_front( new SymName( $3.u_base_charptr ) );
+                $$.u_enum_define = new Enum_defineImpl( new Primitive( 0), NULL,
+                                                        $4.u_symname_list );
+              }
               ;
 
 idPrime     : ',' ID idPrime
+            {
+              $3.u_symname_list->push_front( new SymName( $2.u_base_charptr ) );
+              $$.u_symname_list = $3.u_symname_list;
+            }
             |
+            {
+              $$.u_symname_list = new std::list<SymName_ptr>();
+            }
             ;
 
 decls       : decls decl
-            | 
+            {
+              $1.u_decl_list->push_back( $2.u_decl );
+              $$.u_decl_list = $1.u_decl_list;                           
+            }
+            |
+            {
+              $$.u_decl_list = new std::list<Decl_ptr>();
+            }
             ; 
 
-
-
+//const, one dimention, second dimention
 decl        : type ID sbarket optionAssign declFollow ';'
+            {
+              $5.u_symname_list->push_front( new SymName($2.u_base_charptr) );
+              $5.u_expr_list->push_front( $3.u_expr );
+              $$.u_decl = new DeclImpl( new Primitive( 0 ), new Primitive( 0 ),
+                                        new Primitive( 0 ), $5.u_symname_list,
+                                        $1.u_type, $5.u_expr_list );
+            }
             | type ID '[' ']' optionAssign declFollow ';'
             | type ID optionAssign declFollow ';' {cout<<"stmt get!\n";}
             | type ID '(' parameter ')' ';'

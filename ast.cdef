@@ -9,7 +9,7 @@ Outermost:Out_struct_define ==> Struct_define
 
 Enum_define ==> Primitive SymName *SymName
 #const, assign, one dimention, second dimention
-Decl ==> Primitive Primitive Primitive Primitive *SymName Type *Expr
+Decl ==> Primitive Primitive Primitive *SymName Type *Expr
 Procedure ==> Type SymName *Decl *PContent Return_stat
 Struct_define ==> SymName *Decl
 Call ==> Lhs SymName *Expr
