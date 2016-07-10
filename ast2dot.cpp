@@ -120,8 +120,14 @@ public:
   void visitTBoolArray(TBoolArray *p) { draw("TBoolArray", p); }
   void visitTShortArray(TShortArray *p) { draw("TShortArray", p); }
   void visitTLongArray(TLongArray *p) { draw("TLongArray", p); }
+  void visitTTDIntArray(TTDIntArray *p) { draw("TTDIntArray", p); }
+  void visitTTDCharArray(TTDCharArray *p) { draw("TTDCharArray", p); }
+  void visitTTDBoolArray(TTDBoolArray *p) { draw("TTDBoolArray", p); }
+  void visitTTDShortArray(TTDShortArray *p) { draw("TTDShortArray", p); }
+  void visitTTDLongArray(TTDLongArray *p) { draw("TTDLongArray", p); }
   void visitTString(TString *p) { draw("TString", p); }
   void visitNo_type(No_type *p) { draw("No_type", p); }
+  void visitListImpl(ListImpl *p) { draw("ListImpl", p); }
   void visitIncre_op(Incre_op *p) { draw("Incre_op", p); }
   void visitIncre_t_add(Incre_t_add *p) { draw("Incre_t_add", p); }
   void visitIncre_t_min(Incre_t_min *p) { draw("Incre_t_min", p); }
@@ -168,6 +174,8 @@ public:
   void visitNullLit(NullLit *p) { draw("NullLit", p); }
   void visitDeref(Deref *p) { draw("Deref", p); }
   void visitAddressOf(AddressOf *p) { draw("AddressOf", p); }
+  void visitEList(EList *p) { draw("Elist", p); }
+  void visitETDList(ETDList *p) { draw("ETDlist", p); }
   void visitVariable(Variable *p) { draw("Variable", p); }
   void visitDerefVariable(DerefVariable *p) { draw("DerefVariable", p); }
   void visitArrayElement(ArrayElement *p) { draw("ArrayElement", p); }

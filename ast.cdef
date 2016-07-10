@@ -60,15 +60,23 @@ Type:TVoidPtr ==>
 Type:TLongPtr ==>
 
 
-Type:TIntArray ==>
-Type:TCharArray ==>
-Type:TBoolArray ==>
-Type:TShortArray ==>
-Type:TLongArray ==>
+Type:TIntArray ==> Primitive
+Type:TCharArray ==> Primitive
+Type:TBoolArray ==> Primitive
+Type:TShortArray ==> Primitive
+Type:TLongArray ==> Primitive
+
+Type:TTDIntArray ==> Primitive Primitive
+Type:TTDCharArray ==> Primitive Primitive
+Type:TTDBoolArray ==> Primitive Primitive
+Type:TTDShortArray ==> Primitive Primitive
+Type:TTDLongArray ==> Primitive Primitive
 
 
 Type:TString ==>
 Type:No_type ==>
+
+List ==> *Expr
 
 
 Incre:Incre_op ==> Opassign
@@ -120,6 +128,8 @@ Expr:BoolLit ==> Primitive
 Expr:NullLit ==> 
 Expr:Deref ==> Expr
 Expr:AddressOf ==> Lhs
+Expr:EList ==> List
+Expr:ETDList ==> *List
 
 Lhs:Variable ==> SymName
 Lhs:DerefVariable ==> SymName
