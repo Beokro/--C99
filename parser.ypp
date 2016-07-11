@@ -143,23 +143,54 @@ decls       : decls decl
             }
             ; 
 
-//const, one dimention, second dimention
+//first dimention size, second dimention size 
 decl        : type ID sbarket optionAssign declFollow ';'
             {
               $5.u_symname_list->push_front( new SymName($2.u_base_charptr) );
-              $5.u_expr_list->push_front( $3.u_expr );
-              $$.u_decl = new DeclImpl( new Primitive( 0 ), new Primitive( 0 ),
-                                        new Primitive( 0 ), $5.u_symname_list,
-                                        $1.u_type, $5.u_expr_list );
+              $5.u_expr_list->push_front( $4.u_expr );
+              $$.u_decl = new Decl_variable( new Primitive( 1 ),
+                                             $3.u_expr, NULL, $5.u_symname_list,
+                                             $1.u_type, $5.u_expr_list );
             }
             | type ID '[' ']' optionAssign declFollow ';'
-            | type ID optionAssign declFollow ';' {cout<<"stmt get!\n";}
+            {
+              $6.u_symname_list->push_front( new SymName($2.u_base_charptr) );
+              $6.u_expr_list->push_front( $5.u_expr );
+              $$.u_decl = new Decl_variable( new Primitive( 1 ),
+                                             NULL, NULL, $6.u_symname_list,
+                                             $1.u_type, $6.u_expr_list );
+            }
+            | type ID optionAssign declFollow ';'
+            {
+              $4.u_symname_list->push_front( new SymName($2.u_base_charptr) );
+              $4.u_expr_list->push_front( $3.u_expr );
+              $$.u_decl = new Decl_variable( new Primitive( 0 ),
+                                             NULL, NULL, $4.u_symname_list,
+                                             $1.u_type, $4.u_expr_list );
+            }
             | type ID '(' parameter ')' ';'
-            | type ID '[' ']' sbarket optionAssign ';'
-            | type ID sbarket sbarket optionAssign ';'
-            | CONST type ID optionAssign declFollow ';'
-            | CONST type ID '[' ']'optionAssign declFollow ';' 
-            | CONST type ID sbarket optionAssign declFollow ';' 
+            {
+              $$.u_decl = new Decl_function( $1.u_type, new SymName( $2.u_base_charptr ),
+                                             $4.u_decl_list );
+            }
+            | type ID '[' ']' sbarket optionAssign declFollow ';'
+            {
+              $7.u_symname_list->push_front( new SymName($2.u_base_charptr) );
+              $7.u_expr_list->push_front( $6.u_expr );
+              $$.u_decl = new Decl_variable( new Primitive( 2 ),
+                                             NULL, $5.u_expr, 
+                                             $7.u_symname_list,
+                                             $1.u_type, $7.u_expr_list );
+            }
+            | type ID sbarket sbarket optionAssign declFollow ';'
+            {
+              $6.u_symname_list->push_front( new SymName($2.u_base_charptr) );
+              $6.u_expr_list->push_front( $5.u_expr );
+              $$.u_decl = new Decl_variable( new Primitive( 2 ),
+                                             $3.u_expr, $4.u_expr, 
+                                             $6.u_symname_list,
+                                             $1.u_type, $6.u_expr_list );
+            }
             ;
 
 declFollow    : ',' ID optionAssign declFollow
@@ -381,6 +412,14 @@ type        : BOOL
             | VOID
             | LONG
             | LONG LONG
+            | CONST BOOL
+            | CONST INT    
+            | CONST CHAR       
+            | CONST SHORT    
+            | CONST UNSIGNED
+            | CONST SIGNED
+            | CONST LONG
+            | CONST LONG LONG
             | STRUCT ID
             | ENUM ID
             | STRING

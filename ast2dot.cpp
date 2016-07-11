@@ -74,7 +74,8 @@ public:
   void visitOut_procedure(Out_procedure *p) { draw("Out_procedure", p); }
   void visitOut_struct_define(Out_struct_define *p) { draw("Out_struct_define", p); }
   void visitEnum_defineImpl(Enum_defineImpl *p) { draw("Enum_defineImpl", p); }
-  void visitDeclImpl(DeclImpl *p) { draw("DeclImpl", p); }
+  void visitDecl_variable(Decl_variable *p) { draw("Decl_variable", p); }
+  void visitDecl_function(Decl_function *p) { draw("Decl_function", p); }
   void visitProcedureImpl(ProcedureImpl *p) { draw("ProcedureImpl", p); }
   void visitStruct_defineImpl(Struct_defineImpl *p) { draw("Struct_defineImpl", p); }
   void visitCallImpl(CallImpl *p) { draw("CallImpl", p); }
