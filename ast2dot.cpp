@@ -150,8 +150,8 @@ public:
   void visitArithOr(ArithOr *p) { draw("ArithOr", p); }
   void visitArithXor(ArithXor *p) { draw("ArithXor", p); }
   void visitRem(Rem *p) { draw("Rem", p); }
-  void visitSL(SL *p) { draw("SL", p); }
-  void visitSR(SR *p) { draw("SR", p); }
+  void visitShiftL(ShiftL *p) { draw("ShiftL", p); }
+  void visitShiftR(ShiftR *p) { draw("ShiftR", p); }
   void visitDiv(Div *p) { draw("Div", p); }
   void visitCompare(Compare *p) { draw("Compare", p); }
   void visitGt(Gt *p) { draw("Gt", p); }
@@ -177,6 +177,7 @@ public:
   void visitAddressOf(AddressOf *p) { draw("AddressOf", p); }
   void visitEList(EList *p) { draw("Elist", p); }
   void visitETDList(ETDList *p) { draw("ETDlist", p); }
+  void visitECall(ECall *p) { draw("ECall", p); }
   void visitVariable(Variable *p) { draw("Variable", p); }
   void visitDerefVariable(DerefVariable *p) { draw("DerefVariable", p); }
   void visitArrayElement(ArrayElement *p) { draw("ArrayElement", p); }

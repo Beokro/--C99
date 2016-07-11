@@ -194,25 +194,65 @@ decl        : type ID sbarket optionAssign declFollow ';'
             ;
 
 declFollow    : ',' ID optionAssign declFollow
+              {
+                $4.u_symname_list->push_front( new SymName( $2.u_base_charptr ) );
+                $4.u_expr_list->push_front( $3.u_expr );
+                $$.u_symname_list = $4.u_symname_list;
+                $$.u_expr_list = $4.u_expr_list;
+              }
               |
+              {
+                $$.u_expr_list = new std::list<Expr_ptr>();
+                $$.u_symname_list = new std::list<SymName_ptr>();
+              }
               ;
 
 lists : list listPrime
+      {
+        $2.u_list_list->push_front( $1.u_list );
+        $$.u_list_list = $2.u_list_list;
+      }
       ;
 
 list  : '{' arguments '}'
+      {
+        $$.u_list = new ListImpl( $2.u_expr_list );
+      }
       ;
 
 listPrime : ',' list listPrime
+          {
+            $3.u_list_list->push_front( $2.u_list );
+            $$.u_list_list = $3.u_list_list;
+          }
           |
+          {
+            $$.u_list_list = new std::list<List_ptr>();
+          }
           ;
 
 
 optionAssign    : '=' exprs
+                {
+                  $$.u_expr = $2.u_expr;
+                }
                 | '=' ID '(' arguments ')'
+                {
+                  $$.u_expr = new ECall( new SymName( $2.u_base_charptr ),
+                                         $4.u_symname_list );
+                }
                 | '=' '{' arguments '}'
+                {
+                  $$.u_expr = new EList( $3.u_symname_list );
+                }
                 | '=' '{' lists '}'
+                {
+                  $$.u_expr = new ETDList( $3.u_list_list );
+                }
                 | '=' STRINGV
+                {
+                  
+                }
                 | 
                 ;
 

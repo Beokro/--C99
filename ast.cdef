@@ -104,8 +104,8 @@ Expr:ArithAnd ==> Expr Expr
 Expr:ArithOr ==> Expr Expr
 Expr:ArithXor ==> Expr Expr
 Expr:Rem ==> Expr Expr
-Expr:SL ==> Expr Expr
-Expr:SR ==> Expr Expr
+Expr:ShiftL ==> Expr Expr
+Expr:ShiftR ==> Expr Expr
 Expr:Div ==> Expr Expr
 Expr:Compare ==> Expr Expr
 Expr:Gt ==> Expr Expr
@@ -129,8 +129,9 @@ Expr:BoolLit ==> Primitive
 Expr:NullLit ==> 
 Expr:Deref ==> Expr
 Expr:AddressOf ==> Lhs
-Expr:EList ==> List
+Expr:EList ==> *SymName
 Expr:ETDList ==> *List
+Expr:ECall ==> SymName *SymName
 
 Lhs:Variable ==> SymName
 Lhs:DerefVariable ==> SymName
