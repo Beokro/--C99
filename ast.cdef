@@ -13,7 +13,7 @@ Decl:Decl_variable ==> Primitive Expr Expr *SymName Type *Expr
 Decl:Decl_function ==> Type SymName *Decl
 Procedure ==> Type SymName *Decl *PContent Return_stat
 Struct_define ==> SymName *Decl
-Call ==> Lhs SymName *Expr
+Call ==> SymName *Expr
 Case ==> Expr *Stat_can_return
 
 PContent:PProcedure ==> Procedure
@@ -29,6 +29,7 @@ Stat:Assignment ==> Lhs Expr
 Stat:String_assignment ==> Lhs StringPrimitive
 Stat:Function_assignment ==> Lhs Call
 
+Stat:SIncre ==> Incre
 Stat:Function_call ==> Call
 Stat:If_no_else ==> Expr *Stat_can_return 
 Stat:If_with_else ==> Expr *Stat_can_return *Stat_can_return 
@@ -126,6 +127,7 @@ Expr:ArrowAccess ==> SymName SymName
 Expr:IntLit ==> Primitive
 Expr:CharLit ==> Primitive
 Expr:BoolLit ==> Primitive
+Expr:StringLit ==> StringPrimitive
 Expr:NullLit ==> 
 Expr:Deref ==> Expr
 Expr:AddressOf ==> Lhs

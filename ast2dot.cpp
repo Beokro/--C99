@@ -89,6 +89,7 @@ public:
   void visitAssignment(Assignment *p) { draw("Assignment", p); }
   void visitString_assignment(String_assignment *p) { draw("String_assignment", p); }
   void visitFunction_assignment(Function_assignment *p) { draw("Function_assignment", p); }
+  void visitSIncre(SIncre *p) { draw("SIncre", p); }
   void visitFunction_call(Function_call *p) { draw("Function_call", p); }
   void visitIf_no_else(If_no_else *p) { draw("If_no_else", p); }
   void visitIf_with_else(If_with_else *p) { draw("If_with_else", p); }
@@ -173,6 +174,7 @@ public:
   void visitCharLit(CharLit *p) { draw("CharLit", p); }
   void visitBoolLit(BoolLit *p) { draw("BoolLit", p); }
   void visitNullLit(NullLit *p) { draw("NullLit", p); }
+  void visitStringLit(StringLit *p) { draw("StringLit", p); }
   void visitDeref(Deref *p) { draw("Deref", p); }
   void visitAddressOf(AddressOf *p) { draw("AddressOf", p); }
   void visitEList(EList *p) { draw("Elist", p); }

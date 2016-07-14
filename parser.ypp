@@ -251,41 +251,93 @@ optionAssign    : '=' exprs
                 }
                 | '=' STRINGV
                 {
-                  
+                  $$.u_expr = new StringLit( new StringPrimitive( $2.u_base_charptr ) );
                 }
                 | 
                 ;
 
 stmts       : stmts stmt
+            {
+              $1.u_stat_list->push_back( $2.u_stat );
+              $$.u_stat_list = $1.u_stat_list;
+            }
             |
+            {
+              $$.u_stat_list = new std::list<Stat_ptr>();
+            }
+            ;
 
 stmtsCanReturn    : stmtsCanReturn stmtCanReturn
+                  {
+                    $1.u_stat_can_return_list->push_back( $2.u_stat_can_return );
+                    $$.u_stat_can_return_list = $1.u_stat_can_return_list;
+                  }
                   |
+                  {
+                    $$.u_stat_can_return_list = new std::list<Stat_can_return_ptr>();
+                  }
                   ;
 
 stmtCanReturn     : stmt
+                  {
+                    $$.u_stat_can_return = new NStat( $1.u_stat );
+                  }
                   | returnStmt
+                  {
+                    $$.u_stat_can_return = new RStat( $1.u_return_stat );
+                  }
                   ;
 
 init  : type ID optionAssign
+      {
+        $$.u_init = new Init_new( $1.u_type, new SymName( $2.u_base_charptr ), $3.u_expr );
+      }
       | ID optionAssign
+      {
+        $$.u_init = new Init_old( new SymName( $1.u_base_charptr ), $2.u_expr );
+      }
       ;
 
 incre : opAssign
-      | term ADDADD
-      | term MINUSMINUS
-      | ADDADD term
-      | MINUSMINUS term
+      {
+        $$.u_incre = new Incre_op( $1.u_opassign );
+      }
+      | lhs ADDADD
+      {
+        $$.u_incre = new Incre_t_add( $1.u_lhs );
+      }
+      | lhs MINUSMINUS
+      {
+        $$.u_incre = new Incre_t_min( $1.u_lhs );
+      }
+      | ADDADD lhs
+      {
+        $$.u_incre = new Incre_add_t( $2.u_lhs );
+      }
+      | MINUSMINUS lhs
+      {
+        $$.u_incre = new Incre_min_t( $2.u_lhs );
+      }
       ;
 
 stmt        : lhs '=' exprs ';'
-      
+            {
+              $$.u_stat = new Assignment( $1.u_lhs, $3.u_expr );
+            }
             | lhs '=' ID '(' arguments ')' ';'
-
+            {
+              $$.u_stat = new Function_assignment( $1.u_lhs,
+                        new CallImpl( new SymName( $3.u_base_charptr ), $5.u_expr_list ) );
+            }
             | incre ';'
-
+            {
+              $$.u_stat = new SIncre( $1.u_incre );
+            }
             | lhs '=' STRINGV
-
+            {
+              $$.u_stat = new String_assignment( $1.u_lhs,
+                                                 new StringPrimitive( $3.u_base_charptr ));
+            }
             | IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
 
             | IF '(' exprs ')'  '{' stmtsCanReturn '}'
