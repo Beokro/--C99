@@ -863,34 +863,64 @@ arguments : exprs argumentsPrime
             $2.u_expr_list->push_front( $1.u_expr );
             $$.u_expr_list = $2.u_expr_list;
           }
-          | STRINGV argumentsPrime {cout<<"Enter arguments \n";}
+          | STRINGV argumentsPrime
           {
-            
+            $2.u_expr_list->push_front( new StringLit( new StringPrimitive(
+                                        $1.u_base_charptr ) ) );
+            $$.u_expr_list = $2.u_expr_list;
           }
           |
-
+          {
+            $$.u_expr_list = new std::list<Expr_ptr>();
+          }
           ;
 
 argumentsPrime  : ',' exprs argumentsPrime
-
+                {
+                  $3.u_expr_list->push_front( $2.u_expr );
+                  $$.u_expr = $3.u_expr;
+                }
                 | ',' STRINGV argumentsPrime
-
+                {
+                  $3.u_expr_list->push_front( new StringLit( new StringPrimitive(
+                                            $2.u_base_charptr ) ) );
+                  $$.u_expr_list = $3.u_expr_list;
+                }
                 |
-
+                {
+                  $$.u_expr_list = new std::list<Expr_ptr>();
+                }
                 ;
 
 
 parameter : type ID parameterPrime 
-
+          {
+            $2.u_symname_list = new std::list<SymName_ptr>();
+            $2.u_symname_list->push_back( new SymName( $2.u_base_charptr ) );
+            $3.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
+                                        NULL, NULL, $2.u_symname_list,
+                                        $1.u_type, NULL ) );
+          }
           |
-
+          {
+            $$.u_decl_list = new std::list<Decl_ptr>();
+          }
           ;
 
 
 parameterPrime : ',' type ID parameterPrime
-
+               {
+                  $3.u_symname_list = new std::list<SymName_ptr>();
+                  $3.u_symname_list->push_back( new SymName( $3.u_base_charptr ) );
+                  $4.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
+                                              NULL, NULL, $3.u_symname_list,
+                                              $2.u_type, NULL) );
+                  $$.u_decl_list = $4.u_decl_list;
+               }
                |
-
+               {
+                  $$.u_decl_list = new std::list<Decl_ptr>();
+               }
                ;
 
 
