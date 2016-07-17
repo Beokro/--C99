@@ -43,7 +43,7 @@ Stat:Stat_struct_define ==> Struct_define
 Stat:Stat_enum_define ==> Enum_define
 Stat:Stat_decl ==> Decl
 
-Return_stat:Return ==> Expr
+Return_stat ==> Expr
 
 Type:TInt ==>
 Type:TChar ==>
@@ -53,6 +53,12 @@ Type:TVoid ==>
 Type:TLong ==>
 Type:TStruct ==> SymName
 Type:TEnum ==> SymName
+
+Type:TCInt ==>
+Type:TCChar ==>
+Type:TCBool ==>
+Type:TCShort ==>
+Type:TCLong ==>
 
 Type:TCharPtr ==>
 Type:TIntPtr ==>
@@ -98,7 +104,8 @@ Opassign:Rem_assign ==> Lhs Expr
 Opassign:Add_assign ==> Lhs Expr
 Opassign:Minus_assign ==> Lhs Expr
 
-
+Expr:Eq ==> Expr Expr
+Expr:Neq ==> Expr Expr
 Expr:And ==> Expr Expr
 Expr:Times ==> Expr Expr
 Expr:ArithAnd ==> Expr Expr
@@ -136,7 +143,7 @@ Expr:ETDList ==> *List
 Expr:ECall ==> SymName *SymName
 
 Lhs:Variable ==> SymName
-Lhs:DerefVariable ==> SymName
+Lhs:DerefVariable ==> Expr
 Lhs:ArrayElement ==> SymName Expr
 Lhs:ArrayDoubleElement ==> SymName Expr Expr
 Lhs:ArrowElement ==>  SymName SymName

@@ -102,13 +102,18 @@ public:
   void visitStat_struct_define(Stat_struct_define *p) { draw("Stat_struct_define", p); }
   void visitStat_enum_define(Stat_enum_define *p) { draw("Stat_enum_define", p); }
   void visitStat_decl(Stat_decl *p) { draw("Stat_decl", p); }
-  void visitReturn(Return *p) { draw("Return", p); }
+  void visitReturn_statImpl(Return_statImpl *p) { draw("Return_statImpl", p); }
   void visitTInt(TInt *p) { draw("TInt", p); }
   void visitTChar(TChar *p) { draw("TChar", p); }
   void visitTBool(TBool *p) { draw("TBool", p); }
   void visitTShort(TShort *p) { draw("TShort", p); }
   void visitTVoid(TVoid *p) { draw("TVoid", p); }
   void visitTLong(TLong *p) { draw("TLong", p); }
+  void visitTCInt(TCInt *p) { draw("TCInt", p); }
+  void visitTCChar(TCChar *p) { draw("TCChar", p); }
+  void visitTCBool(TCBool *p) { draw("TCBool", p); }
+  void visitTCShort(TCShort *p) { draw("TCShort", p); }
+  void visitTCLong(TCLong *p) { draw("TCLong", p); }
   void visitTStruct(TStruct *p) { draw("TStruct", p); }
   void visitTEnum(TEnum *p) { draw("TEnum", p); }
   void visitTCharPtr(TCharPtr *p) { draw("TCharPtr", p); }
@@ -145,6 +150,8 @@ public:
   void visitRem_assign(Rem_assign *p) { draw("Rem_assign", p); }
   void visitAdd_assign(Add_assign *p) { draw("Add_assign", p); }
   void visitMinus_assign(Minus_assign *p) { draw("Minus_assign", p); }
+  void visitEq(Eq *p) { draw("Eq", p); }
+  void visitNeq(Neq *p) { draw("Neq", p); }
   void visitAnd(And *p) { draw("And", p); }
   void visitTimes(Times *p) { draw("Times", p); }
   void visitArithAnd(ArithAnd *p) { draw("ArithAnd", p); }

@@ -4,6 +4,7 @@
     #include <iostream>
     #define YYDEBUG 1
     using namespace std;
+    #define DEBUG 1
 
     #include "ast.hpp"
     #include "primitive.hpp"
@@ -322,217 +323,550 @@ incre : opAssign
 
 stmt        : lhs '=' exprs ';'
             {
+              #ifdef DEBUG
+              cout<<"Enter stmt: lhs = expr "<<endl;
+              #endif
               $$.u_stat = new Assignment( $1.u_lhs, $3.u_expr );
             }
             | lhs '=' ID '(' arguments ')' ';'
             {
+              #ifdef DEBUG
+              cout<<"lhs '=' ID '(' arguments ')' ';'"<<endl;
+              #endif
               $$.u_stat = new Function_assignment( $1.u_lhs,
                         new CallImpl( new SymName( $3.u_base_charptr ), $5.u_expr_list ) );
             }
             | incre ';'
             {
+              #ifdef DEBUG
+              cout<<"incre "<<endl;
+              #endif
               $$.u_stat = new SIncre( $1.u_incre );
             }
             | lhs '=' STRINGV
             {
+              #ifdef DEBUG
+              cout<<"Stat:lhs '=' STRINGV "<<endl;
+              #endif
               $$.u_stat = new String_assignment( $1.u_lhs,
                                                  new StringPrimitive( $3.u_base_charptr ));
             }
             | IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Ifwithelse "<<endl;
+              #endif
+              $$.u_stat = new If_with_else( $3.u_expr, $6.u_stat_can_return_list,
+                                            $10.u_stat_can_return_list);
+            }
 
             | IF '(' exprs ')'  '{' stmtsCanReturn '}'
-
-            | WHILE '(' exprs ')' '{' stmts '}'
-
+            {
+              #ifdef DEBUG
+              cout<<"Stat:If without else "<<endl;
+              #endif
+              $$.u_stat = new If_no_else( $3.u_expr, $6.u_stat_can_return_list );
+            }
+            | WHILE '(' exprs ')' '{' stmtsCanReturn '}'
+            {
+              #ifdef DEBUG
+              cout<<"Stat: While Loop"<<endl;
+              #endif
+              $$.u_stat = new While_loop( $3.u_expr, $6.u_stat_can_return_list );
+            }
             | FOR '(' init ';' exprs ';' incre ')' '{' stmts '}'
-
-            | DO '{' stmts '}' WHILE '(' exprs ')' ';'
-
+            {
+              #ifdef DEBUG
+              cout<<"Stat:For loop "<<endl;
+              #endif
+              $$.u_stat = new For_loop( $3.u_init, $5.u_expr,
+                                        $7.u_incre, $10.u_stat_list );
+            }
+            | DO '{' stmtsCanReturn '}' WHILE '(' exprs ')' ';'
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Do while  "<<endl;
+              #endif
+              $$.u_stat = new Do_while( $7.u_expr, $3.u_stat_can_return_list );
+            }
             | SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmtsCanReturn '}'
-
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Switch "<<endl;
+              #endif
+              $$.u_stat = new Switch( $3.u_expr, $6.u_case_list,
+                                      $9.u_stat_can_return_list );
+            }
             | BREAK ';'
-
+            {
+              #ifdef DEBUG
+              cout<<"Stat: BREAK  "<<endl;
+              #endif
+              $$.u_stat = new Break();
+            }
             | ID '(' arguments ')' ';'
-      
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Function Call "<<endl;
+              #endif
+              $$.u_stat = new Function_call( new CallImpl( new SymName($1.u_base_charptr),
+                                                          $3.u_expr_list) );
+            }
             | CONTINUE ';'
-
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Continue "<<endl;
+              #endif
+              $$.u_stat = new Continue();
+            }
             | structDefine 
-
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Struct Define "<<endl;
+              #endif
+              $$.u_stat = new Stat_struct_define( $1.u_struct_define );
+            }
             | enumDefine
-
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Enum define "<<endl;
+              #endif
+              $$.u_stat = new Stat_enum_define( $1.u_enum_define );
+            }
             | decl
+            {
+              #ifdef DEBUG
+              cout<<"Stat: Decl "<<endl;
+              #endif
+              $$.u_stat = new Stat_decl( $1.u_decl );
+            }
             ;
 
 cases       : cases CASE exprs ':' stmtsCanReturn 
-            | 
+            {
+              #ifdef DEBUG
+              cout<<"Cases: Cases more "<<endl;
+              #endif
+              $1.u_case_list->push_back( new CaseImpl( $3.u_expr,
+                                                       $5.u_stat_can_return_list ) );
+              $$.u_case_list = $1.u_case_list;
+            }
+            | CASE exprs ':' stmtsCanReturn
+            {
+              #ifdef DEBUG
+              cout<<"Cases: Case one "<<endl;
+              #endif
+              $$.u_case_list = new std::list<Case_ptr>();
+              $$.u_case_list->push_back( new CaseImpl( $2.u_expr,
+                                                       $4.u_stat_can_return_list ) );
+            }
             ;
 
 
 
 returnStmt      : RETURN exprs ';'
-
+                {
+                  #ifdef DEBUG
+                  cout<<"ReturnStat"<<endl;
+                  #endif
+                  $$.u_return_stat = new Return_statImpl( $2.u_expr );
+                }
                 ;
 
 
 exprs   : exprs '*' exprs
-
+        {
+          $$.u_expr = new Times( $1.u_expr, $3.u_expr );
+        }
         | exprs '/' exprs
-
+        {
+          $$.u_expr = new Div( $1.u_expr, $3.u_expr );
+        }
         | exprs '+' exprs
-
+        {
+          $$.u_expr = new Plus( $1.u_expr, $3.u_expr );
+        }
         | exprs '-' exprs
-
+        {
+          $$.u_expr = new Minus( $1.u_expr, $3.u_expr );
+        }
         | exprs EQ  exprs
-
+        {
+          $$.u_expr = new Eq( $1.u_expr, $3.u_expr );
+        }
         | exprs GE  exprs
-
+        {
+          $$.u_expr = new Gteq( $1.u_expr, $3.u_expr );
+        }
         | exprs LE  exprs
-
+        {
+          $$.u_expr = new Lteq( $1.u_expr, $3.u_expr );
+        }
         | exprs NEQ exprs
-
+        {
+          $$.u_expr = new Neq( $1.u_expr, $3.u_expr );
+        }
         | exprs '>' exprs
-
+        {
+          $$.u_expr = new Gt( $1.u_expr, $3.u_expr );
+        }
         | exprs '<' exprs
-
+        {
+          $$.u_expr = new Lt( $1.u_expr, $3.u_expr );
+        }
         | exprs '&' exprs
-
+        {
+          $$.u_expr = new ArithAnd( $1.u_expr, $3.u_expr );
+        }
         | exprs '^' exprs
-
+        {
+          $$.u_expr = new ArithXor( $1.u_expr, $3.u_expr );
+        }
         | exprs '|' exprs
-
+        {
+          $$.u_expr = new ArithOr( $1.u_expr, $3.u_expr );
+        }
         | exprs '%' exprs
-
+        {
+          $$.u_expr = new Rem( $1.u_expr, $3.u_expr );
+        }
         | exprs AND exprs
-
+        {
+          $$.u_expr = new And( $1.u_expr, $3.u_expr );
+        }
         | exprs OR  exprs
-
+        {
+          $$.u_expr = new Or( $1.u_expr, $3.u_expr );
+        }
         | exprs SR  exprs
-
+        {
+          $$.u_expr = new ShiftR( $1.u_expr, $3.u_expr );
+        }
         | exprs SL  exprs
-
+        {
+          $$.u_expr = new ShiftL( $1.u_expr, $3.u_expr );
+        }
         | term
-
+        {
+          $$.u_expr = $1.u_expr;
+        }
         ;
 
 opAssign : lhs ANDASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: And"<<endl;
+            #endif
+            $$.u_opassign = new And_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs XORASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Xor"<<endl;
+            #endif
+            $$.u_opassign = new Xor_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs ORASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Or"<<endl;
+            #endif
+            $$.u_opassign = new Or_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs SLASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Shift Left"<<endl;
+            #endif
+            $$.u_opassign = new Sl_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs SRASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Shift Right"<<endl;
+            #endif
+            $$.u_opassign = new Sr_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs TIMESASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Times"<<endl;
+            #endif
+            $$.u_opassign = new Times_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs DIVASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Divide"<<endl;
+            #endif
+            $$.u_opassign = new Div_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs REMASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Remain"<<endl;
+            #endif
+            $$.u_opassign = new Rem_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs ADDASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Add"<<endl;
+            #endif
+            $$.u_opassign = new Add_assign( $1.u_lhs, $3.u_expr );
+         }
          | lhs MINUSASSIGN  exprs
-
+         {
+            #ifdef DEBUG
+            cout<<"OpAssign: Minus"<<endl;
+            #endif
+            $$.u_opassign = new Minus_assign( $1.u_lhs, $3.u_expr );
+         }
 
 
 term        : ID sbarket
-
+            {
+              $$.u_expr = new ArrayAccess( new SymName( $1.u_base_charptr ), $2.u_expr );
+            }
             | ID sbarket sbarket
-
+            {
+              $$.u_expr = new ArrayDoubleAccess( new SymName( $1.u_base_charptr ),
+                                                 $2.u_expr, $3.u_expr );
+            }
             | ID
-
+            {
+              $$.u_expr = new Ident( new SymName( $1.u_base_charptr ) );
+            }
             | ID '.' ID
-
+            {
+              $$.u_expr = new DotAccess( new SymName( $1.u_base_charptr),
+                                         new SymName( $3.u_base_charptr) );
+            }
             | ID ARROW ID
-
+            {
+              $$.u_expr = new ArrowAccess( new SymName( $1.u_base_charptr),
+                                           new SymName( $3.u_base_charptr) );
+            }
             | literal
-
+            {
+              $$.u_expr = $1.u_expr;
+            }
             | '(' exprs ')'
-
+            {
+              $$.u_expr = $2.u_expr;
+            }
             | '!' exprs                     %prec SECOND
-
+            {
+              $$.u_expr = new Not( $2.u_expr );
+            }
             | '*' exprs                     %prec SECOND
-
+            {
+              $$.u_expr = new Deref( $2.u_expr );
+            }
             | '-' exprs                     %prec SECOND
-
+            {
+              $$.u_expr = new Uminus( $2.u_expr );
+            }
             | '+' exprs                     %prec SECOND
-
+            {
+              $$.u_expr = $2.u_expr;
+            }
             | '&' lhs                       %prec SECOND
-
+            {
+              $$.u_expr = new AddressOf( $2.u_lhs );
+            }
             ;
 
 lhs         : ID sbarket
-
+            {
+              $$.u_lhs = new ArrayElement( new SymName($1.u_base_charptr), $2.u_expr );
+            }
             | ID sbarket sbarket
-
+            {
+              $$.u_lhs = new ArrayDoubleElement( new SymName($1.u_base_charptr),
+                                                 $2.u_expr, $3.u_expr );
+            }
             | ID
-
-            | '*' ID
-
+            {
+              $$.u_lhs = new Variable( new SymName( $1.u_base_charptr ) );
+            }
+            | '*' exprs
+            {
+              $$.u_lhs = new DerefVariable( $2.u_expr );
+            }
             | ID ARROW ID
-
+            {
+              $$.u_lhs = new ArrowElement( new SymName( $1.u_base_charptr ),
+                                           new SymName( $1.u_base_charptr ) );
+            }
             | ID '.' ID
-
+            {
+              $$.u_lhs = new DotElement( new SymName( $1.u_base_charptr ),
+                                         new SymName( $3.u_base_charptr ) );
+            }
             ;
 
 literal     : NUMBER
-
+            {
+              $$.u_expr = new IntLit( new Primitive( $1.u_base_int ) );
+            }
             | CHARV
-
+            {
+              $$.u_expr = new CharLit( new Primitive( $1.u_base_int ) );
+            }
             | TRUE
-
+            {
+              $$.u_expr = new BoolLit( new Primitive( 1 ) );
+            }
             | FALSE
-
+            {
+              $$.u_expr = new BoolLit( new Primitive( 0 ) );
+            }
             | NULLX
-
+            {
+              $$.u_expr = new NullLit();
+            }
             ;
 
 sbarket     : '[' exprs ']'
-
+            {
+              $$.u_expr = $2.u_expr;
+            }
             ;
 
 
 
 
 type        : BOOL
-            | INT    
-            | CHAR       
-            | SHORT    
+            {
+              $$.u_type = new TBool();
+            }
+            | INT
+            {
+              $$.u_type = new TInt();
+            }
+            | CHAR
+            {
+              $$.u_type = new TChar();
+            }
+            | SHORT
+            {
+              $$.u_type = new TShort();
+            }
             | UNSIGNED
+            {
+              $$.u_type = new TInt();
+            }
             | SIGNED
+            {
+              $$.u_type = new TInt();
+            }
             | VOID
+            {
+              $$.u_type = new TVoid();
+            }
             | LONG
+            {
+              $$.u_type = new TLong();
+            }
             | LONG LONG
+            {
+              $$.u_type = new TLong();
+            }
             | CONST BOOL
-            | CONST INT    
-            | CONST CHAR       
-            | CONST SHORT    
+            {
+              $$.u_type = new TCBool();
+            }
+            | CONST INT
+            {
+              $$.u_type = new TCInt();
+            }
+            | CONST CHAR
+            {
+              $$.u_type = new TCChar();
+            }
+            | CONST SHORT
+            {
+              $$.u_type = new TCShort();
+            }
             | CONST UNSIGNED
+            {
+              $$.u_type = new TCInt();
+            }
             | CONST SIGNED
+            {
+              $$.u_type = new TCInt();
+            }
             | CONST LONG
+            {
+              $$.u_type = new TCLong();
+            }
             | CONST LONG LONG
+            {
+              $$.u_type = new TCLong();
+            }
             | STRUCT ID
+            {
+              $$.u_type = new TStruct( new SymName( $2.u_base_charptr ) );
+            }
             | ENUM ID
+            {
+              $$.u_type = new TEnum( new SymName( $2.u_base_charptr ) );
+            }
             | STRING
+            {
+              $$.u_type = new TString();
+            }
             | BOOL '*'
-            | INT '*'    
-            | CHAR '*'       
-            | SHORT'*'   
+            {
+              $$.u_type = new TBoolPtr();
+            }
+            | INT '*'
+            {
+              $$.u_type = new TIntPtr();
+            }
+            | CHAR '*'
+            {
+              $$.u_type = new TCharPtr();
+            }
+            | SHORT'*'
+            {
+              $$.u_type = new TShortPtr();
+            }
             | UNSIGNED '*'
+            {
+              $$.u_type = new TIntPtr();
+            }
             | SIGNED '*'
+            {
+              $$.u_type = new TIntPtr();
+            }
             | VOID '*'
+            {
+              $$.u_type = new TVoidPtr();
+            }
             | LONG '*'
+            {
+              $$.u_type = new TLongPtr();
+            }
             | LONG LONG '*'
+            {
+              $$.u_type = new TLongPtr();
+            }
             ;
 
 
 
 
-arguments : exprs argumentsPrime {cout<<"Enter arguments \n";}
-
+arguments : exprs argumentsPrime
+          {
+            $2.u_expr_list->push_front( $1.u_expr );
+            $$.u_expr_list = $2.u_expr_list;
+          }
           | STRINGV argumentsPrime {cout<<"Enter arguments \n";}
-
+          {
+            
+          }
           |
 
           ;
