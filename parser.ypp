@@ -42,35 +42,56 @@ s           : outermosts
 
 outermosts    : outermosts outermost
               {
+                #ifdef DEBUG
+                cout << "Outermosts: more" << endl;
+                #endif
                 $1.u_outermost_list->push_back($2.u_outermost);
                 $$.u_outermost_list = $1.u_outermost_list;
               }
               |
               {
+                #ifdef DEBUG
+                cout << "Outermosts: empty" << endl;
+                #endif
                 $$.u_outermost_list = new std::list<Outermost_ptr>();
               }
               ;
 
 outermost     : enumDefine
               {
+                #ifdef DEBUG
+                cout << "Outermost: enumDefine" << endl;
+                #endif
                 $$.u_outermost = new Out_enum_define($1.u_enum_define);
               }
               | decl          
               {
+                #ifdef DEBUG
+                cout << "Outermost: decl" << endl;
+                #endif
                 $$.u_outermost = new Out_decl($1.u_decl);
               }
               | procedure
               {
+                #ifdef DEBUG
+                cout << "Outermost: procedure" << endl;
+                #endif
                 $$.u_outermost = new Out_procedure($1.u_procedure);
               }
               | structDefine
               {
+                #ifdef DEBUG
+                cout << "Outermost: structDefine" << endl;
+                #endif
                 $$.u_outermost = new Out_struct_define($1.u_struct_define);
               }
               ;
              
 procedure       : type ID '(' parameter ')'  '{' procedureContents returnStmt '}'
                 {
+                  #ifdef DEBUG
+                  cout << "Procedure: procedure" << endl;
+                  #endif
                   $$.u_procedure = new ProcedureImpl( $1.u_type,
                                                       new SymName($2.u_base_charptr),
                                                       $4.u_decl_list, $7.u_pcontent_list,
@@ -80,21 +101,33 @@ procedure       : type ID '(' parameter ')'  '{' procedureContents returnStmt '}
 
 procedureContents : procedureContents procedureContent
                   {
+                    #ifdef DEBUG
+                    cout << "ProcedureContents: more" << endl;
+                    #endif
                     $1.u_pcontent_list->push_back($2.u_pcontent);
                     $$.u_pcontent_list = $1.u_pcontent_list;  
                   }
                   |
                   {
+                    #ifdef DEBUG
+                    cout << "ProcedureContents: empty" << endl;
+                    #endif
                     $$.u_pcontent_list = new std::list<PContent_ptr>();
                   }
                   ;
 
 procedureContent  : procedure
                   {
+                    #ifdef DEBUG
+                    cout << "ProcedureContent: procedure" << endl;
+                    #endif
                     $$.u_pcontent = new PProcedure($1.u_procedure);
                   }
                   | stmt
                   {
+                    #ifdef DEBUG
+                    cout << "ProcedureContent: statment" << endl;
+                    #endif
                     $$.u_pcontent = new PStat($1.u_stat);
                   }
                   ;
@@ -102,6 +135,9 @@ procedureContent  : procedure
 
 structDefine    : STRUCT ID '{' decls '}' ';'
                 {
+                  #ifdef DEBUG
+                  cout << "StructDefine: structdefine" << endl;
+                  #endif
                   $$.u_struct_define = new Struct_defineImpl( new SymName( $2.u_base_charptr ),
                                                               $4.u_decl_list);
                 }
@@ -109,6 +145,9 @@ structDefine    : STRUCT ID '{' decls '}' ';'
 
 enumDefine    : ENUM ID '{' ID idPrime  '}' ';'
               {
+                #ifdef DEBUG
+                cout << "EnumDefine: enum with name" << endl;
+                #endif
                 $5.u_symname_list->push_front( new SymName( $4.u_base_charptr ) );
                 $$.u_enum_define = new Enum_defineImpl( new Primitive( 1 ),
                                                         new SymName( $2.u_base_charptr ),
@@ -116,6 +155,9 @@ enumDefine    : ENUM ID '{' ID idPrime  '}' ';'
               }
               | ENUM '{' ID idPrime  '}' ';'
               {
+                #ifdef DEBUG
+                cout << "EnumDefine: enum without name" << endl;
+                #endif
                 $4.u_symname_list->push_front( new SymName( $3.u_base_charptr ) );
                 $$.u_enum_define = new Enum_defineImpl( new Primitive( 0), NULL,
                                                         $4.u_symname_list );
@@ -124,22 +166,34 @@ enumDefine    : ENUM ID '{' ID idPrime  '}' ';'
 
 idPrime     : ',' ID idPrime
             {
+              #ifdef DEBUG
+              cout << "IdPrime: with ID" << endl;
+              #endif
               $3.u_symname_list->push_front( new SymName( $2.u_base_charptr ) );
               $$.u_symname_list = $3.u_symname_list;
             }
             |
             {
+              #ifdef DEBUG
+              cout << "IDPrime: empty" << endl;
+              #endif
               $$.u_symname_list = new std::list<SymName_ptr>();
             }
             ;
 
 decls       : decls decl
             {
+              #ifdef DEBUG
+              cout << "Decls: more" << endl;
+              #endif
               $1.u_decl_list->push_back( $2.u_decl );
               $$.u_decl_list = $1.u_decl_list;                           
             }
             |
             {
+              #ifdef DEBUG
+              cout << "Decls: empty" << endl;
+              #endif
               $$.u_decl_list = new std::list<Decl_ptr>();
             }
             ; 
@@ -147,6 +201,9 @@ decls       : decls decl
 //first dimention size, second dimention size 
 decl        : type ID sbarket optionAssign declFollow ';'
             {
+              #ifdef DEBUG
+              cout << "Decl: [ X ]" << endl;
+              #endif
               $5.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $5.u_expr_list->push_front( $4.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 1 ),
@@ -155,6 +212,9 @@ decl        : type ID sbarket optionAssign declFollow ';'
             }
             | type ID '[' ']' optionAssign declFollow ';'
             {
+              #ifdef DEBUG
+              cout << "Decl: []" << endl;
+              #endif
               $6.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $6.u_expr_list->push_front( $5.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 1 ),
@@ -163,6 +223,9 @@ decl        : type ID sbarket optionAssign declFollow ';'
             }
             | type ID optionAssign declFollow ';'
             {
+              #ifdef DEBUG
+              cout << "Decl : "<< endl;
+              #endif
               $4.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $4.u_expr_list->push_front( $3.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 0 ),
@@ -171,11 +234,17 @@ decl        : type ID sbarket optionAssign declFollow ';'
             }
             | type ID '(' parameter ')' ';'
             {
+              #ifdef DEBUG
+              cout << "Decl: function decl" << endl;
+              #endif
               $$.u_decl = new Decl_function( $1.u_type, new SymName( $2.u_base_charptr ),
                                              $4.u_decl_list );
             }
             | type ID '[' ']' sbarket optionAssign declFollow ';'
             {
+              #ifdef DEBUG
+              cout << "Decl: [] [ X ]" << endl;
+              #endif
               $7.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $7.u_expr_list->push_front( $6.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 2 ),
@@ -185,6 +254,9 @@ decl        : type ID sbarket optionAssign declFollow ';'
             }
             | type ID sbarket sbarket optionAssign declFollow ';'
             {
+              #ifdef DEBUG
+              cout << "Decl: [ X ] [ X ] " << endl;
+              #endif
               $6.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $6.u_expr_list->push_front( $5.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 2 ),
@@ -196,6 +268,9 @@ decl        : type ID sbarket optionAssign declFollow ';'
 
 declFollow    : ',' ID optionAssign declFollow
               {
+                #ifdef DEBUG
+                cout << "DeclFollow: more" << endl;
+                #endif
                 $4.u_symname_list->push_front( new SymName( $2.u_base_charptr ) );
                 $4.u_expr_list->push_front( $3.u_expr );
                 $$.u_symname_list = $4.u_symname_list;
@@ -203,6 +278,9 @@ declFollow    : ',' ID optionAssign declFollow
               }
               |
               {
+                #ifdef DEBUG
+                cout << "DeclFollow: empty" << endl;
+                #endif
                 $$.u_expr_list = new std::list<Expr_ptr>();
                 $$.u_symname_list = new std::list<SymName_ptr>();
               }
@@ -210,6 +288,9 @@ declFollow    : ',' ID optionAssign declFollow
 
 lists : list listPrime
       {
+        #ifdef DEBUG
+        cout << "Lists: more" << endl;
+        #endif
         $2.u_list_list->push_front( $1.u_list );
         $$.u_list_list = $2.u_list_list;
       }
@@ -217,17 +298,26 @@ lists : list listPrime
 
 list  : '{' arguments '}'
       {
+        #ifdef DEBUG
+        cout << "List: arguments" << endl;
+        #endif
         $$.u_list = new ListImpl( $2.u_expr_list );
       }
       ;
 
 listPrime : ',' list listPrime
           {
+            #ifdef DEBUG
+            cout << "ListPrime: more" << endl;
+            #endif
             $3.u_list_list->push_front( $2.u_list );
             $$.u_list_list = $3.u_list_list;
           }
           |
           {
+            #ifdef DEBUG
+            cout << "ListPrime: empty" << endl;
+            #endif
             $$.u_list_list = new std::list<List_ptr>();
           }
           ;
@@ -235,23 +325,38 @@ listPrime : ',' list listPrime
 
 optionAssign    : '=' exprs
                 {
+                  #ifdef DEBUG
+                  cout << "OpAssign: = exprs" << endl;
+                  #endif
                   $$.u_expr = $2.u_expr;
                 }
                 | '=' ID '(' arguments ')'
                 {
+                  #ifdef DEBUG
+                  cout << "OpAssign: = function call" << endl;
+                  #endif
                   $$.u_expr = new ECall( new SymName( $2.u_base_charptr ),
                                          $4.u_symname_list );
                 }
                 | '=' '{' arguments '}'
                 {
+                  #ifdef DEBUG
+                  cout << "OpAssign: = arguments" << endl;
+                  #endif
                   $$.u_expr = new EList( $3.u_symname_list );
                 }
                 | '=' '{' lists '}'
                 {
+                  #ifdef DEBUG
+                  cout << "OpAssign: = { lists }" << endl;
+                  #endif
                   $$.u_expr = new ETDList( $3.u_list_list );
                 }
                 | '=' STRINGV
                 {
+                  #ifdef DEBUG
+                  cout << "OpAssign: = Stringv" << endl;
+                  #endif
                   $$.u_expr = new StringLit( new StringPrimitive( $2.u_base_charptr ) );
                 }
                 | 
@@ -259,64 +364,103 @@ optionAssign    : '=' exprs
 
 stmts       : stmts stmt
             {
+              #ifdef DEBUG
+              cout << "Statments: more" << endl;
+              #endif
               $1.u_stat_list->push_back( $2.u_stat );
               $$.u_stat_list = $1.u_stat_list;
             }
             |
             {
+              #ifdef DEBUG
+              cout << "Statments: empty" << endl;
+              #endif
               $$.u_stat_list = new std::list<Stat_ptr>();
             }
             ;
 
 stmtsCanReturn    : stmtsCanReturn stmtCanReturn
                   {
+                    #ifdef DEBUG
+                    cout << "StatmentsCanReturn: more" << endl;
+                    #endif
                     $1.u_stat_can_return_list->push_back( $2.u_stat_can_return );
                     $$.u_stat_can_return_list = $1.u_stat_can_return_list;
                   }
                   |
                   {
+                    #ifdef DEBUG
+                    cout << "StatmentsCanReturn: empty" << endl;
+                    #endif
                     $$.u_stat_can_return_list = new std::list<Stat_can_return_ptr>();
                   }
                   ;
 
 stmtCanReturn     : stmt
                   {
+                    #ifdef DEBUG
+                    cout << "StatmentsCanReturn: statement" << endl;
+                    #endif
                     $$.u_stat_can_return = new NStat( $1.u_stat );
                   }
                   | returnStmt
                   {
+                    #ifdef DEBUG
+                    cout << "Statments: Return" << endl;
+                    #endif
                     $$.u_stat_can_return = new RStat( $1.u_return_stat );
                   }
                   ;
 
 init  : type ID optionAssign
       {
+        #ifdef DEBUG
+        cout << "Init: new Init" << endl;
+        #endif
         $$.u_init = new Init_new( $1.u_type, new SymName( $2.u_base_charptr ), $3.u_expr );
       }
       | ID optionAssign
       {
+        #ifdef DEBUG
+        cout << "Init: Old Init" << endl;
+        #endif
         $$.u_init = new Init_old( new SymName( $1.u_base_charptr ), $2.u_expr );
       }
       ;
 
 incre : opAssign
       {
+        #ifdef DEBUG
+        cout << "Incre: opassign" << endl;
+        #endif
         $$.u_incre = new Incre_op( $1.u_opassign );
       }
       | lhs ADDADD
       {
+        #ifdef DEBUG
+        cout << "Incre: V++" << endl;
+        #endif
         $$.u_incre = new Incre_t_add( $1.u_lhs );
       }
       | lhs MINUSMINUS
       {
+        #ifdef DEBUG
+        cout << "Incre: V--" << endl;
+        #endif
         $$.u_incre = new Incre_t_min( $1.u_lhs );
       }
       | ADDADD lhs
       {
+        #ifdef DEBUG
+        cout << "Incre: ++V" << endl;
+        #endif
         $$.u_incre = new Incre_add_t( $2.u_lhs );
       }
       | MINUSMINUS lhs
       {
+        #ifdef DEBUG
+        cout << "Incre: --V" << endl;
+        #endif
         $$.u_incre = new Incre_min_t( $2.u_lhs );
       }
       ;
@@ -324,14 +468,14 @@ incre : opAssign
 stmt        : lhs '=' exprs ';'
             {
               #ifdef DEBUG
-              cout<<"Enter stmt: lhs = expr "<<endl;
+              cout << "Enter stmt: lhs = expr "<< endl;
               #endif
               $$.u_stat = new Assignment( $1.u_lhs, $3.u_expr );
             }
             | lhs '=' ID '(' arguments ')' ';'
             {
               #ifdef DEBUG
-              cout<<"lhs '=' ID '(' arguments ')' ';'"<<endl;
+              cout << "lhs '=' ID '(' arguments ')' ';'"<< endl;
               #endif
               $$.u_stat = new Function_assignment( $1.u_lhs,
                         new CallImpl( new SymName( $3.u_base_charptr ), $5.u_expr_list ) );
@@ -339,14 +483,14 @@ stmt        : lhs '=' exprs ';'
             | incre ';'
             {
               #ifdef DEBUG
-              cout<<"incre "<<endl;
+              cout << "incre "<< endl;
               #endif
               $$.u_stat = new SIncre( $1.u_incre );
             }
             | lhs '=' STRINGV
             {
               #ifdef DEBUG
-              cout<<"Stat:lhs '=' STRINGV "<<endl;
+              cout << "Stat:lhs '=' STRINGV "<< endl;
               #endif
               $$.u_stat = new String_assignment( $1.u_lhs,
                                                  new StringPrimitive( $3.u_base_charptr ));
@@ -354,7 +498,7 @@ stmt        : lhs '=' exprs ';'
             | IF '(' exprs ')'  '{' stmtsCanReturn '}' ELSE '{' stmtsCanReturn '}'
             {
               #ifdef DEBUG
-              cout<<"Stat: Ifwithelse "<<endl;
+              cout << "Stat: Ifwithelse "<< endl;
               #endif
               $$.u_stat = new If_with_else( $3.u_expr, $6.u_stat_can_return_list,
                                             $10.u_stat_can_return_list);
@@ -363,21 +507,21 @@ stmt        : lhs '=' exprs ';'
             | IF '(' exprs ')'  '{' stmtsCanReturn '}'
             {
               #ifdef DEBUG
-              cout<<"Stat:If without else "<<endl;
+              cout << "Stat:If without else "<< endl;
               #endif
               $$.u_stat = new If_no_else( $3.u_expr, $6.u_stat_can_return_list );
             }
             | WHILE '(' exprs ')' '{' stmtsCanReturn '}'
             {
               #ifdef DEBUG
-              cout<<"Stat: While Loop"<<endl;
+              cout << "Stat: While Loop"<< endl;
               #endif
               $$.u_stat = new While_loop( $3.u_expr, $6.u_stat_can_return_list );
             }
             | FOR '(' init ';' exprs ';' incre ')' '{' stmts '}'
             {
               #ifdef DEBUG
-              cout<<"Stat:For loop "<<endl;
+              cout << "Stat:For loop "<< endl;
               #endif
               $$.u_stat = new For_loop( $3.u_init, $5.u_expr,
                                         $7.u_incre, $10.u_stat_list );
@@ -385,14 +529,14 @@ stmt        : lhs '=' exprs ';'
             | DO '{' stmtsCanReturn '}' WHILE '(' exprs ')' ';'
             {
               #ifdef DEBUG
-              cout<<"Stat: Do while  "<<endl;
+              cout << "Stat: Do while  "<< endl;
               #endif
               $$.u_stat = new Do_while( $7.u_expr, $3.u_stat_can_return_list );
             }
             | SWITCH '(' exprs ')' '{'cases DEFAULT ':' stmtsCanReturn '}'
             {
               #ifdef DEBUG
-              cout<<"Stat: Switch "<<endl;
+              cout << "Stat: Switch "<< endl;
               #endif
               $$.u_stat = new Switch( $3.u_expr, $6.u_case_list,
                                       $9.u_stat_can_return_list );
@@ -400,14 +544,14 @@ stmt        : lhs '=' exprs ';'
             | BREAK ';'
             {
               #ifdef DEBUG
-              cout<<"Stat: BREAK  "<<endl;
+              cout << "Stat: BREAK  "<< endl;
               #endif
               $$.u_stat = new Break();
             }
             | ID '(' arguments ')' ';'
             {
               #ifdef DEBUG
-              cout<<"Stat: Function Call "<<endl;
+              cout << "Stat: Function Call "<< endl;
               #endif
               $$.u_stat = new Function_call( new CallImpl( new SymName($1.u_base_charptr),
                                                           $3.u_expr_list) );
@@ -415,28 +559,28 @@ stmt        : lhs '=' exprs ';'
             | CONTINUE ';'
             {
               #ifdef DEBUG
-              cout<<"Stat: Continue "<<endl;
+              cout << "Stat: Continue "<< endl;
               #endif
               $$.u_stat = new Continue();
             }
             | structDefine 
             {
               #ifdef DEBUG
-              cout<<"Stat: Struct Define "<<endl;
+              cout << "Stat: Struct Define "<< endl;
               #endif
               $$.u_stat = new Stat_struct_define( $1.u_struct_define );
             }
             | enumDefine
             {
               #ifdef DEBUG
-              cout<<"Stat: Enum define "<<endl;
+              cout << "Stat: Enum define "<< endl;
               #endif
               $$.u_stat = new Stat_enum_define( $1.u_enum_define );
             }
             | decl
             {
               #ifdef DEBUG
-              cout<<"Stat: Decl "<<endl;
+              cout << "Stat: Decl "<< endl;
               #endif
               $$.u_stat = new Stat_decl( $1.u_decl );
             }
@@ -445,7 +589,7 @@ stmt        : lhs '=' exprs ';'
 cases       : cases CASE exprs ':' stmtsCanReturn 
             {
               #ifdef DEBUG
-              cout<<"Cases: Cases more "<<endl;
+              cout << "Cases: Cases more "<< endl;
               #endif
               $1.u_case_list->push_back( new CaseImpl( $3.u_expr,
                                                        $5.u_stat_can_return_list ) );
@@ -454,7 +598,7 @@ cases       : cases CASE exprs ':' stmtsCanReturn
             | CASE exprs ':' stmtsCanReturn
             {
               #ifdef DEBUG
-              cout<<"Cases: Case one "<<endl;
+              cout << "Cases: Case one "<< endl;
               #endif
               $$.u_case_list = new std::list<Case_ptr>();
               $$.u_case_list->push_back( new CaseImpl( $2.u_expr,
@@ -467,7 +611,7 @@ cases       : cases CASE exprs ':' stmtsCanReturn
 returnStmt      : RETURN exprs ';'
                 {
                   #ifdef DEBUG
-                  cout<<"ReturnStat"<<endl;
+                  cout << "ReturnStat"<< endl;
                   #endif
                   $$.u_return_stat = new Return_statImpl( $2.u_expr );
                 }
@@ -476,78 +620,135 @@ returnStmt      : RETURN exprs ';'
 
 exprs   : exprs '*' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Times" << endl;
+          #endif
           $$.u_expr = new Times( $1.u_expr, $3.u_expr );
         }
         | exprs '/' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Divide" << endl;
+          #endif
           $$.u_expr = new Div( $1.u_expr, $3.u_expr );
         }
         | exprs '+' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Add" << endl;
+          #endif
           $$.u_expr = new Plus( $1.u_expr, $3.u_expr );
         }
         | exprs '-' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Minus" << endl;
+          #endif
           $$.u_expr = new Minus( $1.u_expr, $3.u_expr );
         }
         | exprs EQ  exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: equal" << endl;
+          #endif
           $$.u_expr = new Eq( $1.u_expr, $3.u_expr );
         }
         | exprs GE  exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Greater Equal" << endl;
+          #endif
           $$.u_expr = new Gteq( $1.u_expr, $3.u_expr );
         }
         | exprs LE  exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Less Equal" << endl;
+          #endif
           $$.u_expr = new Lteq( $1.u_expr, $3.u_expr );
         }
         | exprs NEQ exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Not Equal" << endl;
+          #endif
           $$.u_expr = new Neq( $1.u_expr, $3.u_expr );
         }
         | exprs '>' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Greater" << endl;
+          #endif
           $$.u_expr = new Gt( $1.u_expr, $3.u_expr );
         }
         | exprs '<' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Less" << endl;
+          #endif
           $$.u_expr = new Lt( $1.u_expr, $3.u_expr );
         }
         | exprs '&' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Arith And" << endl;
+          #endif
           $$.u_expr = new ArithAnd( $1.u_expr, $3.u_expr );
         }
         | exprs '^' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Xor" << endl;
+          #endif
           $$.u_expr = new ArithXor( $1.u_expr, $3.u_expr );
         }
         | exprs '|' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Arith Or" << endl;
+          #endif
           $$.u_expr = new ArithOr( $1.u_expr, $3.u_expr );
         }
         | exprs '%' exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Remin" << endl;
+          #endif
           $$.u_expr = new Rem( $1.u_expr, $3.u_expr );
         }
         | exprs AND exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: And" << endl;
+          #endif
           $$.u_expr = new And( $1.u_expr, $3.u_expr );
         }
         | exprs OR  exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Or" << endl;
+          #endif
           $$.u_expr = new Or( $1.u_expr, $3.u_expr );
         }
         | exprs SR  exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Shift Right" << endl;
+          #endif
           $$.u_expr = new ShiftR( $1.u_expr, $3.u_expr );
         }
         | exprs SL  exprs
         {
+          #ifdef DEBUG
+          cout << "Expr: Shift Left" << endl;
+          #endif
           $$.u_expr = new ShiftL( $1.u_expr, $3.u_expr );
         }
         | term
         {
+          #ifdef DEBUG
+          cout << "Expr: Term" << endl;
+          #endif
           $$.u_expr = $1.u_expr;
         }
         ;
@@ -555,70 +756,70 @@ exprs   : exprs '*' exprs
 opAssign : lhs ANDASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: And"<<endl;
+            cout << "OpAssign: And"<< endl;
             #endif
             $$.u_opassign = new And_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs XORASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Xor"<<endl;
+            cout << "OpAssign: Xor"<< endl;
             #endif
             $$.u_opassign = new Xor_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs ORASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Or"<<endl;
+            cout << "OpAssign: Or"<< endl;
             #endif
             $$.u_opassign = new Or_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs SLASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Shift Left"<<endl;
+            cout << "OpAssign: Shift Left"<< endl;
             #endif
             $$.u_opassign = new Sl_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs SRASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Shift Right"<<endl;
+            cout << "OpAssign: Shift Right"<< endl;
             #endif
             $$.u_opassign = new Sr_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs TIMESASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Times"<<endl;
+            cout << "OpAssign: Times"<< endl;
             #endif
             $$.u_opassign = new Times_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs DIVASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Divide"<<endl;
+            cout << "OpAssign: Divide"<< endl;
             #endif
             $$.u_opassign = new Div_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs REMASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Remain"<<endl;
+            cout << "OpAssign: Remain"<< endl;
             #endif
             $$.u_opassign = new Rem_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs ADDASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Add"<<endl;
+            cout << "OpAssign: Add"<< endl;
             #endif
             $$.u_opassign = new Add_assign( $1.u_lhs, $3.u_expr );
          }
          | lhs MINUSASSIGN  exprs
          {
             #ifdef DEBUG
-            cout<<"OpAssign: Minus"<<endl;
+            cout << "OpAssign: Minus"<< endl;
             #endif
             $$.u_opassign = new Minus_assign( $1.u_lhs, $3.u_expr );
          }
@@ -626,81 +827,135 @@ opAssign : lhs ANDASSIGN  exprs
 
 term        : ID sbarket
             {
+              #ifdef DEBUG
+              cout << "Term: [ X ]" << endl;
+              #endif
               $$.u_expr = new ArrayAccess( new SymName( $1.u_base_charptr ), $2.u_expr );
             }
             | ID sbarket sbarket
             {
+              #ifdef DEBUG
+              cout << "Term: [ X ] [ X ]" << endl;
+              #endif
               $$.u_expr = new ArrayDoubleAccess( new SymName( $1.u_base_charptr ),
                                                  $2.u_expr, $3.u_expr );
             }
             | ID
             {
+              #ifdef DEBUG
+              cout << "Term: Ident"<< endl;
+              #endif
               $$.u_expr = new Ident( new SymName( $1.u_base_charptr ) );
             }
             | ID '.' ID
             {
+              #ifdef DEBUG
+              cout << "Term: Dot Access"<< endl;
+              #endif
               $$.u_expr = new DotAccess( new SymName( $1.u_base_charptr),
                                          new SymName( $3.u_base_charptr) );
             }
             | ID ARROW ID
             {
+              #ifdef DEBUG
+              cout << "Term: Arrow Access"<< endl;
+              #endif
               $$.u_expr = new ArrowAccess( new SymName( $1.u_base_charptr),
                                            new SymName( $3.u_base_charptr) );
             }
             | literal
             {
+              #ifdef DEBUG
+              cout << "Term: Literal"<< endl;
+              #endif
               $$.u_expr = $1.u_expr;
             }
             | '(' exprs ')'
             {
+              #ifdef DEBUG
+              cout << "Term: (  )"<< endl;
+              #endif
               $$.u_expr = $2.u_expr;
             }
             | '!' exprs                     %prec SECOND
             {
+              #ifdef DEBUG
+              cout << "Term: Not Expr"<< endl;
+              #endif
               $$.u_expr = new Not( $2.u_expr );
             }
             | '*' exprs                     %prec SECOND
             {
+              #ifdef DEBUG
+              cout << "Term: Dereference"<< endl;
+              #endif
               $$.u_expr = new Deref( $2.u_expr );
             }
             | '-' exprs                     %prec SECOND
             {
+              #ifdef DEBUG
+              cout << "Term: Uminus"<< endl;
+              #endif
               $$.u_expr = new Uminus( $2.u_expr );
             }
             | '+' exprs                     %prec SECOND
             {
+              #ifdef DEBUG
+              cout << "Term: UPlus"<< endl;
+              #endif
               $$.u_expr = $2.u_expr;
             }
             | '&' lhs                       %prec SECOND
             {
+              #ifdef DEBUG
+              cout << "Term: Address Of"<< endl;
+              #endif
               $$.u_expr = new AddressOf( $2.u_lhs );
             }
             ;
 
 lhs         : ID sbarket
             {
+              #ifdef DEBUG
+              cout << "Lhs: ID[ X ]"<< endl;
+              #endif
               $$.u_lhs = new ArrayElement( new SymName($1.u_base_charptr), $2.u_expr );
             }
             | ID sbarket sbarket
             {
+              #ifdef DEBUG
+              cout << "Lhs: ID[ X ][ X ]"<< endl;
+              #endif
               $$.u_lhs = new ArrayDoubleElement( new SymName($1.u_base_charptr),
                                                  $2.u_expr, $3.u_expr );
             }
             | ID
             {
+              #ifdef DEBUG
+              cout << "Lhs: Variable"<< endl;
+              #endif
               $$.u_lhs = new Variable( new SymName( $1.u_base_charptr ) );
             }
             | '*' exprs
             {
+              #ifdef DEBUG
+              cout << "Lhs: Dereference of"<< endl;
+              #endif
               $$.u_lhs = new DerefVariable( $2.u_expr );
             }
             | ID ARROW ID
             {
+              #ifdef DEBUG
+              cout << "Lhs: Arrow Assignment"<< endl;
+              #endif
               $$.u_lhs = new ArrowElement( new SymName( $1.u_base_charptr ),
                                            new SymName( $1.u_base_charptr ) );
             }
             | ID '.' ID
             {
+              #ifdef DEBUG
+              cout << "Lhs: Dot Assigment"<< endl;
+              #endif
               $$.u_lhs = new DotElement( new SymName( $1.u_base_charptr ),
                                          new SymName( $3.u_base_charptr ) );
             }
@@ -708,28 +963,46 @@ lhs         : ID sbarket
 
 literal     : NUMBER
             {
+              #ifdef DEBUG
+              cout << "Literal: Number"<< endl;
+              #endif
               $$.u_expr = new IntLit( new Primitive( $1.u_base_int ) );
             }
             | CHARV
             {
+              #ifdef DEBUG
+              cout << "Literal: CharLit"<< endl;
+              #endif
               $$.u_expr = new CharLit( new Primitive( $1.u_base_int ) );
             }
             | TRUE
             {
+              #ifdef DEBUG
+              cout << "Literal: True"<< endl;
+              #endif
               $$.u_expr = new BoolLit( new Primitive( 1 ) );
             }
             | FALSE
             {
+              #ifdef DEBUG
+              cout << "Literal: False"<< endl;
+              #endif
               $$.u_expr = new BoolLit( new Primitive( 0 ) );
             }
             | NULLX
             {
+              #ifdef DEBUG
+              cout << "Literal: NULL"<< endl;
+              #endif
               $$.u_expr = new NullLit();
             }
             ;
 
 sbarket     : '[' exprs ']'
             {
+              #ifdef DEBUG
+              cout << "Sbarket: expr"<< endl;
+              #endif
               $$.u_expr = $2.u_expr;
             }
             ;
@@ -739,118 +1012,205 @@ sbarket     : '[' exprs ']'
 
 type        : BOOL
             {
+              #ifdef DEBUG
+              cout << "Type: Bool"<< endl;
+              #endif
               $$.u_type = new TBool();
             }
             | INT
             {
+              #ifdef DEBUG
+              cout << "Type: Int"<< endl;
+              #endif
               $$.u_type = new TInt();
             }
             | CHAR
             {
+              #ifdef DEBUG
+              cout << "Type: Char"<< endl;
+              #endif
               $$.u_type = new TChar();
             }
             | SHORT
             {
+              #ifdef DEBUG
+              cout << "Type: Short"<< endl;
+              #endif
               $$.u_type = new TShort();
             }
             | UNSIGNED
             {
+              #ifdef DEBUG
+              cout << "Type: Unsigned"<< endl;
+              #endif
               $$.u_type = new TInt();
             }
             | SIGNED
             {
+              #ifdef DEBUG
+              cout << "Type: Signed"<< endl;
+              #endif
               $$.u_type = new TInt();
             }
             | VOID
             {
+              #ifdef DEBUG
+              cout << "Type: Void"<< endl;
+              #endif
               $$.u_type = new TVoid();
             }
             | LONG
             {
+              #ifdef DEBUG
+              cout << "Type: Long"<< endl;
+              #endif
               $$.u_type = new TLong();
             }
             | LONG LONG
             {
+              #ifdef DEBUG
+              cout << "Type: Long Long"<< endl;
+              #endif
               $$.u_type = new TLong();
             }
             | CONST BOOL
             {
+              #ifdef DEBUG
+              cout << "Type: Const Bool"<< endl;
+              #endif
               $$.u_type = new TCBool();
             }
             | CONST INT
             {
+              #ifdef DEBUG
+              cout << "Type: Const Int"<< endl;
+              #endif
               $$.u_type = new TCInt();
             }
             | CONST CHAR
             {
+              #ifdef DEBUG
+              cout << "Type: Const Char"<< endl;
+              #endif
               $$.u_type = new TCChar();
             }
             | CONST SHORT
             {
+              #ifdef DEBUG
+              cout << "Type: Const Short"<< endl;
+              #endif
               $$.u_type = new TCShort();
             }
             | CONST UNSIGNED
             {
+              #ifdef DEBUG
+              cout << "Type: Const Unsigned"<< endl;
+              #endif
               $$.u_type = new TCInt();
             }
             | CONST SIGNED
             {
+              #ifdef DEBUG
+              cout << "Type: Const Signed"<< endl;
+              #endif
               $$.u_type = new TCInt();
             }
             | CONST LONG
             {
+              #ifdef DEBUG
+              cout << "Type: Const Long"<< endl;
+              #endif
               $$.u_type = new TCLong();
             }
             | CONST LONG LONG
             {
+              #ifdef DEBUG
+              cout << "Type: Const Long Long"<< endl;
+              #endif
               $$.u_type = new TCLong();
             }
             | STRUCT ID
             {
+              #ifdef DEBUG
+              cout << "Type: Struct"<< endl;
+              #endif
               $$.u_type = new TStruct( new SymName( $2.u_base_charptr ) );
             }
             | ENUM ID
             {
+              #ifdef DEBUG
+              cout << "Type: Enum"<< endl;
+              #endif
               $$.u_type = new TEnum( new SymName( $2.u_base_charptr ) );
             }
             | STRING
             {
+              #ifdef DEBUG
+              cout << "Type: String"<< endl;
+              #endif
               $$.u_type = new TString();
             }
             | BOOL '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Bool Ptr"<< endl;
+              #endif
               $$.u_type = new TBoolPtr();
             }
             | INT '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Int Ptr"<< endl;
+              #endif
               $$.u_type = new TIntPtr();
             }
             | CHAR '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Char Ptr"<< endl;
+              #endif
               $$.u_type = new TCharPtr();
             }
             | SHORT'*'
             {
+              #ifdef DEBUG
+              cout << "Type: Short Ptr"<< endl;
+              #endif
               $$.u_type = new TShortPtr();
             }
             | UNSIGNED '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Unsigned Ptr"<< endl;
+              #endif
               $$.u_type = new TIntPtr();
             }
             | SIGNED '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Signed Ptr"<< endl;
+              #endif
               $$.u_type = new TIntPtr();
             }
             | VOID '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Void Ptr"<< endl;
+              #endif
               $$.u_type = new TVoidPtr();
             }
             | LONG '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Long Ptr"<< endl;
+              #endif
               $$.u_type = new TLongPtr();
             }
             | LONG LONG '*'
             {
+              #ifdef DEBUG
+              cout << "Type: Long Long Ptr"<< endl;
+              #endif
               $$.u_type = new TLongPtr();
             }
             ;
@@ -860,34 +1220,52 @@ type        : BOOL
 
 arguments : exprs argumentsPrime
           {
+            #ifdef DEBUG
+            cout << "Argument: exprs argumentsPrime" << endl;
+            #endif
             $2.u_expr_list->push_front( $1.u_expr );
             $$.u_expr_list = $2.u_expr_list;
           }
           | STRINGV argumentsPrime
           {
+            #ifdef DEBUG
+            cout << "Argument: Stringv argumentsPrime" << endl;
+            #endif
             $2.u_expr_list->push_front( new StringLit( new StringPrimitive(
                                         $1.u_base_charptr ) ) );
             $$.u_expr_list = $2.u_expr_list;
           }
           |
           {
+            #ifdef DEBUG
+            cout << "Argument : empty" << endl;
+            #endif
             $$.u_expr_list = new std::list<Expr_ptr>();
           }
           ;
 
 argumentsPrime  : ',' exprs argumentsPrime
                 {
+                  #ifdef DEBUG
+                  cout << "ArgumentsPrime: expr argumentsPrime" << endl;
+                  #endif
                   $3.u_expr_list->push_front( $2.u_expr );
                   $$.u_expr = $3.u_expr;
                 }
                 | ',' STRINGV argumentsPrime
                 {
+                  #ifdef DEBUG
+                  cout << "ArgumentsPrime: Stringv argumentsPrime" << endl;
+                  #endif
                   $3.u_expr_list->push_front( new StringLit( new StringPrimitive(
                                             $2.u_base_charptr ) ) );
                   $$.u_expr_list = $3.u_expr_list;
                 }
                 |
                 {
+                  #ifdef DEBUG
+                  cout << "ArgumentsPrime: empty" << endl;
+                  #endif
                   $$.u_expr_list = new std::list<Expr_ptr>();
                 }
                 ;
@@ -895,6 +1273,9 @@ argumentsPrime  : ',' exprs argumentsPrime
 
 parameter : type ID parameterPrime 
           {
+            #ifdef DEBUG
+            cout << "Parameter: type ID parameterPrime" << endl;
+            #endif
             $2.u_symname_list = new std::list<SymName_ptr>();
             $2.u_symname_list->push_back( new SymName( $2.u_base_charptr ) );
             $3.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
@@ -903,6 +1284,9 @@ parameter : type ID parameterPrime
           }
           |
           {
+            #ifdef DEBUG
+            cout << "ParameterPrime: empty" << endl;
+            #endif
             $$.u_decl_list = new std::list<Decl_ptr>();
           }
           ;
@@ -910,6 +1294,9 @@ parameter : type ID parameterPrime
 
 parameterPrime : ',' type ID parameterPrime
                {
+                  #ifdef DEBUG
+                  cout << "ParameterPrime: type ID parameterPrime" << endl;
+                  #endif
                   $3.u_symname_list = new std::list<SymName_ptr>();
                   $3.u_symname_list->push_back( new SymName( $3.u_base_charptr ) );
                   $4.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
@@ -919,6 +1306,9 @@ parameterPrime : ',' type ID parameterPrime
                }
                |
                {
+                  #ifdef DEBUG
+                  cout << "ParameterPrime: empty" << endl;
+                  #endif
                   $$.u_decl_list = new std::list<Decl_ptr>();
                }
                ;
