@@ -159,7 +159,9 @@ enumDefine    : ENUM ID '{' ID idPrime  '}' ';'
                 cout << "EnumDefine: enum without name" << endl;
                 #endif
                 $4.u_symname_list->push_front( new SymName( $3.u_base_charptr ) );
-                $$.u_enum_define = new Enum_defineImpl( new Primitive( 0), NULL,
+                char temp[] = "enum no name";
+                $$.u_enum_define = new Enum_defineImpl( new Primitive( 0 ),
+                                                        new SymName( temp ),
                                                         $4.u_symname_list );
               }
               ;
@@ -207,7 +209,8 @@ decl        : type ID sbarket optionAssign declFollow ';'
               $5.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $5.u_expr_list->push_front( $4.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 1 ),
-                                             $3.u_expr, NULL, $5.u_symname_list,
+                                             $3.u_expr, new Empty(),
+                                             $5.u_symname_list,
                                              $1.u_type, $5.u_expr_list );
             }
             | type ID '[' ']' optionAssign declFollow ';'
@@ -218,7 +221,8 @@ decl        : type ID sbarket optionAssign declFollow ';'
               $6.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $6.u_expr_list->push_front( $5.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 1 ),
-                                             NULL, NULL, $6.u_symname_list,
+                                             new Empty(), new Empty(),
+                                             $6.u_symname_list,
                                              $1.u_type, $6.u_expr_list );
             }
             | type ID optionAssign declFollow ';'
@@ -228,9 +232,13 @@ decl        : type ID sbarket optionAssign declFollow ';'
               #endif
               $4.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $4.u_expr_list->push_front( $3.u_expr );
+              cout<<$4.u_symname_list->size()<<endl;
+              cout<<$4.u_expr_list->size()<<endl;
               $$.u_decl = new Decl_variable( new Primitive( 0 ),
-                                             NULL, NULL, $4.u_symname_list,
+                                             new Empty(), new Empty(),
+                                             $4.u_symname_list,
                                              $1.u_type, $4.u_expr_list );
+              cout<<"finish declare decl"<<endl;
             }
             | type ID '(' parameter ')' ';'
             {
@@ -248,7 +256,7 @@ decl        : type ID sbarket optionAssign declFollow ';'
               $7.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $7.u_expr_list->push_front( $6.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 2 ),
-                                             NULL, $5.u_expr, 
+                                             new Empty(), $5.u_expr, 
                                              $7.u_symname_list,
                                              $1.u_type, $7.u_expr_list );
             }
@@ -359,7 +367,13 @@ optionAssign    : '=' exprs
                   #endif
                   $$.u_expr = new StringLit( new StringPrimitive( $2.u_base_charptr ) );
                 }
-                | 
+                |
+                {
+                  #ifdef DEBUG
+                  cout << "OpAssign: empty" << endl;
+                  #endif
+                  $$.u_expr = new Empty();
+                }
                 ;
 
 stmts       : stmts stmt
@@ -1279,8 +1293,10 @@ parameter : type ID parameterPrime
             $2.u_symname_list = new std::list<SymName_ptr>();
             $2.u_symname_list->push_back( new SymName( $2.u_base_charptr ) );
             $3.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
-                                        NULL, NULL, $2.u_symname_list,
-                                        $1.u_type, NULL ) );
+                                        new Empty(), new Empty(),
+                                        $2.u_symname_list,
+                                        $1.u_type, new std::list<Expr_ptr> ) );
+            $$.u_decl_list = $3.u_decl_list;
           }
           |
           {
@@ -1300,8 +1316,9 @@ parameterPrime : ',' type ID parameterPrime
                   $3.u_symname_list = new std::list<SymName_ptr>();
                   $3.u_symname_list->push_back( new SymName( $3.u_base_charptr ) );
                   $4.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
-                                              NULL, NULL, $3.u_symname_list,
-                                              $2.u_type, NULL) );
+                                              new Empty(), new Empty(),
+                                              $3.u_symname_list,
+                                              $2.u_type, new std::list<Expr_ptr>() ) );
                   $$.u_decl_list = $4.u_decl_list;
                }
                |

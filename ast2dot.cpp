@@ -187,6 +187,7 @@ public:
   void visitEList(EList *p) { draw("Elist", p); }
   void visitETDList(ETDList *p) { draw("ETDlist", p); }
   void visitECall(ECall *p) { draw("ECall", p); }
+  void visitEmpty(Empty *p) { draw("Empty", p); }
   void visitVariable(Variable *p) { draw("Variable", p); }
   void visitDerefVariable(DerefVariable *p) { draw("DerefVariable", p); }
   void visitArrayElement(ArrayElement *p) { draw("ArrayElement", p); }
