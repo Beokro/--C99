@@ -1,10 +1,11 @@
 int main(){
-    char c[] ;
-    short s;
-    int i;
-    long l;
-    long long ll;
-    bool b;
-    return 0;
+  bool a ;
+  char c[] ;
+  short s;
+  int i;
+  long l;
+  long long ll;
+  bool b;
+  return 0;
 
 }

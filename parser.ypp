@@ -38,6 +38,9 @@
 
 %%
 s           : outermosts
+            {
+              ast = new ProgramImpl( $1.u_outermost_list );
+            }
             ;
 
 outermosts    : outermosts outermost
@@ -232,13 +235,10 @@ decl        : type ID sbarket optionAssign declFollow ';'
               #endif
               $4.u_symname_list->push_front( new SymName($2.u_base_charptr) );
               $4.u_expr_list->push_front( $3.u_expr );
-              cout<<$4.u_symname_list->size()<<endl;
-              cout<<$4.u_expr_list->size()<<endl;
               $$.u_decl = new Decl_variable( new Primitive( 0 ),
                                              new Empty(), new Empty(),
                                              $4.u_symname_list,
                                              $1.u_type, $4.u_expr_list );
-              cout<<"finish declare decl"<<endl;
             }
             | type ID '(' parameter ')' ';'
             {
@@ -334,14 +334,14 @@ listPrime : ',' list listPrime
 optionAssign    : '=' exprs
                 {
                   #ifdef DEBUG
-                  cout << "OpAssign: = exprs" << endl;
+                  cout << "OptionAssign: = exprs" << endl;
                   #endif
                   $$.u_expr = $2.u_expr;
                 }
                 | '=' ID '(' arguments ')'
                 {
                   #ifdef DEBUG
-                  cout << "OpAssign: = function call" << endl;
+                  cout << "OptionAssign: = function call" << endl;
                   #endif
                   $$.u_expr = new ECall( new SymName( $2.u_base_charptr ),
                                          $4.u_symname_list );
@@ -349,28 +349,28 @@ optionAssign    : '=' exprs
                 | '=' '{' arguments '}'
                 {
                   #ifdef DEBUG
-                  cout << "OpAssign: = arguments" << endl;
+                  cout << "OptionAssign: = arguments" << endl;
                   #endif
                   $$.u_expr = new EList( $3.u_symname_list );
                 }
                 | '=' '{' lists '}'
                 {
                   #ifdef DEBUG
-                  cout << "OpAssign: = { lists }" << endl;
+                  cout << "OptionAssign: = { lists }" << endl;
                   #endif
                   $$.u_expr = new ETDList( $3.u_list_list );
                 }
                 | '=' STRINGV
                 {
                   #ifdef DEBUG
-                  cout << "OpAssign: = Stringv" << endl;
+                  cout << "OptionAssign: = Stringv" << endl;
                   #endif
                   $$.u_expr = new StringLit( new StringPrimitive( $2.u_base_charptr ) );
                 }
                 |
                 {
                   #ifdef DEBUG
-                  cout << "OpAssign: empty" << endl;
+                  cout << "OptionAssign: empty" << endl;
                   #endif
                   $$.u_expr = new Empty();
                 }

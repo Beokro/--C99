@@ -21,7 +21,7 @@ int main(void)
     yydebug = 0;    // Set yydebug to 1 if you want yyparse() to dump a trace
     yyparse();
     if(ast) {       // Walk over the ast and print it out as a dot file
-        dopass_ast2dot(ast);
+      dopass_ast2dot(ast);
     }
 
     return 0;
