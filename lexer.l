@@ -4,6 +4,7 @@
 %{
 #include <cstdlib>
 #include <cstring>
+#include "ast.hpp"
 #include "parser.hpp"
 
 void yyerror(const char *);
@@ -13,9 +14,9 @@ void yyerror(const char *);
 
 %%
 
-"bool"		    {return BOOL;}
-"char"		    {return CHAR;}
-"int"   	    {return INT;}
+"bool"		          {return BOOL;}
+"char"		          {return CHAR;}
+"int"   	          {return INT;}
 "float"             {return FLOAT;}
 "double"            {return DOUBLE;}
 "short"             {return SHORT;}
@@ -23,13 +24,13 @@ void yyerror(const char *);
 "signed"            {return SIGNED;}
 "void"              {return VOID;}
 "const"             {return CONST;}
-"string"	    {return STRING;}
+"string"	          {return STRING;}
 "long"              {return LONG;}
 "switch"            {return SWITCH;}
 "break"             {return BREAK;}
 "enum"              {return ENUM;}
 "case"              {return CASE;}
-"2continue"          {return CONTINUE;}
+"2continue"         {return CONTINUE;}
 "goto"              {return GOTO;}
 "sizeof"            {return SIZEOF;}
 "default"           {return DEFAULT;}
@@ -37,25 +38,25 @@ void yyerror(const char *);
 
 "do"                {return DO;}
 "typedef"           {return TYPEDEF;}
-"if"  		    {return IF;}
+"if"  		          {return IF;}
 "for"               {return FOR;}
-"else"		    {return ELSE;}
-"while"		    {return WHILE;}
-"return"	    {return RETURN;}
-"NULL"		    {return NULLX;}
-"true"		    {return TRUE;}
-"false"		    {return FALSE;}
+"else"		          {return ELSE;}
+"while"		          {return WHILE;}
+"return"	          {return RETURN;}
+"NULL"		          {return NULLX;}
+"true"		          {return TRUE;}
+"false"		          {return FALSE;}
 "include"           {return INCLUDE;}
 
 "->"                {return ARROW;}
-"&&"		    {return AND;}
-"||"		    {return OR;}
+"&&"		            {return AND;}
+"||"		            {return OR;}
 ">>"                {return SR;}
 "<<"                {return SL;}
-"=="		    {return EQ;}
-">="		    {return GE;}
-"<="		    {return LE;}
-"!="		    {return NEQ;}
+"=="		            {return EQ;}
+">="		            {return GE;}
+"<="		            {return LE;}
+"!="		            {return NEQ;}
 "&="                {return ANDASSIGN;}
 "^="                {return XORASSIGN;}
 "|="                {return ORASSIGN;}
@@ -74,25 +75,25 @@ void yyerror(const char *);
 char * temp = strdup(yytext);
 temp+=1;
 temp[strlen(temp)-1] = '\0';
-/*yylval.u_base_charptr = temp;*/
+yylval.u_base_charptr = temp;
 return STRINGV;
 }
 
-[\'][a-zA-Z][\']      {/*yylval.u_base_int=(int)(*(yytext+1));*/   return CHARV;}
+[\'][a-zA-Z][\']      {yylval.u_base_int=(int)(*(yytext+1));   return CHARV;}
 
 [\/\=\>\<\-\!\+\*\&\^\;\:\,\|\{\}\(\)\[\]\?\%\~\#\.]  	{return *yytext; }
 
 0[0-7]* 				{
-/*yylval.u_base_int = strtol(yytext,NULL,8);*/
+yylval.u_base_int = strtol(yytext,NULL,8);
 return NUMBER;
 }
 
-0X[0-9A-F][0-9A-F]* 		{/*yylval.u_base_int=strtol(yytext,NULL,16);*/ return NUMBER;}
-0x[0-9A-F][0-9A-F]* 		{/*yylval.u_base_int=strtol(yytext,NULL,16);*/ return NUMBER;}
-0|[1-9][0-9]*         		{/*yylval.u_base_int=strtol(yytext,NULL,10);*/ return NUMBER; }
-0b[0-1]*		        {/*yylval.u_base_int=strtol(yytext,NULL,2);*/  return NUMBER; }
+0X[0-9A-F][0-9A-F]* 		{yylval.u_base_int=strtol(yytext,NULL,16); return NUMBER;}
+0x[0-9A-F][0-9A-F]* 		{yylval.u_base_int=strtol(yytext,NULL,16); return NUMBER;}
+0|[1-9][0-9]*         		{yylval.u_base_int=strtol(yytext,NULL,10); return NUMBER; }
+0b[0-1]*		        {yylval.u_base_int=strtol(yytext,NULL,2);  return NUMBER; }
 
-[a-zA-Z][0-9a-zA-Z_]*		{/*yylval.u_base_charptr = strdup(yytext);*/ return ID;}
+[a-zA-Z][0-9a-zA-Z_]*		{yylval.u_base_charptr = strdup(yytext); return ID;}
 
 
 [ \t\n]				; /* skip whitespace */

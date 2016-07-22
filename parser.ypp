@@ -209,36 +209,36 @@ decl        : type ID sbarket optionAssign declFollow ';'
               #ifdef DEBUG
               cout << "Decl: [ X ]" << endl;
               #endif
-              $5.u_symname_list->push_front( new SymName($2.u_base_charptr) );
-              $5.u_expr_list->push_front( $4.u_expr );
+              $5.u_assignpair_list->push_front( new AssignPairImpl(
+                                                new SymName($2.u_base_charptr),
+                                                $4.u_expr) );
               $$.u_decl = new Decl_variable( new Primitive( 1 ),
                                              $3.u_expr, new Empty(),
-                                             $5.u_symname_list,
-                                             $1.u_type, $5.u_expr_list );
+                                             $1.u_type, $5.u_assignpair_list );
             }
             | type ID '[' ']' optionAssign declFollow ';'
             {
               #ifdef DEBUG
               cout << "Decl: []" << endl;
               #endif
-              $6.u_symname_list->push_front( new SymName($2.u_base_charptr) );
-              $6.u_expr_list->push_front( $5.u_expr );
+              $6.u_assignpair_list->push_front( new AssignPairImpl(
+                                                new SymName($2.u_base_charptr),
+                                                $5.u_expr) );
               $$.u_decl = new Decl_variable( new Primitive( 1 ),
                                              new Empty(), new Empty(),
-                                             $6.u_symname_list,
-                                             $1.u_type, $6.u_expr_list );
+                                             $1.u_type, $6.u_assignpair_list );
             }
             | type ID optionAssign declFollow ';'
             {
               #ifdef DEBUG
               cout << "Decl : "<< endl;
               #endif
-              $4.u_symname_list->push_front( new SymName($2.u_base_charptr) );
-              //$4.u_expr_list->push_front( $3.u_expr );
+              $4.u_assignpair_list->push_front( new AssignPairImpl(
+                                                new SymName($2.u_base_charptr),
+                                                $3.u_expr) );
               $$.u_decl = new Decl_variable( new Primitive( 0 ),
                                              new Empty(), new Empty(),
-                                             $4.u_symname_list,
-                                             $1.u_type, new list<Expr_ptr>() );
+                                             $1.u_type, $4.u_assignpair_list );
             }
             | type ID '(' parameter ')' ';'
             {
@@ -253,24 +253,24 @@ decl        : type ID sbarket optionAssign declFollow ';'
               #ifdef DEBUG
               cout << "Decl: [] [ X ]" << endl;
               #endif
-              $7.u_symname_list->push_front( new SymName($2.u_base_charptr) );
-              $7.u_expr_list->push_front( $6.u_expr );
+              $7.u_assignpair_list->push_front( new AssignPairImpl(
+                                                new SymName($2.u_base_charptr),
+                                                $6.u_expr) );                                          
               $$.u_decl = new Decl_variable( new Primitive( 2 ),
                                              new Empty(), $5.u_expr, 
-                                             $7.u_symname_list,
-                                             $1.u_type, $7.u_expr_list );
+                                             $1.u_type, $7.u_assignpair_list );
             }
             | type ID sbarket sbarket optionAssign declFollow ';'
             {
               #ifdef DEBUG
               cout << "Decl: [ X ] [ X ] " << endl;
               #endif
-              $6.u_symname_list->push_front( new SymName($2.u_base_charptr) );
-              $6.u_expr_list->push_front( $5.u_expr );
+              $6.u_assignpair_list->push_front( new AssignPairImpl(
+                                                new SymName($2.u_base_charptr),
+                                                $5.u_expr) );                                          
               $$.u_decl = new Decl_variable( new Primitive( 2 ),
                                              $3.u_expr, $4.u_expr, 
-                                             $6.u_symname_list,
-                                             $1.u_type, $6.u_expr_list );
+                                             $1.u_type, $6.u_assignpair_list );
             }
             ;
 
@@ -279,18 +279,17 @@ declFollow    : ',' ID optionAssign declFollow
                 #ifdef DEBUG
                 cout << "DeclFollow: more" << endl;
                 #endif
-                $4.u_symname_list->push_front( new SymName( $2.u_base_charptr ) );
-                //$4.u_expr_list->push_front( $3.u_expr );
-                $$.u_symname_list = $4.u_symname_list;
-                //$$.u_expr_list = $4.u_expr_list;
+                $4.u_assignpair_list->push_front( new AssignPairImpl(
+                                                  new SymName( $2.u_base_charptr ) ,
+                                                  $3.u_expr ) );
+                $$.u_assignpair_list = $4.u_assignpair_list;
               }
               |
               {
                 #ifdef DEBUG
                 cout << "DeclFollow: empty" << endl;
                 #endif
-                //$$.u_expr_list = new std::list<Expr_ptr>();
-                $$.u_symname_list = new std::list<SymName_ptr>();
+                $$.u_assignpair_list = new std::list<AssignPair_ptr >();
               }
               ;
 
@@ -1290,12 +1289,12 @@ parameter : type ID parameterPrime
             #ifdef DEBUG
             cout << "Parameter: type ID parameterPrime" << endl;
             #endif
-            $2.u_symname_list = new std::list<SymName_ptr>();
-            $2.u_symname_list->push_back( new SymName( $2.u_base_charptr ) );
+            list<AssignPair_ptr>* temp = new list<AssignPair_ptr>(); 
+            temp->push_back( new AssignPairImpl( new SymName( $2.u_base_charptr ),
+                                                 new Empty() ) );
             $3.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
                                         new Empty(), new Empty(),
-                                        $2.u_symname_list,
-                                        $1.u_type, new std::list<Expr_ptr> ) );
+                                        $1.u_type, temp ) );
             $$.u_decl_list = $3.u_decl_list;
           }
           |
@@ -1313,12 +1312,12 @@ parameterPrime : ',' type ID parameterPrime
                   #ifdef DEBUG
                   cout << "ParameterPrime: type ID parameterPrime" << endl;
                   #endif
-                  $3.u_symname_list = new std::list<SymName_ptr>();
-                  $3.u_symname_list->push_back( new SymName( $3.u_base_charptr ) );
+                  list<AssignPair_ptr>* temp = new list<AssignPair_ptr>(); 
+                  temp->push_back( new AssignPairImpl( new SymName( $3.u_base_charptr ),
+                                                       new Empty() ) );
                   $4.u_decl_list->push_front( new Decl_variable( new Primitive( 0 ),
                                               new Empty(), new Empty(),
-                                              $3.u_symname_list,
-                                              $2.u_type, new std::list<Expr_ptr>() ) );
+                                              $2.u_type, temp ) );
                   $$.u_decl_list = $4.u_decl_list;
                }
                |

@@ -7,9 +7,10 @@ Outermost:Out_decl ==> Decl
 Outermost:Out_procedure ==> Procedure
 Outermost:Out_struct_define ==> Struct_define
 
+AssignPair ==> SymName Expr
+
 Enum_define ==> Primitive SymName *SymName
-#const, assign, one dimention, second dimention
-Decl:Decl_variable ==> Primitive Expr Expr *SymName Type *Expr
+Decl:Decl_variable ==> Primitive Expr Expr Type *AssignPair
 Decl:Decl_function ==> Type SymName *Decl
 Procedure ==> Type SymName *Decl *PContent Return_stat
 Struct_define ==> SymName *Decl
