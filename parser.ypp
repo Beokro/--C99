@@ -4,7 +4,7 @@
     #include <iostream>
     #define YYDEBUG 1
     using namespace std;
-    #define DEBUG 1
+    //#define DEBUG 1
 
     #include "ast.hpp"
     #include "primitive.hpp"
@@ -234,11 +234,11 @@ decl        : type ID sbarket optionAssign declFollow ';'
               cout << "Decl : "<< endl;
               #endif
               $4.u_symname_list->push_front( new SymName($2.u_base_charptr) );
-              $4.u_expr_list->push_front( $3.u_expr );
+              //$4.u_expr_list->push_front( $3.u_expr );
               $$.u_decl = new Decl_variable( new Primitive( 0 ),
                                              new Empty(), new Empty(),
                                              $4.u_symname_list,
-                                             $1.u_type, $4.u_expr_list );
+                                             $1.u_type, new list<Expr_ptr>() );
             }
             | type ID '(' parameter ')' ';'
             {
@@ -280,16 +280,16 @@ declFollow    : ',' ID optionAssign declFollow
                 cout << "DeclFollow: more" << endl;
                 #endif
                 $4.u_symname_list->push_front( new SymName( $2.u_base_charptr ) );
-                $4.u_expr_list->push_front( $3.u_expr );
+                //$4.u_expr_list->push_front( $3.u_expr );
                 $$.u_symname_list = $4.u_symname_list;
-                $$.u_expr_list = $4.u_expr_list;
+                //$$.u_expr_list = $4.u_expr_list;
               }
               |
               {
                 #ifdef DEBUG
                 cout << "DeclFollow: empty" << endl;
                 #endif
-                $$.u_expr_list = new std::list<Expr_ptr>();
+                //$$.u_expr_list = new std::list<Expr_ptr>();
                 $$.u_symname_list = new std::list<SymName_ptr>();
               }
               ;

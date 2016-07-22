@@ -1,6 +1,6 @@
 int main(){
   bool a ;
-  char c[] ;
+  char c ;
   short s;
   int i;
   long l;
