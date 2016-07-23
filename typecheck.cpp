@@ -6,9 +6,7 @@
 #include "symtab.hpp"
 #include "primitive.hpp"
 #include "assert.h"
-
-// WRITEME: The default attribute propagation rule
-#define default_rule(X) X
+using namespace std;
 
 #include <typeinfo>
 
@@ -121,28 +119,32 @@ private:
   // WRITEME: You need to implement type-checking for this project
 
   // Check that there is one and only one main
-  void check_for_one_main(ProgramImpl* p)
-  {
+  void check_for_one_main( ProgramImpl* p ) {
+    Symbol * s = m_st->lookup( "main" );
+
+    if ( s == NULL || s->m_basetype != bt_procedure ){
+      this->t_error(no_main, p->m_attribute);
+    }
   }
 
   // Create a symbol for the procedure and check there is none already
   // existing
-  void add_proc_symbol(ProcImpl* p)
-  {
+  void add_proc_symbol(ProcedureImpl* p){
+
   }
 
   // Add symbol table information for all the declarations following
-  void add_decl_symbol(DeclImpl* p)
+  void add_decl_symbol(Decl_variable* p)
   {
   }
 
   // Check that the return statement of a procedure has the appropriate type
-  void check_proc(ProcImpl *p)
+  void check_proc(ProcedureImpl *p)
   {
   }
 
   // Check that the declared return type is not an array
-  void check_return(Return *p)
+  void check_return(Return_statImpl *p)
   {
   }
 
@@ -162,7 +164,7 @@ private:
   {
   }
 
-  void check_string_assignment(StringAssignment* p)
+  void check_string_assignment(String_assignment* p)
   {
   }
 
@@ -233,6 +235,10 @@ private:
 
 
 public:
+  void default_rule(Visitable* p){
+    static_cast<Program*>(p)->m_attribute.m_scope = m_st->get_scope();
+    p->visit_children(this);
+  }
 
   Typecheck(FILE* errorfile, SymTab* st) {
     m_errorfile = errorfile;
@@ -383,131 +389,162 @@ public:
 
   }
 
-  void visitTInt( TInt *p ) { 
-
+  void visitTInt( TInt *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_integer;
   }
 
-  void visitTChar( TChar *p ) { 
-
+  void visitTChar( TChar *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_char;
   }
 
-  void visitTBool( TBool *p ) { 
-
+  void visitTBool( TBool *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_boolean;
   }
 
-  void visitTShort( TShort *p ) { 
-
+  void visitTShort( TShort *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_short;
   }
 
-  void visitTVoid( TVoid *p ) { 
-
+  void visitTVoid( TVoid *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_void;
   }
 
-  void visitTLong( TLong *p ) { 
-
+  void visitTLong( TLong *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_long;
   }
 
-  void visitTStruct( TStruct *p ) { 
-
+  void visitTStruct( TStruct *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_struct;
   }
 
-  void visitTEnum( TEnum *p ) { 
-
+  void visitTEnum( TEnum *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_enum;
   }
 
-  void visitTCInt( TCInt *p ) { 
-
+  void visitTCInt( TCInt *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_const_int;
   }
 
-  void visitTCChar( TCChar *p ) { 
-
+  void visitTCChar( TCChar *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_const_char;
   }
 
-  void visitTCBool( TCBool *p ) { 
-
+  void visitTCBool( TCBool *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_const_bool;
   }
 
-  void visitTCShort( TCShort *p ) { 
-
+  void visitTCShort( TCShort *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_const_short;
   }
 
-  void visitTCLong( TCLong *p ) { 
-
+  void visitTCLong( TCLong *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_const_long;
   }
 
-  void visitTCharPtr( TCharPtr *p ) { 
-
+  void visitTCharPtr( TCharPtr *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_charptr;
   }
 
-  void visitTIntPtr( TIntPtr *p ) { 
-
+  void visitTIntPtr( TIntPtr *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_intptr;
   }
 
-  void visitTBoolPtr( TBoolPtr *p ) { 
-
+  void visitTBoolPtr( TBoolPtr *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_boolptr;
   }
 
-  void visitTShortPtr( TShortPtr *p ) { 
-
+  void visitTShortPtr( TShortPtr *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_shortptr;
   }
 
-  void visitTVoidPtr( TVoidPtr *p ) { 
-
+  void visitTVoidPtr( TVoidPtr *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_voidptr;
   }
 
-  void visitTLongPtr( TLongPtr *p ) { 
-
+  void visitTLongPtr( TLongPtr *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_longptr;
   }
 
-  void visitTIntArray( TIntArray *p ) { 
-
+  void visitTIntArray( TIntArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_int_array;
   }
 
-  void visitTCharArray( TCharArray *p ) { 
-
+  void visitTCharArray( TCharArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_char_array;
   }
 
-  void visitTBoolArray( TBoolArray *p ) { 
-
+  void visitTBoolArray( TBoolArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_bool_array;
   }
 
-  void visitTShortArray( TShortArray *p ) { 
-
+  void visitTShortArray( TShortArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_short_array;
   }
 
-  void visitTLongArray( TLongArray *p ) { 
-
+  void visitTLongArray( TLongArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_long_array;
   }
 
-  void visitTTDIntArray( TTDIntArray *p ) { 
-
+  void visitTTDIntArray( TTDIntArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_2d_int_array;
   }
 
-  void visitTTDCharArray( TTDCharArray *p ) { 
-
+  void visitTTDCharArray( TTDCharArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_2d_char_array;
   }
 
-  void visitTTDBoolArray( TTDBoolArray *p ) { 
-
+  void visitTTDBoolArray( TTDBoolArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_2d_bool_array;
   }
 
-  void visitTTDShortArray( TTDShortArray *p ) { 
-
+  void visitTTDShortArray( TTDShortArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_2d_short_array;
   }
 
-  void visitTTDLongArray( TTDLongArray *p ) { 
-
+  void visitTTDLongArray( TTDLongArray *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_2d_long_array;
   }
 
-  void visitTString( TString *p ) { 
-
+  void visitTString( TString *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_string;
   }
 
-  void visitNo_type( No_type *p ) { 
-
+  void visitNo_type( No_type *p ) {
+    default_rule( p );
+    p->m_attribute.m_basetype = bt_undef;
   }
 
-  void visitListImpl( ListImpl *p ) { 
+  void visitListImpl( ListImpl *p ) {
 
   }
 

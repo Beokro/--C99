@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <functional>
+#include <string>
 #include <unordered_map>
 
 #include <cassert>
@@ -55,7 +56,17 @@ const char* SymName::spelling()
     return m_spelling;
 }
 
-const Symbol* SymName::symbol()
+const char* SymName::mangled_spelling()
+{
+    if(!strcmp(m_spelling,"Main")) {
+        return "main";
+    } else {
+        return m_spelling;
+    }
+    // fix me: should handle the name scoping properly
+}
+
+Symbol* SymName::symbol()
 {
     return m_symbol;
 }
@@ -73,21 +84,15 @@ void SymName::set_symbol(Symbol* s)
 
 /****** SymScope Def (used by SymTab) **************************************/
 
-// Comparison structure for strings
-struct eqstr {
-    bool operator()(const char* s1, const char* s2) const
-    { return strcmp(s1, s2) == 0; }
-};
-
 
 class SymScope
 {
   private:
     SymScope* m_parent;
     std::list<SymScope*> m_child;
-    typedef std::unordered_map<char*, Symbol*, std::hash<char*>, eqstr> ScopeTableType;
+    typedef std::unordered_map<std::string, Symbol*> ScopeTableType;
     ScopeTableType m_scopetable;
-
+    int m_scopesize;
     SymScope* parent();
     void add_child(SymScope* c);
     SymScope(SymScope * parent);
@@ -141,13 +146,20 @@ void SymTab::close_scope()
     m_cur_scope = m_cur_scope->close_scope();
 }
 
+SymScope* SymTab::get_scope()
+{
+    //check that we actually have a scope before we return it
+    assert(m_cur_scope != NULL);
+    return m_cur_scope;
+}
+
 bool SymTab::exist(char* name)
 {
     assert(name != NULL);
     return m_cur_scope->exist(name);
 }
 
-bool SymTab::insert(char* name, Symbol * s)
+bool SymTab::insert(char* name, Symbol* s)
 {
     assert(name != NULL);
     assert(s != NULL);
@@ -164,7 +176,7 @@ bool SymTab::insert(char* name, Symbol * s)
     }
 }
 
-bool SymTab::insert_in_parent_scope(char* name, Symbol * s)
+bool SymTab::insert_in_parent_scope(char* name, Symbol* s)
 {
     assert(name != NULL);
     assert(s != NULL);
@@ -183,10 +195,32 @@ bool SymTab::insert_in_parent_scope(char* name, Symbol * s)
     }
 }
 
-Symbol* SymTab::lookup( const char * name )
+Symbol* SymTab::lookup(const char* name)
 {
     assert(name != NULL);
-    return m_cur_scope->lookup(name);
+    return m_cur_scope->lookup( name );
+}
+
+Symbol* SymTab::lookup(SymScope* targetscope, const char* name)
+{
+    assert(name != NULL);
+    assert(targetscope != NULL);
+    return targetscope->lookup(name);
+}
+
+int SymTab::scopesize(SymScope* targetscope)
+{
+    return targetscope->m_scopesize;
+}
+
+int SymTab::lexical_distance(SymScope* higher_scope, SymScope* deeper_scope)
+{
+    assert(deeper_scope != NULL);
+    assert(higher_scope != NULL);
+    if(higher_scope == deeper_scope) {
+        return 0;
+    }
+    return lexical_distance( higher_scope, deeper_scope->m_parent ) + 1;
 }
 
 void SymTab::dump(FILE* f)
@@ -199,11 +233,13 @@ void SymTab::dump(FILE* f)
 SymScope::SymScope()
 {
     m_parent = NULL;
+    m_scopesize = 0;
 }
 
 SymScope::SymScope(SymScope * parent)
 {
     m_parent = parent;
+    m_scopesize = 0;
     if(parent!=NULL) {
         parent->add_child(this);
     }
@@ -212,22 +248,18 @@ SymScope::SymScope(SymScope * parent)
 SymScope::~SymScope()
 {
     // Delete the keys, but not the symbols (symbols are linked elsewhere)
-    ScopeTableType::iterator si, this_si;
-
-    si = m_scopetable.begin();
-    while(si!=m_scopetable.end())
+    for(ScopeTableType::iterator si = m_scopetable.begin(), this_si;
+            si != m_scopetable.end();)
     {
-        char* oldkey = si->first;
         this_si = si;
         ++si;
 
         m_scopetable.erase(this_si);
-        free(oldkey);
     }
 
     // Now delete all the children
-    std::list<SymScope*>::iterator li;
-    for(li=m_child.begin(); li!=m_child.end(); ++li)
+    for(std::list<SymScope*>::iterator li = m_child.begin();
+            li != m_child.end(); ++li)
     {
         delete *li;
     }
@@ -238,30 +270,30 @@ void SymScope::dump(FILE* f, int nest_level)
     // Recursively prints out the symbol table
     // from the head down through all the childrens
 
-    ScopeTableType::iterator si;
-
     // Indent appropriately
     for(int i=0; i<nest_level; i++) {
         std::fprintf(f, "\t");
     }
     std::fprintf(f, "+-- Symbol Scope ---\n");
 
-    for(si = m_scopetable.begin(); si != m_scopetable.end(); ++si)
+    for(ScopeTableType::iterator si = m_scopetable.begin();
+            si != m_scopetable.end(); ++si)
     {
         // Indent appropriately
         for(int i=0; i<nest_level; i++) {
             std::fprintf(f, "\t");
         }
-        std::fprintf(f, "| %s \n", si->first);
+        std::fprintf(f, "| %s \n", (char*) si->first.c_str());
     }
+
     for(int i=0; i<nest_level; i++) {
         std::fprintf(f, "\t");
     }
     std::fprintf(f,"+-------------\n\n");
 
     // Now print all the children
-    std::list<SymScope*>::iterator li;
-    for(li=m_child.begin(); li!=m_child.end(); ++li)
+    for(std::list<SymScope*>::iterator li = m_child.begin();
+            li!=m_child.end(); ++li)
     {
         (*li)->dump(f, nest_level+1);
     }
@@ -269,21 +301,17 @@ void SymScope::dump(FILE* f, int nest_level)
 
 bool SymScope::is_dup_string(char* name)
 {
-    ScopeTableType::iterator si;
-
-    si = m_scopetable.find(name);
-    if(si != m_scopetable.end()) {
+    ScopeTableType::iterator si = m_scopetable.find(name);
+    if(si != m_scopetable.end() && (char*)si->first.c_str() == name) {
         // Check if the pointers match
-        if(si->first == name) {
-            return false;
-        }
+        return false;
     }
 
-    std::list<SymScope*>::iterator li;
-    for(li=m_child.begin(); li!=m_child.end(); ++li)
+    for(std::list<SymScope*>::iterator li = m_child.begin();
+            li!=m_child.end(); ++li)
     {
         bool r = (*li)->is_dup_string(name);
-        if(r==false) {
+        if(r == false) {
             return false;
         }
     }
@@ -326,6 +354,10 @@ Symbol* SymScope::insert( char* name, Symbol * s )
     iret = m_scopetable.insert(hpair(name, s));
     if(iret.second == true) {
         // Insert was successfull
+        s->m_offset = m_scopesize;
+        m_scopesize += s->get_size();
+        // Set the scope
+        s->m_symscope = this;
         return NULL;
     } else {
         // Cannot insert, there was a duplicate entry
