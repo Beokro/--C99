@@ -211,26 +211,125 @@ private:
   {
   }
 
-  void checkset_absolute_value(Expr* parent, Expr* child)
-  {
-  }
-
   void checkset_addressof(Expr* parent, Lhs* child)
   {
+    Basetype type = child->m_attribute.m_basetype;
+    switch ( type ) {
+    case bt_integer:
+      parent->m_attribute.m_basetype = bt_intptr; break;
+    case bt_intptr:
+    case bt_int_array:
+      parent->m_attribute.m_basetype = bt_2d_int_array; break;
+    case bt_boolean:
+      parent->m_attribute.m_basetype = bt_boolptr; break;
+    case bt_boolptr:
+    case bt_bool_array:
+      parent->m_attribute.m_basetype = bt_2d_bool_array; break;
+    case bt_char:
+      parent->m_attribute.m_basetype = bt_charptr; break;
+    case bt_charptr:
+    case bt_char_array:
+      parent->m_attribute.m_basetype = bt_2d_char_array; break;
+    case bt_long:
+      parent->m_attribute.m_basetype = bt_longptr; break;
+    case bt_longptr:
+    case bt_long_array:
+      parent->m_attribute.m_basetype = bt_2d_long_array; break;
+    case bt_short:
+      parent->m_attribute.m_basetype = bt_shortptr; break;
+    case bt_shortptr:
+    case bt_short_array:
+      parent->m_attribute.m_basetype = bt_2d_short_array; break;
+    default:
+      this->t_error(expr_addressof_error, parent->m_attribute);
+    }
   }
 
   void checkset_deref_expr(Deref* parent,Expr* child)
   {
+    Basetype type = child->m_attribute.m_basetype;
+    switch ( type ) {
+    case bt_int_array:
+    case bt_intptr:
+      parent->m_attribute.m_basetype = bt_integer; break;
+    case bt_2d_int_array:
+      parent->m_attribute.m_basetype = bt_intptr; break;
+    case bt_bool_array:
+    case bt_boolptr:
+      parent->m_attribute.m_basetype = bt_boolean; break;
+    case bt_2d_bool_array:
+      parent->m_attribute.m_basetype = bt_boolptr; break;
+    case bt_char_array:
+    case bt_charptr:
+      parent->m_attribute.m_basetype = bt_char; break;
+    case bt_2d_char_array:
+      parent->m_attribute.m_basetype = bt_charptr; break;
+    case bt_short_array:
+    case bt_shortptr:
+      parent->m_attribute.m_basetype = bt_short; break;
+    case bt_2d_short_array:
+      parent->m_attribute.m_basetype = bt_shortptr; break;
+    case bt_long_array:
+    case bt_longptr:
+      parent->m_attribute.m_basetype = bt_long; break;
+    case bt_2d_long_array:
+      parent->m_attribute.m_basetype = bt_longptr; break;
+    case bt_voidptr:
+      parent->m_attribute.m_basetype = bt_void; break;
+    default:
+      this->t_error(invalid_deref, parent->m_attribute);
+    }
   }
 
   // Check that if the right-hand side is an lhs, such as in case of
   // addressof
-  void checkset_deref_lhs(DerefVariable* p)
-  {
+  void checkset_deref_lhs(DerefVariable* p) {
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    if ( s == NULL ) {
+      this->t_error( var_undef, p->m_attribute );
+    }
+    Basetype type = s->m_basetype;
+    if ( type == bt_int_array || type == bt_intptr) {
+      p->m_attribute.m_basetype = bt_integer;
+    } else if ( type == bt_2d_int_array) {
+      p->m_attribute.m_basetype = bt_intptr;
+    } else if ( type == bt_bool_array || type == bt_boolptr) {
+      p->m_attribute.m_basetype = bt_boolean;
+    } else if ( type == bt_2d_bool_array) {
+      p->m_attribute.m_basetype = bt_boolptr;
+    } else if ( type == bt_char_array || type == bt_charptr) {
+      p->m_attribute.m_basetype = bt_char;
+    } else if ( type == bt_2d_char_array) {
+      p->m_attribute.m_basetype = bt_boolptr;
+    } else if ( type == bt_short_array || type == bt_shortptr) {
+      p->m_attribute.m_basetype = bt_short;
+    } else if ( type == bt_2d_short_array) {
+      p->m_attribute.m_basetype = bt_shortptr;
+    } else if ( type == bt_long_array || type == bt_longptr) {
+      p->m_attribute.m_basetype = bt_long;
+    } else if ( type == bt_2d_long_array) {
+      p->m_attribute.m_basetype = bt_longptr;
+    } else if ( type == bt_voidptr) {
+      p->m_attribute.m_basetype = bt_void;
+    } else {
+      this->t_error( invalid_deref, p->m_attribute );
+    }
   }
 
-  void checkset_variable(Variable* p)
-  {
+  void checkset_variable(Variable* p) {
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    if ( s == NULL ) {
+      this->t_error( var_undef, p->m_attribute );
+    }
+    p->m_attribute.m_basetype = s->m_basetype;
+  }
+
+  void checkset_Ident(Ident* p) {
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    if ( s == NULL ) {
+      this->t_error( var_undef, p->m_attribute );
+    }
+    p->m_attribute.m_basetype = s->m_basetype;
   }
 
 

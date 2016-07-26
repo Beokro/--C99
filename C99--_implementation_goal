@@ -319,3 +319,4 @@
 
 • To do
   • multiple incre in for loop
+  • * can be used on expr like a+1, where a is a char[]

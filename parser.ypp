@@ -949,12 +949,12 @@ lhs         : ID sbarket
               #endif
               $$.u_lhs = new Variable( new SymName( $1.u_base_charptr ) );
             }
-            | '*' exprs
+            | '*' ID
             {
               #ifdef DEBUG
               cout << "Lhs: Dereference of"<< endl;
               #endif
-              $$.u_lhs = new DerefVariable( $2.u_expr );
+              $$.u_lhs = new DerefVariable( new SymName( $2.u_base_charptr ) );
             }
             | ID ARROW ID
             {

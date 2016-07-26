@@ -145,7 +145,7 @@ Expr:ECall ==> SymName *SymName
 Expr:Empty ==>
 
 Lhs:Variable ==> SymName
-Lhs:DerefVariable ==> Expr
+Lhs:DerefVariable ==> SymName
 Lhs:ArrayElement ==> SymName Expr
 Lhs:ArrayDoubleElement ==> SymName Expr Expr
 Lhs:ArrowElement ==>  SymName SymName
