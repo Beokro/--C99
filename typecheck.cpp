@@ -114,9 +114,21 @@ private:
 
   // Helpers
   // WRITEME: You might want write some hepler functions.
+  bool is_number_type( Basetype type ){
+    if ( type == bt_integer || type == bt_long || type == bt_short ||
+         type == bt_const_int || type == bt_const_long || type == bt_const_short) {
+      return true;
+    }
+    return false;
+  }
 
-  // Type Checking
-  // WRITEME: You need to implement type-checking for this project
+  bool is_pointer_type( Basetype type ) {
+    if ( type == bt_intptr || type == bt_charptr || type == bt_boolptr ||
+         type == bt_shortptr || type == bt_longptr ) {
+      return true;
+    }
+    return false;
+  }
 
   // Check that there is one and only one main
   void check_for_one_main( ProgramImpl* p ) {
@@ -199,16 +211,33 @@ private:
   // For checking equality ops(equal, not equal)
   void checkset_equalityexpr(Expr* parent, Expr* child1, Expr* child2)
   {
+    Basetype type1 = child1->m_attribute.m_basetype;
+    Basetype type2 = child2->m_attribute.m_basetype;
+    if ( type1 == type2 ) {
+    } else if ( is_number_type( type1 ) && is_number_type( type2 ) ){
+    } else if ( is_pointer_type( type1 ) && type2 == bt_voidptr ) {
+    } else if ( is_pointer_type( type2 ) && type1 == bt_voidptr ) {
+    } else {
+      this->t_error(expr_type_err, parent->m_attribute);
+    }
+    parent->m_attribute.m_basetype = bt_boolean;
   }
 
   // For checking not
   void checkset_not(Expr* parent, Expr* child)
   {
+    if ( child->m_attribute.m_basetype != bt_boolean ) {
+      this->t_error( expr_type_err, parent->m_attribute );
+    }
+    parent->m_attribute.m_basetype = bt_boolean;
   }
 
   // For checking unary minus
   void checkset_uminus(Expr* parent, Expr* child)
   {
+    if(child->m_attribute.m_basetype != bt_integer)
+      this->t_error(expr_type_err, parent->m_attribute);
+    parent->m_attribute.m_basetype = bt_integer;
   }
 
   void checkset_addressof(Expr* parent, Lhs* child)
