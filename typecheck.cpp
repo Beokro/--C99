@@ -124,10 +124,71 @@ private:
 
   bool is_pointer_type( Basetype type ) {
     if ( type == bt_intptr || type == bt_charptr || type == bt_boolptr ||
-         type == bt_shortptr || type == bt_longptr ) {
+         type == bt_shortptr || type == bt_longptr || type == bt_int_array ||
+         type == bt_char_array || type == bt_bool_array || type == bt_short_array ||
+         type == bt_long_array || type == bt_2d_int_array || type == bt_2d_char_array ||
+         type == bt_2d_bool_array || type == bt_2d_short_array || type == bt_2d_long_array ) {
       return true;
     }
     return false;
+  }
+
+  bool is_2d_array_type( Basetype type ) {
+    if ( type == bt_2d_int_array || type != bt_2d_char_array || type != bt_2d_bool_array ||
+         type != bt_2d_long_array || type != bt_2d_short_array ) {
+      return true;
+    }
+    return false;
+  }
+
+  Basetype dereference_type ( Basetype type ){
+    switch ( type ) {
+    case bt_intptr:
+    case bt_int_array:
+      return bt_integer;
+    case bt_string:
+    case bt_charptr:
+    case bt_char_array:
+      return bt_char;
+    case bt_boolptr:
+    case bt_bool_array:
+      return bt_boolean;
+    case bt_longptr:
+    case bt_long_array:
+      return bt_long;
+    case bt_shortptr:
+    case bt_short_array:
+      return bt_short;
+    case bt_2d_int_array:
+      return bt_int_array;
+    case bt_2d_char_array:
+      return bt_char_array;
+    case bt_2d_bool_array:
+      return bt_bool_array;
+    case bt_2d_short_array:
+      return bt_short_array;
+    case bt_2d_long_array:
+      return bt_long_array;
+    default:
+      return bt_undef;
+    }
+  }
+
+  Basetype double_dereference_type ( Basetype type ) {
+    switch ( type ) {
+    case bt_2d_int_array:
+      return bt_integer;
+    case bt_2d_bool_array:
+      return bt_boolean;
+    case bt_2d_char_array:
+      return bt_char;
+    case bt_2d_long_array:
+      return bt_long;
+    case bt_2d_short_array:
+      return bt_short;
+    default:
+      return bt_undef;
+    }
   }
 
   // Check that there is one and only one main
@@ -186,31 +247,138 @@ private:
 
   void check_array_element(ArrayElement* p)
   {
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    Basetype result = bt_undef;
+    if ( s == NULL ) {
+      this->t_error(var_undef, p->m_attribute);
+    }
+    if ( s->m_basetype != bt_string || is_pointer_type( s->m_basetype ) ) {
+      this->t_error(expr_type_err, p->m_attribute);
+    }
+    if(p->m_expr->m_attribute.m_basetype!=bt_integer) {
+      this->t_error(array_index_error, p->m_attribute);
+    }
+    switch ( s->m_basetype ) {
+    case bt_intptr:
+    case bt_int_array:
+      result = bt_integer; break;
+    case bt_string:
+    case bt_charptr:
+    case bt_char_array:
+      result = bt_char; break;
+    case bt_boolptr:
+    case bt_bool_array:
+      result = bt_boolean; break;
+    case bt_longptr:
+    case bt_long_array:
+      result = bt_long; break;
+    case bt_shortptr:
+    case bt_short_array:
+      result = bt_short; break;
+    case bt_2d_int_array:
+      result = bt_int_array; break;
+    case bt_2d_char_array:
+      result = bt_char_array; break;
+    case bt_2d_bool_array:
+      result = bt_bool_array; break;
+    case bt_2d_short_array:
+      result = bt_short_array; break;
+    case bt_2d_long_array:
+      result = bt_long_array; break;
+    default:
+      break;
+    }
+    p->m_attribute.m_basetype = result;
+  }
+
+  void check_2d_array_element( ArrayDoubleElement* p ) {
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    Basetype type = p->m_attribute.m_basetype;
+    if ( s == NULL ) {
+      this->t_error(var_undef, p->m_attribute);
+    }
+    if ( !is_2d_array_type( type ) ){
+      this->t_error(expr_type_err, p->m_attribute);
+    }
+    if(is_number_type( p->m_expr_1->m_attribute.m_basetype ) ||
+       is_number_type( p->m_expr_2->m_attribute.m_basetype ) ) {
+      this->t_error(array_index_error, p->m_attribute);
+    }
+    p->m_attribute.m_basetype = double_dereference_type( type );
   }
 
   // For checking boolean operations(and, or ...)
-  void checkset_boolexpr(Expr* parent, Expr* child1, Expr* child2)
-  {
+  void checkset_boolexpr(Expr* parent, Expr* child1, Expr* child2) {
+    Basetype type1 = child1->m_attribute.m_basetype;
+    Basetype type2 = child2->m_attribute.m_basetype;
+    if ( type1 != bt_boolean || type2 != bt_boolean ) {
+      this->t_error(expr_type_err, parent->m_attribute);
+    }
+    parent->m_attribute.m_basetype = bt_boolean;
   }
 
-  // For checking arithmetic expressions(plus, times, ...)
-  void checkset_arithexpr(Expr* parent, Expr* child1, Expr* child2)
-  {
+  // For checking arithmetic expressions( times, divide...)
+  void checkset_arithexpr(Expr* parent, Expr* child1, Expr* child2) {
+    // times and divide only valid in number type
+    // long > int > char
+    // result going to the higher type
+    Basetype type1 = child1->m_attribute.m_basetype;
+    Basetype type2 = child2->m_attribute.m_basetype;
+    if ( is_number_type( type1 ) && is_number_type( type2 ) ){
+      if ( type1 == bt_long && type2 == bt_long ) {
+        parent->m_attribute.m_basetype = bt_long;
+      } else if ( type1 == bt_integer || type2 == bt_integer ) {
+        parent->m_attribute.m_basetype = bt_integer;
+      } else {
+        parent->m_attribute.m_basetype = bt_short;
+      }
+    } else {
+      this->t_error(expr_type_err, parent->m_attribute);
+    }
   }
 
   // Called by plus and minus: in these cases we allow pointer arithmetics
-  void checkset_arithexpr_or_pointer(Expr* parent, Expr* child1, Expr* child2)
-  {
+  void checkset_arithexpr_or_pointer(Expr* parent, Expr* child1, Expr* child2) {
+    // can operate on two numbers
+    // can operate on one pointer and one number
+    // long > int > short, the result will go to bigger type
+    // although in current design they are all 32 bits
+    // Todo, support add in 2d array
+    Basetype type1 = child1->m_attribute.m_basetype;
+    Basetype type2 = child2->m_attribute.m_basetype;
+    if ( is_number_type( type1 ) && is_number_type( type2 ) ) {
+      if ( type1 == bt_long || type2 == bt_long ) {
+        parent->m_attribute.m_basetype = bt_long;
+      } else if ( type1 == bt_integer || type2 == bt_integer ) {
+        parent->m_attribute.m_basetype = bt_integer;
+      } else {
+        parent->m_attribute.m_basetype = bt_short;
+      }
+    } else if ( is_pointer_type( type1 ) && is_number_type( type2 ) ) {
+      parent->m_attribute.m_basetype = type1;
+    } else if ( is_number_type( type1 ) && is_pointer_type( type2 ) ) {
+      parent->m_attribute.m_basetype = type2;
+    } else {
+      this->t_error(expr_type_err, parent->m_attribute);
+    }
   }
 
   // For checking relational(less than , greater than, ...)
-  void checkset_relationalexpr(Expr* parent, Expr* child1, Expr* child2)
-  {
+  void checkset_relationalexpr(Expr* parent, Expr* child1, Expr* child2) {
+    // can compare two numbers or two same type of pointer
+    Basetype type1 = child1->m_attribute.m_basetype;
+    Basetype type2 = child2->m_attribute.m_basetype;
+    if ( is_number_type( type1 ) && is_number_type( type2 ) ) {
+    } else if ( is_pointer_type( type1 ) && is_pointer_type( type2 )  &&
+                type1 == type2 ) {
+    } else {
+      this->t_error(expr_type_err, parent->m_attribute);
+    }
+    parent->m_attribute.m_basetype = bt_boolean;
   }
 
   // For checking equality ops(equal, not equal)
-  void checkset_equalityexpr(Expr* parent, Expr* child1, Expr* child2)
-  {
+  void checkset_equalityexpr(Expr* parent, Expr* child1, Expr* child2) {
     Basetype type1 = child1->m_attribute.m_basetype;
     Basetype type2 = child2->m_attribute.m_basetype;
     if ( type1 == type2 ) {
@@ -224,8 +392,7 @@ private:
   }
 
   // For checking not
-  void checkset_not(Expr* parent, Expr* child)
-  {
+  void checkset_not(Expr* parent, Expr* child) {
     if ( child->m_attribute.m_basetype != bt_boolean ) {
       this->t_error( expr_type_err, parent->m_attribute );
     }
@@ -233,15 +400,13 @@ private:
   }
 
   // For checking unary minus
-  void checkset_uminus(Expr* parent, Expr* child)
-  {
+  void checkset_uminus(Expr* parent, Expr* child) {
     if(child->m_attribute.m_basetype != bt_integer)
       this->t_error(expr_type_err, parent->m_attribute);
     parent->m_attribute.m_basetype = bt_integer;
   }
 
-  void checkset_addressof(Expr* parent, Lhs* child)
-  {
+  void checkset_addressof(Expr* parent, Lhs* child) {
     Basetype type = child->m_attribute.m_basetype;
     switch ( type ) {
     case bt_integer:
@@ -274,8 +439,7 @@ private:
     }
   }
 
-  void checkset_deref_expr(Deref* parent,Expr* child)
-  {
+  void checkset_deref_expr(Deref* parent,Expr* child) {
     Basetype type = child->m_attribute.m_basetype;
     switch ( type ) {
     case bt_int_array:
