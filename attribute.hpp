@@ -2,6 +2,7 @@
 #define ATTRIBUTE_HPP
 
 #include <cstddef>
+#include <string>
 
 // SymScope is declared in SymTab.cpp
 class SymScope;
@@ -41,7 +42,8 @@ enum Basetype
     bt_enum,
     bt_procedure,
     bt_ptr,             // Used by nullptr
-    bt_string
+    bt_string,
+    bt_list
 };
 
 
@@ -50,6 +52,7 @@ class Attribute
   public:
   Basetype m_basetype;  // Type of the subtree
   int m_place;          // Register where this value is stored
+  std::string m_struct_name; //struct or enum name
   SymScope* m_scope;    // The scope of the current symbol
   int lineno;           // Line number on which that ast node resides
 

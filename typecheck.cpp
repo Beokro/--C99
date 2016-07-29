@@ -247,28 +247,64 @@ private:
 
   // Create a symbol for the procedure and check there is none already
   // existing
-  void check_call(Call *p)
+  void check_call(CallImpl *p)
   {
   }
 
   // For checking that this expressions type is boolean used in if/else and
   // while visits
-  void check_pred(Expr* p)
+  void check_pred(Expr* p, int index)
   {
+    if(p->m_attribute.m_basetype!=bt_boolean){
+      if ( index == 1 ) {
+        this->t_error(ifpred_err, p->m_attribute);
+      } else {
+        this->t_error(whilepred_err, p->m_attribute);
+      }
+    }
   }
 
   void check_assignment(Assignment* p)
   {
+    // possible assign pattern :
+    // const assign ==> not allowed
+    // array type assign ==> not allowed
+    // struct type assign ==> if same struct
+    // enum type ==> same enum type or int
+    // long, int or short ==> fine as long as other are one of number type
+    // pointer type ==> NULL or same pointer type
+    // same type
     Basetype type1 = p->m_lhs->m_attribute.m_basetype;
     Basetype type2 = p->m_expr->m_attribute.m_basetype;
+    // can not assign to a const type
     if ( is_const_type( type1 ) ) {
       this->t_error(const_assign, p->m_attribute);
     } else if ( is_array_type( type1 ) ) {
+      //can not assign to a array, 1d or 2d
       this->t_error(array_assign, p->m_attribute);
-    } if ( type1 == bt_struct && type2 == bt_struct) { 
-      // need a way to store the struct's type
-      // p->m_lhs->m_stringprimitive->) {
-      
+    } else if ( type1 == bt_struct && type2 == bt_struct ) {
+      // if both struct, check struct type
+      if ( p->m_lhs->m_attribute.m_struct_name !=
+           p->m_expr->m_attribute.m_struct_name) {
+        // different struct type
+        this->t_error(incompat_assign, p->m_attribute);
+      }
+      // same struct type
+    } else if ( type1 == bt_enum && type2 == bt_enum ) {
+      if ( p->m_lhs->m_attribute.m_struct_name !=
+           p->m_expr->m_attribute.m_struct_name) {
+        // different enum type
+        this->t_error(incompat_assign, p->m_attribute);
+      }
+      // same enum type
+    } else if ( type1 == bt_enum && type2 == bt_integer ) {
+      //assign a integer to a enum, whcih is fine
+      return;
+    } else if ( is_number_type( type1 ) && is_number_type( type2 ) ){
+    } else if ( is_pointer_type( type1 ) && type2 == bt_void){
+      //assign a pointer to void
+    } else if ( type1 != type2 ) {
+      this->t_error(incompat_assign, p->m_attribute);
     }
   }
 
