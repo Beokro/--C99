@@ -244,17 +244,19 @@ private:
   void check_return(Return_statImpl *p)
   {
   }
-
   // Create a symbol for the procedure and check there is none already
   // existing
-  void check_call(CallImpl *p)
-  {
+  void check_call(CallImpl *p){
+    // check if procedure exist and it is a procedure
+    // chek number of argument matches
+    // type of arguments matches
+    // p's type if the function's return type
+
   }
 
   // For checking that this expressions type is boolean used in if/else and
   // while visits
-  void check_pred(Expr* p, int index)
-  {
+  void check_pred(Expr* p, int index) {
     if(p->m_attribute.m_basetype!=bt_boolean){
       if ( index == 1 ) {
         this->t_error(ifpred_err, p->m_attribute);
@@ -264,8 +266,7 @@ private:
     }
   }
 
-  void check_assignment(Assignment* p)
-  {
+  void check_assignment(Assignment* p) {
     // possible assign pattern :
     // const assign ==> not allowed
     // array type assign ==> not allowed
@@ -308,14 +309,12 @@ private:
     }
   }
 
-  void check_string_assignment(String_assignment* p)
-  {
+  void check_string_assignment(String_assignment* p) {
     if(p->m_lhs->m_attribute.m_basetype!=bt_string)
       this->t_error(incompat_assign, p->m_attribute);
   }
 
-  void check_array_access(ArrayAccess* p)
-  {
+  void check_array_access(ArrayAccess* p) {
     Symbol * s = m_st->lookup( p->m_symname->spelling() );
     if ( s == NULL ) {
       this->t_error(var_undef, p->m_attribute);
@@ -345,8 +344,7 @@ private:
     p->m_attribute.m_basetype = double_dereference_type( type );
   }
 
-  void check_array_element(ArrayElement* p)
-  {
+  void check_array_element(ArrayElement* p) {
     Symbol * s = m_st->lookup( p->m_symname->spelling() );
     if ( s == NULL ) {
       this->t_error(var_undef, p->m_attribute);

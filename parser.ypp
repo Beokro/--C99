@@ -343,7 +343,7 @@ optionAssign    : '=' exprs
                   cout << "OptionAssign: = function call" << endl;
                   #endif
                   $$.u_expr = new ECall( new SymName( $2.u_base_charptr ),
-                                         $4.u_symname_list );
+                                         $4.u_expr_list );
                 }
                 | '=' '{' arguments '}'
                 {

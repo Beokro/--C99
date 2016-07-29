@@ -141,7 +141,7 @@ Expr:Deref ==> Expr
 Expr:AddressOf ==> Lhs
 Expr:EList ==> *SymName
 Expr:ETDList ==> *List
-Expr:ECall ==> SymName *SymName
+Expr:ECall ==> SymName *Expr
 Expr:Empty ==>
 
 Lhs:Variable ==> SymName
