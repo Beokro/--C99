@@ -38,7 +38,9 @@ private:
       expr_pointer_arithmetic_err,
       expr_abs_error,
       expr_addressof_error,
-      invalid_deref
+      invalid_deref,
+      const_assign,
+      array_assign
     };
 
   // Print the error to file and exit
@@ -106,6 +108,12 @@ private:
       case invalid_deref:
         fprintf(m_errorfile, "error: Deref can only be applied to integer pointers and char pointers\n");
         exit(20);
+    case const_assign:
+      fprintf(m_errorfile, "error: trying to assign to a const type\n");
+      exit(21);
+    case array_assign:
+      fprintf(m_errorfile, "error: trying to assign a value to the array\n");
+      exit(22);
       default:
         fprintf(m_errorfile, "error: no good reason\n");
         exit(21);
@@ -122,12 +130,10 @@ private:
     return false;
   }
 
-  bool is_pointer_type( Basetype type ) {
-    if ( type == bt_intptr || type == bt_charptr || type == bt_boolptr ||
-         type == bt_shortptr || type == bt_longptr || type == bt_int_array ||
-         type == bt_char_array || type == bt_bool_array || type == bt_short_array ||
-         type == bt_long_array || type == bt_2d_int_array || type == bt_2d_char_array ||
-         type == bt_2d_bool_array || type == bt_2d_short_array || type == bt_2d_long_array ) {
+
+  bool is_array_type( Basetype type ) {
+    if ( type == bt_int_array || type == bt_char_array || type == bt_bool_array ||
+         type == bt_long_array || type == bt_short_array || is_2d_array_type( type ) ) {
       return true;
     }
     return false;
@@ -136,6 +142,24 @@ private:
   bool is_2d_array_type( Basetype type ) {
     if ( type == bt_2d_int_array || type != bt_2d_char_array || type != bt_2d_bool_array ||
          type != bt_2d_long_array || type != bt_2d_short_array ) {
+      return true;
+    }
+    return false;
+  }
+
+  bool is_pointer_type( Basetype type ) {
+    if ( type == bt_intptr || type == bt_charptr || type == bt_boolptr ||
+         type == bt_shortptr || type == bt_longptr || is_array_type( type ) ||
+         is_2d_array_type( type ) ) {
+      return true;
+    }
+    return false;
+  }
+
+
+  bool is_const_type( Basetype type ) {
+    if ( type == bt_const_int || type == bt_const_char || type == bt_const_bool ||
+         type == bt_const_long || type == bt_const_short) {
       return true;
     }
     return false;
@@ -235,20 +259,28 @@ private:
 
   void check_assignment(Assignment* p)
   {
+    Basetype type1 = p->m_lhs->m_attribute.m_basetype;
+    Basetype type2 = p->m_expr->m_attribute.m_basetype;
+    if ( is_const_type( type1 ) ) {
+      this->t_error(const_assign, p->m_attribute);
+    } else if ( is_array_type( type1 ) ) {
+      this->t_error(array_assign, p->m_attribute);
+    } if ( type1 == bt_struct && type2 == bt_struct) { 
+      // need a way to store the struct's type
+      // p->m_lhs->m_stringprimitive->) {
+      
+    }
   }
 
   void check_string_assignment(String_assignment* p)
   {
+    if(p->m_lhs->m_attribute.m_basetype!=bt_string)
+      this->t_error(incompat_assign, p->m_attribute);
   }
 
   void check_array_access(ArrayAccess* p)
   {
-  }
-
-  void check_array_element(ArrayElement* p)
-  {
     Symbol * s = m_st->lookup( p->m_symname->spelling() );
-    Basetype result = bt_undef;
     if ( s == NULL ) {
       this->t_error(var_undef, p->m_attribute);
     }
@@ -258,45 +290,46 @@ private:
     if(p->m_expr->m_attribute.m_basetype!=bt_integer) {
       this->t_error(array_index_error, p->m_attribute);
     }
-    switch ( s->m_basetype ) {
-    case bt_intptr:
-    case bt_int_array:
-      result = bt_integer; break;
-    case bt_string:
-    case bt_charptr:
-    case bt_char_array:
-      result = bt_char; break;
-    case bt_boolptr:
-    case bt_bool_array:
-      result = bt_boolean; break;
-    case bt_longptr:
-    case bt_long_array:
-      result = bt_long; break;
-    case bt_shortptr:
-    case bt_short_array:
-      result = bt_short; break;
-    case bt_2d_int_array:
-      result = bt_int_array; break;
-    case bt_2d_char_array:
-      result = bt_char_array; break;
-    case bt_2d_bool_array:
-      result = bt_bool_array; break;
-    case bt_2d_short_array:
-      result = bt_short_array; break;
-    case bt_2d_long_array:
-      result = bt_long_array; break;
-    default:
-      break;
+    p->m_attribute.m_basetype = dereference_type( p->m_attribute.m_basetype );
+  }
+
+  void check_2d_array_access(ArrayDoubleAccess* p) {
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    if ( s == NULL ) {
+      this->t_error(var_undef, p->m_attribute);
     }
-    p->m_attribute.m_basetype = result;
+    Basetype type = s->m_basetype;
+    if ( !is_2d_array_type( type ) ){
+      this->t_error(expr_type_err, p->m_attribute);
+    }
+    if(!is_number_type( p->m_expr_1->m_attribute.m_basetype ) ||
+       !is_number_type( p->m_expr_2->m_attribute.m_basetype ) ) {
+      this->t_error(array_index_error, p->m_attribute);
+    }
+    p->m_attribute.m_basetype = double_dereference_type( type );
+  }
+
+  void check_array_element(ArrayElement* p)
+  {
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    if ( s == NULL ) {
+      this->t_error(var_undef, p->m_attribute);
+    }
+    if ( s->m_basetype != bt_string || is_pointer_type( s->m_basetype ) ) {
+      this->t_error(expr_type_err, p->m_attribute);
+    }
+    if(p->m_expr->m_attribute.m_basetype!=bt_integer) {
+      this->t_error(array_index_error, p->m_attribute);
+    }
+    p->m_attribute.m_basetype = dereference_type( p->m_attribute.m_basetype );
   }
 
   void check_2d_array_element( ArrayDoubleElement* p ) {
     Symbol * s = m_st->lookup( p->m_symname->spelling() );
-    Basetype type = p->m_attribute.m_basetype;
     if ( s == NULL ) {
       this->t_error(var_undef, p->m_attribute);
     }
+    Basetype type = s->m_basetype;
     if ( !is_2d_array_type( type ) ){
       this->t_error(expr_type_err, p->m_attribute);
     }
