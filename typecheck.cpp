@@ -40,7 +40,10 @@ private:
       expr_addressof_error,
       invalid_deref,
       const_assign,
-      array_assign
+      array_assign,
+      one_d_array_assign,
+      two_d_array_assign,
+      no_error
     };
 
   // Print the error to file and exit
@@ -120,8 +123,7 @@ private:
       }
   }
 
-  // Helpers
-  // WRITEME: You might want write some hepler functions.
+
   bool is_number_type( Basetype type ){
     if ( type == bt_integer || type == bt_long || type == bt_short ||
          type == bt_const_int || type == bt_const_long || type == bt_const_short) {
@@ -147,9 +149,16 @@ private:
     return false;
   }
 
-  bool is_pointer_type( Basetype type ) {
+  bool is_pure_pointer_type( Basetype type ) {
     if ( type == bt_intptr || type == bt_charptr || type == bt_boolptr ||
-         type == bt_shortptr || type == bt_longptr || is_array_type( type ) ||
+         type == bt_shortptr || type == bt_longptr ) {
+      return true;
+    }
+    return false;
+  }
+
+  bool is_pointer_type( Basetype type ) {
+    if ( is_pure_pointer_type( type ) || is_array_type( type ) ||
          is_2d_array_type( type ) ) {
       return true;
     }
@@ -172,6 +181,129 @@ private:
     }
     return false;
   }
+
+  bool check_array_and_list( Basetype type1, Basetype type2 ) {
+    if ( ( type1 == bt_int_array || type1 == bt_short_array || type1 == bt_long_array ) &&
+         ( type2 == bt_int_list || type2 == bt_short_list || type2 == bt_long_list ) ){
+    } else if ( type1 == bt_bool_array && type2 == bt_bool_list ) {
+    } else if ( type1 == bt_char_array && type2 == bt_char_list ) {
+    } else if ( ( type1 == bt_2d_int_array || type1 == bt_2d_short_array ||
+                  type1 == bt_2d_long_array ) &&
+                ( type2 == bt_2d_int_list || type2 == bt_2d_short_list ||
+                  type2 == bt_2d_long_list ) ) {
+    } else if ( type1 == bt_2d_bool_array && type2 == bt_2d_bool_list ) {
+    } else if ( type1 == bt_2d_char_array && type2 == bt_2d_char_list ) {
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+  // All possible assign
+  // array itself can not be assign after decl
+  // long, int, short to long, int, short
+  // NULL/bt_void to pointer ( not array )
+  // list to array
+  // same enum to enum
+  // same type to same type ( except NULL and array )
+  // can not assign anything to const
+  errortype checkAssign( Basetype type1, string struct_name1,
+                         int first_length1, int second_length1,
+                         Basetype type2, string struct_name2,
+                         int first_length2, int second_length2,
+                         bool decl) {
+    if ( is_array_type( type1 ) || is_2d_array_type( type1 ) ) {
+      //assign to a array only happens in declaration
+      if ( !decl ) {
+        return array_assign;
+      }
+      if ( second_length1 == -1 ) {
+        // 1d array, check if first dimension size gives
+        //
+        // type [ x ]
+        //
+        if ( first_length1 == 0 ) {
+          // first dimension size is not given, as long as second type
+          // is a one d array with same type it will be fine
+          //
+          // type []
+          //
+          if ( !check_array_and_list( type1, type2 ) ||
+               first_length2 <=0 || second_length2 != -1 ) {
+            return one_d_array_assign;
+          }
+          return no_error;
+        } else if ( first_length1 > 0 ) {
+          // 1d array, length is given
+          //
+          // type [ first_length ]
+          //
+          if ( !check_array_and_list( type1, type2 ) ||
+               first_length1 != first_length2 || second_length2 != -1) {
+            // either type not match or length not match
+            return one_d_array_assign;
+          }
+          return no_error;
+        }
+      } else if ( second_length1 > 0 ) {
+        // 2d array, chek if first length is given
+        //
+        // type [ x ] [ x ]
+        //
+        if ( first_length1 == 0 ) {
+          // 2d array without giving the first length
+          //
+          // type [] [ second_length ]
+          //
+          if ( !check_array_and_list( type1, type2 ) ||
+               second_length1 != second_length2 ||
+               first_length2 <=0 ) {
+            return two_d_array_assign;
+          }
+          return no_error;
+        } else if ( first_length1 > 0 ) {
+          //2d array, first length is given
+          //
+          // type [ first_length ] [ second_length ]
+          //
+          if ( !check_array_and_list( type1, type2 ) ||
+               second_length1 != second_length2 ||
+               first_length1 != first_length2 ) {
+            return two_d_array_assign;
+          }
+          return no_error;
+        }
+      } else {
+        return array_assign;
+      }
+    }
+    // ok, done with the array check, now let's check the pointer type
+    if ( is_pure_pointer_type( type1 ) ) {
+      if ( type2 == bt_void ){
+      } else if ( type2 == type1 ) {
+      } else {
+        return incompat_assign;
+      }
+      return no_error;
+    }
+
+    // ok, check the enum and struct type
+    if ( type1 == bt_enum || type1 == bt_struct) {
+      // only valid if type2 if of same enum type of number type
+      if ( type2 != type1 || struct_name1 != struct_name2 ) {
+        return incompat_assign;
+      }
+      return no_error;
+    }
+
+    // check the 5 regular type
+    if ( ! ( is_number_type( type1 ) && is_number_type( type2 ) ) &&
+         type1 != type2) {
+      return incompat_assign;
+    }
+    return no_error;
+  }
+
 
   Basetype dereference_type ( Basetype type ){
     switch ( type ) {
@@ -248,16 +380,17 @@ private:
     Basetype type1 = p->m_expr_1->m_attribute.m_basetype;
     Basetype type2 = p->m_expr_1->m_attribute.m_basetype;
     //get all of the symname out
-    std::list<AssignPair_ptr>::iterator iter;
     std::list<SymName_ptr> name_list;
-    for ( iter = p->m_assignpair_list->begin();
-          iter != p->m_assignpair_list->end();
-          ++iter ) {
-      name_list.push_back( static_cast<AssignPairImpl*>( *iter )->m_symname );
+    std::list<AssignPair_ptr>::iterator pairIter;
+    std::list<SymName_ptr>::iterator symIter;
+    for ( pairIter = p->m_assignpair_list->begin();
+          pairIter != p->m_assignpair_list->end();
+          ++pairIter ) {
+      name_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_symname );
     }
     // if it is a regular decl ( no dimentation )
     if ( type1 == bt_empty && type2 == bt_empty) {
-      
+      // add all of the name along with the type into symtab
     }
   }
 
@@ -270,7 +403,7 @@ private:
     }
 
     if ( is_number_type( correct_type ) && is_number_type( real_type ) ) {
-    } else if ( is_pointer_type( correct_type ) && real_type == bt_void) {
+    } else if ( is_pure_pointer_type( correct_type ) && real_type == bt_void) {
     } else if ( correct_type == real_type ){
     } else {
       this->t_error(ret_type_mismatch,p->m_attribute);
@@ -359,11 +492,8 @@ private:
         this->t_error(incompat_assign, p->m_attribute);
       }
       // same enum type
-    } else if ( type1 == bt_enum && type2 == bt_integer ) {
-      //assign a integer to a enum, whcih is fine
-      return;
     } else if ( is_number_type( type1 ) && is_number_type( type2 ) ){
-    } else if ( is_pointer_type( type1 ) && type2 == bt_void){
+    } else if ( is_pure_pointer_type( type1 ) && type2 == bt_void){
       //assign a pointer to void
     } else if ( type1 != type2 ) {
       this->t_error(incompat_assign, p->m_attribute);

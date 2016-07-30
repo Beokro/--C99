@@ -5,6 +5,7 @@
 #include <functional>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 #include <cassert>
 
@@ -61,7 +62,7 @@ public:
   Basetype m_basetype;
 
   // only for struct, enum and string
-  char* type_name;
+  std::string type_name;
 
   // These are valid only if they are procedures or struct
   std::vector<Basetype> m_arg_type;

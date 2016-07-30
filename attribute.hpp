@@ -14,29 +14,39 @@ enum Basetype
     bt_integer,
     bt_const_int,
     bt_int_array,
+    bt_int_list,
     bt_2d_int_array,
+    bt_2d_int_list,
     bt_intptr,
     bt_boolean,
     bt_const_bool,
     bt_bool_array,
+    bt_bool_list,
     bt_2d_bool_array,
+    bt_2d_bool_list,
     bt_boolptr,
     bt_char,
     bt_const_char,
     bt_char_array,
+    bt_char_list,
     bt_2d_char_array,
+    bt_2d_char_list,
     bt_charptr,
     bt_short,
     bt_const_short,
     bt_short_array,
+    bt_short_list,
     bt_2d_short_array,
+    bt_2d_short_list,
     bt_shortptr,
     bt_void,
     bt_voidptr,
     bt_long,
     bt_const_long,
     bt_long_array,
+    bt_long_list,
     bt_2d_long_array,
+    bt_2d_long_list,
     bt_longptr,
     bt_struct,
     bt_enum,
@@ -63,6 +73,7 @@ class Attribute
     m_basetype = bt_undef;
     lineno = 0;
     m_scope = NULL;
+    m_struct_name  = "";
     int m_place = -1;   // Should never actually be negative
   }
 };
