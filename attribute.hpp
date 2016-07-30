@@ -43,7 +43,10 @@ enum Basetype
     bt_procedure,
     bt_ptr,             // Used by nullptr
     bt_string,
-    bt_list
+    bt_list,
+    bt_struct_type,
+    bt_enum_type,
+    bt_empty
 };
 
 

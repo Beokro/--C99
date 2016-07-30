@@ -60,14 +60,16 @@ public:
   // Valid for all types
   Basetype m_basetype;
 
-  // only for struct and enum
+  // only for struct, enum and string
   char* type_name;
 
   // These are valid only if they are procedures or struct
   std::vector<Basetype> m_arg_type;
   Basetype m_return_type;
 
-  //WRITEME: add string size information
+  // length of a array, first dimentation and second dimentation
+  int length1;
+  int length2;
 
   Symbol()
   {

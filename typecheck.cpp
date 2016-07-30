@@ -239,16 +239,32 @@ private:
   }
 
   // Add symbol table information for all the declarations following
-  void add_decl_symbol(Decl_variable* p)
-  {
+  void add_decl_symbol(Decl_variable* p) {
+    // all cases that need to be taking care of
+    // one dimentation array with/without length
+    // two dimentation array with/without length
+    // regular decl of variable
+    Basetype type = p->m_type->m_attribute.m_basetype;
+    Basetype type1 = p->m_expr_1->m_attribute.m_basetype;
+    Basetype type2 = p->m_expr_1->m_attribute.m_basetype;
+    //get all of the symname out
+    std::list<AssignPair_ptr>::iterator iter;
+    std::list<SymName_ptr> name_list;
+    for ( iter = p->m_assignpair_list->begin();
+          iter != p->m_assignpair_list->end();
+          ++iter ) {
+      name_list.push_back( static_cast<AssignPairImpl*>( *iter )->m_symname );
+    }
+    // if it is a regular decl ( no dimentation )
+    if ( type1 == bt_empty && type2 == bt_empty) {
+      
+    }
   }
 
-  
   // Check that the return statement of a procedure has the appropriate type
-  void check_proc(ProcedureImpl *p)
-  {
-    Basetype corrrect_type= p->m_type->m_attribute.m_basetype;
-    Basetype real_type = p->m_return_stat->m_expr->m_attribute.m_basetype;
+  void check_proc(ProcedureImpl *p) {
+    Basetype correct_type= p->m_type->m_attribute.m_basetype;
+    Basetype real_type = static_cast<Return_statImpl *>(p->m_return_stat)->m_expr->m_attribute.m_basetype;
     if ( !is_return_type( correct_type ) ){
       this->t_error(ret_type_mismatch, p->m_attribute);
     }
