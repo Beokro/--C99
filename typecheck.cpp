@@ -165,6 +165,14 @@ private:
     return false;
   }
 
+  bool is_return_type( Basetype type ) {
+    if ( is_const_type( type ) || is_number_type( type ) ||
+         type == bt_boolean || type == bt_char) {
+      return true;
+    }
+    return false;
+  }
+
   Basetype dereference_type ( Basetype type ){
     switch ( type ) {
     case bt_intptr:
@@ -235,14 +243,33 @@ private:
   {
   }
 
+  
   // Check that the return statement of a procedure has the appropriate type
   void check_proc(ProcedureImpl *p)
   {
+    Basetype corrrect_type= p->m_type->m_attribute.m_basetype;
+    Basetype real_type = p->m_return_stat->m_expr->m_attribute.m_basetype;
+    if ( !is_return_type( correct_type ) ){
+      this->t_error(ret_type_mismatch, p->m_attribute);
+    }
+
+    if ( is_number_type( correct_type ) && is_number_type( real_type ) ) {
+    } else if ( is_pointer_type( correct_type ) && real_type == bt_void) {
+    } else if ( correct_type == real_type ){
+    } else {
+      this->t_error(ret_type_mismatch,p->m_attribute);
+    }
+
   }
 
-  // Check that the declared return type is not an array
+  // Right now let's say the reutrn type must be a base type
+  // Pointer and array is not allowed
+  // return a const type is allowed but it won't make a difference
   void check_return(Return_statImpl *p)
   {
+    if ( !is_return_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error(ret_type_mismatch, p->m_attribute);
+    }
   }
   // Create a symbol for the procedure and check there is none already
   // existing
@@ -251,7 +278,25 @@ private:
     // chek number of argument matches
     // type of arguments matches
     // p's type if the function's return type
+    std::list<Expr_ptr>::iterator iter;
+    Symbol * s = m_st->lookup(p->m_symname->spelling());
+    if(s==NULL)
+      this->t_error(proc_undef, p->m_attribute);
+    if(p->m_expr_list->size()!=s->m_arg_type.size())
+      this->t_error(narg_mismatch, p->m_attribute);
 
+    std::vector<Basetype>::iterator iter2 = s->m_arg_type.begin();
+    for(iter = p->m_expr_list->begin(); iter!=p->m_expr_list->end(); ++iter){
+      Basetype t1 = (*iter)->m_attribute.m_basetype, t2 = *(iter2);
+      if(t1!=t2){
+        if(t2!=bt_charptr && t2 != bt_intptr){
+          this->t_error(arg_type_mismatch, p->m_attribute);
+        }
+        else if(t1!=bt_ptr)
+          this->t_error(arg_type_mismatch, p->m_attribute);
+      }
+      ++iter2;
+    }
   }
 
   // For checking that this expressions type is boolean used in if/else and
