@@ -10,7 +10,7 @@ Outermost:Out_struct_define ==> Struct_define
 AssignPair ==> SymName Expr
 
 Enum_define ==> Primitive SymName *SymName
-Decl:Decl_variable ==> Primitive Expr Expr Type *AssignPair
+Decl:Decl_variable ==> Primitive Primitive Type *AssignPair
 Decl:Decl_function ==> Type SymName *Decl
 Procedure ==> Type SymName *Decl *PContent Return_stat
 Struct_define ==> SymName *Decl

@@ -183,6 +183,8 @@ private:
     return false;
   }
 
+  // helper function to check if the type of array and list macthes
+  // only check the basetype, does not check the dimension
   bool check_array_and_list( Basetype type1, Basetype type2 ) {
     if ( ( type1 == bt_int_array || type1 == bt_short_array || type1 == bt_long_array ) &&
          ( type2 == bt_int_list || type2 == bt_short_list || type2 == bt_long_list ) ){
@@ -213,6 +215,9 @@ private:
                          Basetype type2, string struct_name2,
                          int first_length2, int second_length2,
                          bool decl) {
+    if ( is_const_type( type1 ) ) {
+      return const_assign;
+    }
     if ( is_array_type( type1 ) || is_2d_array_type( type1 ) ) {
       //assign to a array only happens in declaration
       if ( !decl ) {
@@ -390,7 +395,8 @@ private:
   }
 
   // Create a symbol for the procedure and check there is none already
-  // existing
+  // existing, procedure go to the upper scope, value in the procedure
+  // go to the lower scope
   void add_proc_symbol(ProcedureImpl* p){
     std::list<Decl_ptr>::iterator iter;
     char * name; Symbol *s = new Symbol();
@@ -423,15 +429,12 @@ private:
     // regular decl of variable
     Basetype type = p->m_type->m_attribute.m_basetype;
     string struct_name = p->m_type->m_attribute.m_struct_name;
-    int first_length = p->m_type->m_attribute.m_length1;
-    int second_length = p->m_type->m_attribute.m_length2;
+    int first_length = p->m_primitive_1->m_data;
+    int second_length = p->m_primitive_2->m_data;
     Basetype real_type;
     string real_struct_name;
     int real_first_length;
     int real_second_length;
-
-    Basetype type1 = p->m_expr_1->m_attribute.m_basetype;
-    Basetype type2 = p->m_expr_2->m_attribute.m_basetype;
 
     char* name;
     Symbol* s;
@@ -452,12 +455,12 @@ private:
     exprIter = assign_list.begin();
 
     //check the array decl type is integer
-    if ( type1 == bt_empty && type2 == bt_empty) {
+    if ( first_length == -1 && second_length == -1 ) {
       // current type if the real type
-    } else if ( type1 == bt_integer && type2 == bt_empty ) {
+    } else if ( first_length != -1 && second_length == -1 ) {
       // it is actually a one d array, transfer the type
       type = type_to_array( type, 1 );
-    } else if ( type1 == bt_integer && type2 == bt_integer  ) {
+    } else if ( first_length != -1 && second_length != -1  ) {
       type = type_to_array( type, 2 );
     }
 
