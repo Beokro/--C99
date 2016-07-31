@@ -43,6 +43,7 @@ private:
       array_assign,
       one_d_array_assign,
       two_d_array_assign,
+      wrong_array_base_type,
       no_error
     };
 
@@ -355,6 +356,30 @@ private:
     }
   }
 
+  Basetype type_to_array( Basetype type, int dimension ) {
+    if ( dimension == 1 ) {
+      switch ( type )  {
+      case bt_integer : return bt_int_array;
+      case bt_long : return bt_long_array;
+      case bt_short: return bt_short_array;
+      case bt_char : return bt_char_array;
+      case bt_boolean : return bt_bool_array;
+      default : return bt_undef;
+      }
+    } else if ( dimension == 2 ) {
+      switch ( type )  {
+      case bt_integer : return bt_2d_int_array;
+      case bt_long : return bt_2d_long_array;
+      case bt_short: return bt_2d_short_array;
+      case bt_char : return bt_2d_char_array;
+      case bt_boolean : return bt_2d_bool_array;
+      default : return bt_undef;
+      }
+    }else {
+      return bt_undef;
+    }
+  }
+
   // Check that there is one and only one main
   void check_for_one_main( ProgramImpl* p ) {
     Symbol * s = m_st->lookup( "main" );
@@ -367,7 +392,27 @@ private:
   // Create a symbol for the procedure and check there is none already
   // existing
   void add_proc_symbol(ProcedureImpl* p){
+    std::list<Decl_ptr>::iterator iter;
+    char * name; Symbol *s = new Symbol();
+    int size =0;
+    name =strdup( p->m_symname->spelling() );
+    for (iter = p->m_decl_list->begin(); iter != p->m_decl_list->end(); ++iter){
+      size =  static_cast<Decl_variable *>(*iter)->m_assignpair_list->size();
+      while(size>0){
+        s->m_arg_type.push_back(static_cast<Decl_variable *>(*iter)->m_type->m_attribute.m_basetype);
+        size--;
+      }
+    }
+    s->m_basetype = bt_procedure;
+    s->m_return_type = p->m_type->m_attribute.m_basetype;
 
+    //check if proc is main
+    if(strcmp(name,"Main")==0){
+      if(s->m_arg_type.size()!=0)
+        this->t_error(nonvoid_main, p->m_attribute);
+    }
+    if(!m_st->insert(name,s))
+      this->t_error(dup_proc_name, p->m_attribute);
   }
 
   // Add symbol table information for all the declarations following
@@ -406,44 +451,55 @@ private:
 
     exprIter = assign_list.begin();
 
-    // if it is a regular decl ( no dimentation )
+    //check the array decl type is integer
     if ( type1 == bt_empty && type2 == bt_empty) {
-      // go through the pair list, check the assign and add them to symtab
-      for ( symIter = name_list.begin();
-            symIter != name_list.end();
-            symIter++ ) {
-
-        real_struct_name = ( *exprIter )->m_attribute.m_struct_name;
-        real_type = ( *exprIter )->m_attribute.m_basetype;
-        real_first_length = ( *exprIter )->m_attribute.m_length1;
-        real_second_length = ( *exprIter )->m_attribute.m_length2;
-
-        if ( ( *exprIter )->m_attribute.m_basetype != bt_empty ) {
-          // there are assign come with the declare, check if assignment if valid
-          errortype error_message;
-          error_message = checkAssign( type, struct_name, first_length, second_length,
-                                       real_type, real_struct_name,
-                                       real_first_length, real_second_length,
-                                       true );
-          if ( error_message != no_error ){
-            this->t_error( error_message, p->m_attribute );
-          }
-        }
-
-        //assign is valid, now add this variable to the symbol table
-        name = strdup( (*symIter)->spelling() );
-        s = new Symbol();
-        s->m_basetype = type;
-        s->m_type_name = struct_name;
-        s->m_length1 = real_first_length;
-        s->m_length2 = real_second_length;
-
-        if(! m_st->insert(name,s)){
-          this->t_error(dup_var_name, p->m_attribute);
-        }
-
-      }
+      // current type if the real type
+    } else if ( type1 == bt_integer && type2 == bt_empty ) {
+      // it is actually a one d array, transfer the type
+      type = type_to_array( type, 1 );
+    } else if ( type1 == bt_integer && type2 == bt_integer  ) {
+      type = type_to_array( type, 2 );
     }
+
+    if ( type == bt_undef ) {
+      this->t_error( wrong_array_base_type, p->m_attribute );
+    }
+    // go through the pair list, check the assign and add them to symtab
+    for ( symIter = name_list.begin();
+          symIter != name_list.end();
+          symIter++ ) {
+
+      real_struct_name = ( *exprIter )->m_attribute.m_struct_name;
+      real_type = ( *exprIter )->m_attribute.m_basetype;
+      real_first_length = ( *exprIter )->m_attribute.m_length1;
+      real_second_length = ( *exprIter )->m_attribute.m_length2;
+
+      if ( ( *exprIter )->m_attribute.m_basetype != bt_empty ) {
+        // there are assign come with the declare, check if assignment if valid
+        errortype error_message;
+        error_message = checkAssign( type, struct_name, first_length, second_length,
+                                     real_type, real_struct_name,
+                                     real_first_length, real_second_length,
+                                     true );
+        if ( error_message != no_error ){
+          this->t_error( error_message, p->m_attribute );
+        }
+      }
+
+      //assign is valid, now add this variable to the symbol table
+      name = strdup( (*symIter)->spelling() );
+      s = new Symbol();
+      s->m_basetype = type;
+      s->m_type_name = struct_name;
+      s->m_length1 = real_first_length;
+      s->m_length2 = real_second_length;
+
+      if(! m_st->insert(name,s)){
+        this->t_error(dup_var_name, p->m_attribute);
+      }
+      exprIter++;
+    }
+
   }
 
   // Check that the return statement of a procedure has the appropriate type
