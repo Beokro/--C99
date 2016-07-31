@@ -377,20 +377,72 @@ private:
     // two dimentation array with/without length
     // regular decl of variable
     Basetype type = p->m_type->m_attribute.m_basetype;
+    string struct_name = p->m_type->m_attribute.m_struct_name;
+    int first_length = p->m_type->m_attribute.m_length1;
+    int second_length = p->m_type->m_attribute.m_length2;
+    Basetype real_type;
+    string real_struct_name;
+    int real_first_length;
+    int real_second_length;
+
     Basetype type1 = p->m_expr_1->m_attribute.m_basetype;
-    Basetype type2 = p->m_expr_1->m_attribute.m_basetype;
+    Basetype type2 = p->m_expr_2->m_attribute.m_basetype;
+
+    char* name;
+    Symbol* s;
+
     //get all of the symname out
     std::list<SymName_ptr> name_list;
+    std::list<Expr_ptr> assign_list;
     std::list<AssignPair_ptr>::iterator pairIter;
     std::list<SymName_ptr>::iterator symIter;
+    std::list<Expr_ptr>::iterator exprIter;
     for ( pairIter = p->m_assignpair_list->begin();
           pairIter != p->m_assignpair_list->end();
           ++pairIter ) {
       name_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_symname );
+      assign_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_expr );
     }
+
+    exprIter = assign_list.begin();
+
     // if it is a regular decl ( no dimentation )
     if ( type1 == bt_empty && type2 == bt_empty) {
-      // add all of the name along with the type into symtab
+      // go through the pair list, check the assign and add them to symtab
+      for ( symIter = name_list.begin();
+            symIter != name_list.end();
+            symIter++ ) {
+
+        real_struct_name = ( *exprIter )->m_attribute.m_struct_name;
+        real_type = ( *exprIter )->m_attribute.m_basetype;
+        real_first_length = ( *exprIter )->m_attribute.m_length1;
+        real_second_length = ( *exprIter )->m_attribute.m_length2;
+
+        if ( ( *exprIter )->m_attribute.m_basetype != bt_empty ) {
+          // there are assign come with the declare, check if assignment if valid
+          errortype error_message;
+          error_message = checkAssign( type, struct_name, first_length, second_length,
+                                       real_type, real_struct_name,
+                                       real_first_length, real_second_length,
+                                       true );
+          if ( error_message != no_error ){
+            this->t_error( error_message, p->m_attribute );
+          }
+        }
+
+        //assign is valid, now add this variable to the symbol table
+        name = strdup( (*symIter)->spelling() );
+        s = new Symbol();
+        s->m_basetype = type;
+        s->m_type_name = struct_name;
+        s->m_length1 = real_first_length;
+        s->m_length2 = real_second_length;
+
+        if(! m_st->insert(name,s)){
+          this->t_error(dup_var_name, p->m_attribute);
+        }
+
+      }
     }
   }
 
@@ -436,13 +488,14 @@ private:
 
     std::vector<Basetype>::iterator iter2 = s->m_arg_type.begin();
     for(iter = p->m_expr_list->begin(); iter!=p->m_expr_list->end(); ++iter){
-      Basetype t1 = (*iter)->m_attribute.m_basetype, t2 = *(iter2);
-      if(t1!=t2){
-        if(t2!=bt_charptr && t2 != bt_intptr){
+      Basetype type1 = (*iter)->m_attribute.m_basetype;
+      Basetype type2 = *(iter2);
+      if(type1!=type2){
+        if ( is_number_type( type1 ) && is_number_type( type2 )){
+        } if ( is_pure_pointer_type( type1 ) && type2 == bt_void){
+        } else {
           this->t_error(arg_type_mismatch, p->m_attribute);
         }
-        else if(t1!=bt_ptr)
-          this->t_error(arg_type_mismatch, p->m_attribute);
       }
       ++iter2;
     }

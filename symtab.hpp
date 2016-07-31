@@ -62,15 +62,15 @@ public:
   Basetype m_basetype;
 
   // only for struct, enum and string
-  std::string type_name;
+  std::string m_type_name;
 
   // These are valid only if they are procedures or struct
   std::vector<Basetype> m_arg_type;
   Basetype m_return_type;
 
   // length of a array, first dimentation and second dimentation
-  int length1;
-  int length2;
+  int m_length1;
+  int m_length2;
 
   Symbol()
   {
