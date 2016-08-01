@@ -209,16 +209,13 @@ private:
   // list to array
   // same enum to enum
   // same type to same type ( except NULL and array )
-  // can not assign anything to const
+  // can not assign anything to const except in decl
   errortype checkAssign( Basetype type1, string struct_name1,
                          int first_length1, int second_length1,
                          Basetype type2, string struct_name2,
                          int first_length2, int second_length2,
                          bool decl) {
-    if ( is_const_type( type1 ) ) {
-      return const_assign;
-    }
-    if ( is_array_type( type1 ) || is_2d_array_type( type1 ) ) {
+    if ( is_array_type( type1 ) ) {
       //assign to a array only happens in declaration
       if ( !decl ) {
         return array_assign;
@@ -302,12 +299,20 @@ private:
       return no_error;
     }
 
-    // check the 5 regular type
-    if ( ! ( is_number_type( type1 ) && is_number_type( type2 ) ) &&
-         type1 != type2) {
-      return incompat_assign;
+    // check assignment to const type
+    if ( is_const_type( type1 ) && !decl) {
+      return const_assign;
     }
-    return no_error;
+
+    // check the 5 regular type
+    if ( ( is_number_type( type1 ) && is_number_type( type2 ) ) ||
+         ( ( type1 == bt_boolean || type1 == bt_const_bool ) &&
+           ( type2 == bt_boolean || type2 == bt_const_bool ) ) ||
+         ( ( type1 == bt_char || type1 == bt_const_char ) &&
+           ( type2 == bt_char || type2 == bt_const_char ) ) ) {
+      return no_error;
+    }
+    return incompat_assign;
   }
 
 
@@ -399,26 +404,25 @@ private:
   // go to the lower scope
   void add_proc_symbol(ProcedureImpl* p){
     std::list<Decl_ptr>::iterator iter;
-    char * name; Symbol *s = new Symbol();
-    int size =0;
-    name =strdup( p->m_symname->spelling() );
+    char * name = strdup( p->m_symname->spelling() );
+    Symbol *s = new Symbol();
+
+    // add the parameter type to the symbol
     for (iter = p->m_decl_list->begin(); iter != p->m_decl_list->end(); ++iter){
-      size =  static_cast<Decl_variable *>(*iter)->m_assignpair_list->size();
-      while(size>0){
-        s->m_arg_type.push_back(static_cast<Decl_variable *>(*iter)->m_type->m_attribute.m_basetype);
-        size--;
-      }
+      s->m_arg_type.push_back(static_cast<Decl_variable *>(*iter)->m_type->m_attribute.m_basetype);
     }
+
+    // set the basetype and return type for the procedure
     s->m_basetype = bt_procedure;
     s->m_return_type = p->m_type->m_attribute.m_basetype;
 
-    //check if proc is main
-    if(strcmp(name,"Main")==0){
-      if(s->m_arg_type.size()!=0)
-        this->t_error(nonvoid_main, p->m_attribute);
+    //check if proc is main, if it is make sure it takes no argument
+    if ( strcmp( name, "main" ) == 0 ) {
+      if ( s->m_arg_type.size() != 0 )
+        this->t_error( nonvoid_main, p->m_attribute );
     }
-    if(!m_st->insert(name,s))
-      this->t_error(dup_proc_name, p->m_attribute);
+    if( !m_st->insert( name, s ) )
+      this->t_error( dup_proc_name, p->m_attribute );
   }
 
   // Add symbol table information for all the declarations following
