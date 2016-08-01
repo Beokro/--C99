@@ -569,50 +569,26 @@ private:
   void check_pred(Expr* p, int index) {
     if(p->m_attribute.m_basetype!=bt_boolean){
       if ( index == 1 ) {
-        this->t_error(ifpred_err, p->m_attribute);
+        this->t_error( ifpred_err, p->m_attribute );
       } else {
-        this->t_error(whilepred_err, p->m_attribute);
+        this->t_error( whilepred_err, p->m_attribute );
       }
     }
   }
 
   void check_assignment(Assignment* p) {
-    // possible assign pattern :
-    // const assign ==> not allowed
-    // array type assign ==> not allowed
-    // struct type assign ==> if same struct
-    // enum type ==> same enum type or int
-    // long, int or short ==> fine as long as other are one of number type
-    // pointer type ==> NULL or same pointer type
-    // same type
+    // use helper function checkAssign
     Basetype type1 = p->m_lhs->m_attribute.m_basetype;
+    std::string struct_name1 = p->m_lhs->m_attribute.m_struct_name;
     Basetype type2 = p->m_expr->m_attribute.m_basetype;
-    // can not assign to a const type
-    if ( is_const_type( type1 ) ) {
-      this->t_error(const_assign, p->m_attribute);
-    } else if ( is_array_type( type1 ) ) {
-      //can not assign to a array, 1d or 2d
-      this->t_error(array_assign, p->m_attribute);
-    } else if ( type1 == bt_struct && type2 == bt_struct ) {
-      // if both struct, check struct type
-      if ( p->m_lhs->m_attribute.m_struct_name !=
-           p->m_expr->m_attribute.m_struct_name) {
-        // different struct type
-        this->t_error(incompat_assign, p->m_attribute);
-      }
-      // same struct type
-    } else if ( type1 == bt_enum && type2 == bt_enum ) {
-      if ( p->m_lhs->m_attribute.m_struct_name !=
-           p->m_expr->m_attribute.m_struct_name) {
-        // different enum type
-        this->t_error(incompat_assign, p->m_attribute);
-      }
-      // same enum type
-    } else if ( is_number_type( type1 ) && is_number_type( type2 ) ){
-    } else if ( is_pure_pointer_type( type1 ) && type2 == bt_void){
-      //assign a pointer to void
-    } else if ( type1 != type2 ) {
-      this->t_error(incompat_assign, p->m_attribute);
+    std::string struct_name2 = p->m_expr->m_attribute.m_struct_name;
+
+    errortype error_message;
+    error_message = checkAssign( type1, struct_name1, -1, -1,
+                                 type2, struct_name2, -1, -1, false);
+
+    if( error_message != no_error ) {
+      this->t_error( error_message, p->m_attribute );
     }
   }
 
@@ -629,7 +605,7 @@ private:
     if ( s->m_basetype != bt_string || is_pointer_type( s->m_basetype ) ) {
       this->t_error(expr_type_err, p->m_attribute);
     }
-    if(p->m_expr->m_attribute.m_basetype!=bt_integer) {
+    if( !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
       this->t_error(array_index_error, p->m_attribute);
     }
     p->m_attribute.m_basetype = dereference_type( p->m_attribute.m_basetype );
@@ -644,8 +620,8 @@ private:
     if ( !is_2d_array_type( type ) ){
       this->t_error(expr_type_err, p->m_attribute);
     }
-    if(!is_number_type( p->m_expr_1->m_attribute.m_basetype ) ||
-       !is_number_type( p->m_expr_2->m_attribute.m_basetype ) ) {
+    if( !is_number_type( p->m_expr_1->m_attribute.m_basetype ) ||
+        !is_number_type( p->m_expr_2->m_attribute.m_basetype ) ) {
       this->t_error(array_index_error, p->m_attribute);
     }
     p->m_attribute.m_basetype = double_dereference_type( type );
@@ -659,7 +635,7 @@ private:
     if ( s->m_basetype != bt_string || is_pointer_type( s->m_basetype ) ) {
       this->t_error(expr_type_err, p->m_attribute);
     }
-    if(p->m_expr->m_attribute.m_basetype!=bt_integer) {
+    if ( !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
       this->t_error(array_index_error, p->m_attribute);
     }
     p->m_attribute.m_basetype = dereference_type( p->m_attribute.m_basetype );
@@ -815,37 +791,11 @@ private:
 
   void checkset_deref_expr(Deref* parent,Expr* child) {
     Basetype type = child->m_attribute.m_basetype;
-    switch ( type ) {
-    case bt_int_array:
-    case bt_intptr:
-      parent->m_attribute.m_basetype = bt_integer; break;
-    case bt_2d_int_array:
-      parent->m_attribute.m_basetype = bt_intptr; break;
-    case bt_bool_array:
-    case bt_boolptr:
-      parent->m_attribute.m_basetype = bt_boolean; break;
-    case bt_2d_bool_array:
-      parent->m_attribute.m_basetype = bt_boolptr; break;
-    case bt_char_array:
-    case bt_charptr:
-      parent->m_attribute.m_basetype = bt_char; break;
-    case bt_2d_char_array:
-      parent->m_attribute.m_basetype = bt_charptr; break;
-    case bt_short_array:
-    case bt_shortptr:
-      parent->m_attribute.m_basetype = bt_short; break;
-    case bt_2d_short_array:
-      parent->m_attribute.m_basetype = bt_shortptr; break;
-    case bt_long_array:
-    case bt_longptr:
-      parent->m_attribute.m_basetype = bt_long; break;
-    case bt_2d_long_array:
-      parent->m_attribute.m_basetype = bt_longptr; break;
-    case bt_voidptr:
-      parent->m_attribute.m_basetype = bt_void; break;
-    default:
+    type = dereference_type( type );
+    if ( type == bt_undef ) {
       this->t_error(invalid_deref, parent->m_attribute);
     }
+    parent->m_attribute.m_basetype = type;
   }
 
   // Check that if the right-hand side is an lhs, such as in case of
@@ -856,31 +806,10 @@ private:
       this->t_error( var_undef, p->m_attribute );
     }
     Basetype type = s->m_basetype;
-    if ( type == bt_int_array || type == bt_intptr) {
-      p->m_attribute.m_basetype = bt_integer;
-    } else if ( type == bt_2d_int_array) {
-      p->m_attribute.m_basetype = bt_intptr;
-    } else if ( type == bt_bool_array || type == bt_boolptr) {
-      p->m_attribute.m_basetype = bt_boolean;
-    } else if ( type == bt_2d_bool_array) {
-      p->m_attribute.m_basetype = bt_boolptr;
-    } else if ( type == bt_char_array || type == bt_charptr) {
-      p->m_attribute.m_basetype = bt_char;
-    } else if ( type == bt_2d_char_array) {
-      p->m_attribute.m_basetype = bt_boolptr;
-    } else if ( type == bt_short_array || type == bt_shortptr) {
-      p->m_attribute.m_basetype = bt_short;
-    } else if ( type == bt_2d_short_array) {
-      p->m_attribute.m_basetype = bt_shortptr;
-    } else if ( type == bt_long_array || type == bt_longptr) {
-      p->m_attribute.m_basetype = bt_long;
-    } else if ( type == bt_2d_long_array) {
-      p->m_attribute.m_basetype = bt_longptr;
-    } else if ( type == bt_voidptr) {
-      p->m_attribute.m_basetype = bt_void;
-    } else {
-      this->t_error( invalid_deref, p->m_attribute );
+    if ( type == bt_undef ) {
+      this->t_error(invalid_deref, p->m_attribute);
     }
+    p->m_attribute.m_basetype = type;
   }
 
   void checkset_variable(Variable* p) {
@@ -912,7 +841,8 @@ public:
   }
 
   void visitProgramImpl( ProgramImpl *p ) { 
-
+    default_rule(p);
+    check_for_one_main(p);
   }
 
   void visitOut_enum_define( Out_enum_define *p ) { 
