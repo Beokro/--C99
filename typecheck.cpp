@@ -828,6 +828,49 @@ private:
     p->m_attribute.m_basetype = s->m_basetype;
   }
 
+  void addEnum_define( Enum_defineImpl * e ) {
+    Symbol * s;
+    char * name;
+    if ( e->m_primitive->m_data == 1 ) {
+      //enum has a type name
+      s = new Symbol();
+      s->m_basetype = bt_enum_type;
+      name = strdup( e->m_symname_1->spelling() );
+      if( !m_st->insert( name,s ) ) {
+        this->t_error(dup_var_name, e->m_attribute);
+      }
+    }
+
+    //now add the enum list to the symtab
+    std::list<SymName_ptr>::iterator iter;
+    for( iter = e->m_symname_list_2->begin();
+         iter != e->m_symname_list_2->end();
+         iter++) {
+      s = new Symbol();
+      s->m_basetype = bt_enum;
+      if ( e->m_primitive->m_data == 1 ) {
+        s->m_type_name = e->m_symname_1->spelling();
+      } else {
+        s->m_type_name = "enum no name";
+      }
+      name = strdup( ( *iter )->spelling() );
+      if( !m_st->insert( name, s) ) {
+        this->t_error(dup_var_name, e->m_attribute);
+      }
+    }
+
+  }
+
+  void process_Proc_symbol( ProcedureImpl *p ) {
+    std::list<Decl_ptr>::iterator iter;
+    char * name;
+    Symbol *s = new Symbol();
+    int size =0;
+    for (iter = p->m_decl_list->begin(); iter != p->m_decl_list->end(); ++iter){
+      static_cast<Decl_variable*>(*iter)->m_type->accept(this);
+    }
+    p->m_type->accept(this);
+  }
 
 public:
   void default_rule(Visitable* p){
@@ -841,36 +884,38 @@ public:
   }
 
   void visitProgramImpl( ProgramImpl *p ) { 
-    default_rule(p);
-    check_for_one_main(p);
+    default_rule( p );
+    check_for_one_main( p );
   }
 
   void visitOut_enum_define( Out_enum_define *p ) { 
-
+    default_rule( p );
   }
 
   void visitOut_decl( Out_decl *p ) { 
-
+    default_rule( p );
   }
 
   void visitOut_procedure( Out_procedure *p ) { 
-
+    default_rule( p );
   }
 
   void visitOut_struct_define( Out_struct_define *p ) { 
-
+    default_rule( p );
   }
 
   void visitAssignPairImpl( AssignPairImpl *p ) { 
-
+    default_rule( p );
   }
 
   void visitEnum_defineImpl( Enum_defineImpl *p ) { 
-
+    default_rule( p );
+    addEnum_define( p );
   }
 
   void visitDecl_variable( Decl_variable *p ) { 
-
+    default_rule( p );
+    add_decl_symbol( p );
   }
 
   void visitDecl_function( Decl_function *p ) { 
@@ -878,7 +923,13 @@ public:
   }
 
   void visitProcedureImpl( ProcedureImpl *p ) { 
-
+    process_Proc_symbol( p );
+    p->m_attribute.m_scope = m_st->get_scope();
+    add_proc_symbol( p );
+    m_st->open_scope();
+    default_rule( p );
+    m_st->close_scope();
+    check_proc( p );
   }
 
   void visitStruct_defineImpl( Struct_defineImpl *p ) { 
