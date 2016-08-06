@@ -55,7 +55,8 @@ enum Basetype
     bt_string,
     bt_struct_type,
     bt_enum_type,
-    bt_empty
+    bt_empty,
+    bt_empty_list
 };
 
 

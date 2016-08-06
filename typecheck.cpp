@@ -46,6 +46,8 @@ private:
       wrong_array_base_type,
       init_type_failed,
       forpred_err,
+      list_differnt_type,
+      incre_type,
       no_error
     };
 
@@ -126,63 +128,46 @@ private:
       }
   }
 
+  bool is_non_const_number_type( Basetype type ) {
+    return ( type == bt_integer || type == bt_long || type == bt_short );
+  }
 
   bool is_number_type( Basetype type ){
-    if ( type == bt_integer || type == bt_long || type == bt_short ||
-         type == bt_const_int || type == bt_const_long || type == bt_const_short) {
-      return true;
-    }
-    return false;
+    return ( type == bt_integer || type == bt_long || type == bt_short ||
+             type == bt_const_int || type == bt_const_long || type == bt_const_short );
   }
 
 
   bool is_array_type( Basetype type ) {
-    if ( type == bt_int_array || type == bt_char_array || type == bt_bool_array ||
-         type == bt_long_array || type == bt_short_array || is_2d_array_type( type ) ) {
-      return true;
-    }
-    return false;
+    return ( type == bt_int_array || type == bt_char_array || type == bt_bool_array ||
+         type == bt_long_array || type == bt_short_array || is_2d_array_type( type ) );
   }
 
   bool is_2d_array_type( Basetype type ) {
-    if ( type == bt_2d_int_array || type != bt_2d_char_array || type != bt_2d_bool_array ||
-         type != bt_2d_long_array || type != bt_2d_short_array ) {
-      return true;
-    }
-    return false;
+    return  ( type == bt_2d_int_array || type != bt_2d_char_array ||
+              type != bt_2d_bool_array ||
+              type != bt_2d_long_array || type != bt_2d_short_array );
   }
 
   bool is_pure_pointer_type( Basetype type ) {
-    if ( type == bt_intptr || type == bt_charptr || type == bt_boolptr ||
-         type == bt_shortptr || type == bt_longptr ) {
-      return true;
-    }
-    return false;
+    return ( type == bt_intptr || type == bt_charptr || type == bt_boolptr ||
+             type == bt_shortptr || type == bt_longptr );
   }
 
   bool is_pointer_type( Basetype type ) {
-    if ( is_pure_pointer_type( type ) || is_array_type( type ) ||
-         is_2d_array_type( type ) ) {
-      return true;
-    }
-    return false;
+    return ( is_pure_pointer_type( type ) || is_array_type( type ) ||
+             is_2d_array_type( type ) );
   }
 
 
   bool is_const_type( Basetype type ) {
-    if ( type == bt_const_int || type == bt_const_char || type == bt_const_bool ||
-         type == bt_const_long || type == bt_const_short) {
-      return true;
-    }
-    return false;
+    return ( type == bt_const_int || type == bt_const_char || type == bt_const_bool ||
+             type == bt_const_long || type == bt_const_short);
   }
 
   bool is_return_type( Basetype type ) {
-    if ( is_const_type( type ) || is_number_type( type ) ||
-         type == bt_boolean || type == bt_char) {
-      return true;
-    }
-    return false;
+    return ( is_const_type( type ) || is_number_type( type ) ||
+             type == bt_boolean || type == bt_char);
   }
 
   // helper function to check if the type of array and list macthes
@@ -384,6 +369,18 @@ private:
       return bt_long_array;
     default:
       return bt_undef;
+    }
+  }
+
+  Basetype baseToList( Basetype type ) {
+    switch ( type ) {
+    case bt_integer: return bt_int_list;
+    case bt_long: return bt_long_list;
+    case bt_short: return bt_short_list;
+    case bt_char: return bt_char_list;
+    case bt_boolean: return bt_bool_list;
+    case bt_empty : return bt_empty_list;
+    default: return bt_undef;
     }
   }
 
@@ -707,7 +704,8 @@ private:
   void checkset_boolexpr(Expr* parent, Expr* child1, Expr* child2) {
     Basetype type1 = child1->m_attribute.m_basetype;
     Basetype type2 = child2->m_attribute.m_basetype;
-    if ( type1 != bt_boolean || type2 != bt_boolean ) {
+    if ( ( type1 != bt_boolean && type1 != bt_const_bool ) ||
+         ( type2 != bt_boolean && type2 != bt_const_bool) ) {
       this->t_error(expr_type_err, parent->m_attribute);
     }
     parent->m_attribute.m_basetype = bt_boolean;
@@ -743,9 +741,11 @@ private:
     Basetype type1 = child1->m_attribute.m_basetype;
     Basetype type2 = child2->m_attribute.m_basetype;
     if ( is_number_type( type1 ) && is_number_type( type2 ) ) {
-      if ( type1 == bt_long || type2 == bt_long ) {
+      if ( type1 == bt_long || type1 == bt_const_long ||
+           type2 == bt_long || type2 == bt_const_long ) {
         parent->m_attribute.m_basetype = bt_long;
-      } else if ( type1 == bt_integer || type2 == bt_integer ) {
+      } else if ( type1 == bt_integer || type1 == bt_const_int ||
+                  type2 == bt_integer || type2 == bt_const_int ) {
         parent->m_attribute.m_basetype = bt_integer;
       } else {
         parent->m_attribute.m_basetype = bt_short;
@@ -768,28 +768,34 @@ private:
     } else if ( is_pointer_type( type1 ) && is_pointer_type( type2 )  &&
                 type1 == type2 ) {
     } else {
-      this->t_error(expr_type_err, parent->m_attribute);
+      this->t_error( expr_type_err, parent->m_attribute );
     }
     parent->m_attribute.m_basetype = bt_boolean;
   }
 
   // For checking equality ops(equal, not equal)
+  // add const support
   void checkset_equalityexpr(Expr* parent, Expr* child1, Expr* child2) {
     Basetype type1 = child1->m_attribute.m_basetype;
     Basetype type2 = child2->m_attribute.m_basetype;
     if ( type1 == type2 ) {
+    } else if ( type1 == bt_const_bool && type2 == bt_boolean ) {
+    } else if ( type2 == bt_const_bool && type1 == bt_boolean ) {
+    } else if ( type1 == bt_const_char && type2 == bt_char ) {
+    } else if ( type2 == bt_const_char && type1 == bt_char ) {
     } else if ( is_number_type( type1 ) && is_number_type( type2 ) ){
     } else if ( is_pointer_type( type1 ) && type2 == bt_voidptr ) {
     } else if ( is_pointer_type( type2 ) && type1 == bt_voidptr ) {
     } else {
-      this->t_error(expr_type_err, parent->m_attribute);
+      this->t_error( expr_type_err, parent->m_attribute );
     }
     parent->m_attribute.m_basetype = bt_boolean;
   }
 
   // For checking not
   void checkset_not(Expr* parent, Expr* child) {
-    if ( child->m_attribute.m_basetype != bt_boolean ) {
+    if ( child->m_attribute.m_basetype != bt_boolean &&
+         child->m_attribute.m_basetype != bt_const_bool ) {
       this->t_error( expr_type_err, parent->m_attribute );
     }
     parent->m_attribute.m_basetype = bt_boolean;
@@ -1322,115 +1328,203 @@ public:
     p->m_attribute.m_basetype = bt_undef;
   }
 
+  // check if all expr in list are of same type
   void visitListImpl( ListImpl *p ) {
+    default_rule( p );
+    // if length of list is 0, type is bt_empty_list
+    Basetype type;
+    auto iter = p->m_expr_list->begin();
+    if ( p->m_expr_list->size() == 0 ) {
+      type = bt_empty;
+    } else {
+      type = ( *iter )->m_attribute.m_basetype;
+    }
+    for ( ;
+          iter != p->m_expr_list->end();
+          iter++ ) {
+      if ( type != ( *iter )->m_attribute.m_basetype ) {
+        this->t_error( list_differnt_type, p->m_attribute );
+      }
+    }
 
+    // all element is same type, list would be type of that list
+    p->m_attribute.m_basetype = baseToList( type );
   }
 
   void visitIncre_op( Incre_op *p ) { 
-
+    default_rule( p );
   }
 
   void visitIncre_t_add( Incre_t_add *p ) { 
-
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
   void visitIncre_t_min( Incre_t_min *p ) { 
-
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
   void visitIncre_add_t( Incre_add_t *p ) { 
-
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
   void visitIncre_min_t( Incre_min_t *p ) { 
-
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
-  void visitAnd_assign( And_assign *p ) { 
-
+  // lhs must be number, rhs can be const/nonconst number
+  void visitAnd_assign( And_assign *p ) {
+    default_rule( p );
+    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+        !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
   void visitXor_assign( Xor_assign *p ) { 
-
+    default_rule( p );
+    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+        !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
-  void visitOr_assign( Or_assign *p ) { 
-
+  void visitOr_assign( Or_assign *p ) {
+    default_rule( p );
+    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+        !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
-  void visitSl_assign( Sl_assign *p ) { 
-
+  void visitSl_assign( Sl_assign *p ) {
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
-  void visitSr_assign( Sr_assign *p ) { 
-
+  void visitSr_assign( Sr_assign *p ) {
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
   void visitTimes_assign( Times_assign *p ) { 
-
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
   void visitDiv_assign( Div_assign *p ) { 
-
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
   void visitRem_assign( Rem_assign *p ) { 
-
+    default_rule( p );
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
+  // pointer can be lhs
   void visitAdd_assign( Add_assign *p ) { 
-
+    default_rule( p );
+    if ( !( is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+            is_pointer_type( p->m_lhs->m_attribute.m_basetype ) )||
+         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
+  // pointer can be lhs
   void visitMinus_assign( Minus_assign *p ) { 
-
+    default_rule( p );
+    if ( !( is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
+            is_pointer_type( p->m_lhs->m_attribute.m_basetype )) ||
+         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( incre_type, p->m_attribute );
+    }
   }
 
-  void visitEq( Eq *p ) { 
-
+  void visitEq( Eq *p ) {
+    default_rule( p );
+    checkset_equalityexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitNeq( Neq *p ) { 
-
+    default_rule( p );
+    checkset_equalityexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
-  void visitAnd( And *p ) { 
-
+  void visitAnd( And *p ) {
+    default_rule( p );
+    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitTimes( Times *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitArithAnd( ArithAnd *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitArithOr( ArithOr *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitArithXor( ArithXor *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitRem( Rem *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitShiftL( ShiftL *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitShiftR( ShiftR *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitDiv( Div *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitCompare( Compare *p ) { 
+    default_rule( p );
 
   }
 
