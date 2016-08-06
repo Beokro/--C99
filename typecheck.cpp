@@ -44,6 +44,7 @@ private:
       one_d_array_assign,
       two_d_array_assign,
       wrong_array_base_type,
+      init_type_failed,
       no_error
     };
 
@@ -200,6 +201,31 @@ private:
       return false;
     }
     return true;
+  }
+
+  errortype checkSimpleAssign( Basetype type1, Basetype type2 ) {
+    // type1 must be one of char, bool, long, short, int
+    // does not suuport pointer init in for decl
+    if( is_number_type( type1 ) && is_number_type( type2 ) ) {
+      return no_error;
+    } else if ( type1 == type2 ) {
+      return no_error;
+    }
+    return init_type_failed;
+  }
+
+  errortype checkSimpleAssignWP( Basetype type1, Basetype type2 ) {
+    // type1 must be one of char, bool, long, short, int or pointer
+    // does not suuport pointer init in for decl
+    if( is_number_type( type1 ) && is_number_type( type2 ) ) {
+      return no_error;
+    } else if ( is_pure_pointer_type( type1 ) && type2 == bt_void) {
+      return no_error;
+    }
+    else if ( type1 == type2 ) {
+      return no_error;
+    }
+    return init_type_failed;
   }
 
   // All possible assign
@@ -980,35 +1006,70 @@ public:
   }
 
   void visitInit_new( Init_new *p ) { 
-    
+    // add the symbol to current scope
+    default_rule( p );
+    char * name = strdup( p->m_symname->spelling() );
+    Symbol * s = new Symbol();
+    if(! m_st->insert(name,s)){
+      this->t_error(dup_var_name, p->m_attribute);
+    }
+    // check assign type match exist, if exist, check the type match
+    if ( p->m_expr->m_attribute.m_basetype != bt_empty ) {
+      checkSimpleAssign( p->m_type->m_attribute.m_basetype,
+                         p->m_expr->m_attribute.m_basetype);
+    }
   }
 
   void visitInit_old( Init_old *p ) { 
+    // check if variable exist
+    default_rule( p );
+    Symbol * s = m_st->lookup( p->m_symname->spelling() );
+    if ( s == NULL ) {
+      this->t_error(var_undef, p->m_attribute);
+    }
 
+    // check assign type match exist, if exist, check the type match
+    if ( p->m_expr->m_attribute.m_basetype != bt_empty ) {
+      checkSimpleAssign( s->m_basetype,
+                         p->m_expr->m_attribute.m_basetype);
+    }
   }
 
   void visitNStat( NStat *p ) { 
-
+    default_rule( p );
   }
 
   void visitRStat( RStat *p ) { 
-
+    default_rule( p );
   }
 
   void visitAssignment( Assignment *p ) { 
-
+    default_rule( p );
+    check_assignment( p );
   }
 
   void visitString_assignment( String_assignment *p ) { 
-
+    default_rule( p );
+    check_string_assignment( p );
   }
 
+  // check lhs's type and function return type matches
+  // pointer is allowed
   void visitFunction_assignment( Function_assignment *p ) { 
+    default_rule( p );
+    // get the return type of function
+    Symbol * s = m_st->lookup( dynamic_cast<CallImpl*>
+                               ( p->m_call)->m_symname->spelling() );
+    if ( s == NULL ) {
+      this->t_error( proc_undef, p->m_attribute );
+    }
 
+    checkSimpleAssignWP( p->m_lhs->m_attribute.m_basetype,
+                         s->m_return_type );
   }
 
   void visitSIncre( SIncre *p ) { 
-
+    
   }
 
   void visitFunction_call( Function_call *p ) { 
