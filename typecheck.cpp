@@ -45,6 +45,7 @@ private:
       two_d_array_assign,
       wrong_array_base_type,
       init_type_failed,
+      forpred_err,
       no_error
     };
 
@@ -203,14 +204,22 @@ private:
     return true;
   }
 
+  // type1 must be one of char, bool, long, short, int
+  // does not suuport pointer init in for decl
   errortype checkSimpleAssign( Basetype type1, Basetype type2 ) {
-    // type1 must be one of char, bool, long, short, int
-    // does not suuport pointer init in for decl
+    // const type can not be on the left of assign
+    if ( is_const_type( type1 ) ) {
+      return const_assign;
+    }
     if( is_number_type( type1 ) && is_number_type( type2 ) ) {
       return no_error;
-    } else if ( type1 == type2 ) {
+    } else if ( ( type1 == bt_boolean &&
+                  ( type2 == bt_boolean || type2 == bt_const_bool ) ) ||
+                (  type1 == bt_char  &&
+                  ( type2 == bt_char || type2 == bt_const_char ) ) ) {
       return no_error;
     }
+
     return init_type_failed;
   }
 
@@ -221,10 +230,13 @@ private:
       return no_error;
     } else if ( is_pure_pointer_type( type1 ) && type2 == bt_void) {
       return no_error;
-    }
-    else if ( type1 == type2 ) {
+    } else if ( ( type1 == bt_boolean &&
+                  ( type2 == bt_boolean || type2 == bt_const_bool ) ) ||
+                (  type1 == bt_char  &&
+                   ( type2 == bt_char || type2 == bt_const_char ) ) ) {
       return no_error;
     }
+
     return init_type_failed;
   }
 
@@ -537,19 +549,24 @@ private:
 
   // Check that the return statement of a procedure has the appropriate type
   void check_proc(ProcedureImpl *p) {
-    Basetype correct_type= p->m_type->m_attribute.m_basetype;
-    Basetype real_type = static_cast<Return_statImpl *>(p->m_return_stat)->m_expr->m_attribute.m_basetype;
+    Basetype correct_type = p->m_type->m_attribute.m_basetype;
+    Basetype real_type = static_cast<Return_statImpl *>
+      (p->m_return_stat)->m_expr->m_attribute.m_basetype;
     if ( !is_return_type( correct_type ) ){
       this->t_error(ret_type_mismatch, p->m_attribute);
     }
 
-    if ( is_number_type( correct_type ) && is_number_type( real_type ) ) {
+    // taking care of const case too
+    if( is_number_type( correct_type ) && is_number_type( real_type ) ) {
     } else if ( is_pure_pointer_type( correct_type ) && real_type == bt_void) {
-    } else if ( correct_type == real_type ){
+    }
+    else if ( ( ( correct_type == bt_boolean || correct_type == bt_const_bool  )&&
+                  ( real_type == bt_boolean || real_type == bt_const_bool ) ) ||
+                (  ( correct_type == bt_char || correct_type == bt_const_char ) &&
+                   ( real_type == bt_char || real_type == bt_const_char ) ) ) {
     } else {
       this->t_error(ret_type_mismatch,p->m_attribute);
     }
-
   }
 
   // Right now let's say the reutrn type must be a base type
@@ -593,11 +610,14 @@ private:
   // For checking that this expressions type is boolean used in if/else and
   // while visits
   void check_pred(Expr* p, int index) {
-    if(p->m_attribute.m_basetype!=bt_boolean){
+    if( p->m_attribute.m_basetype != bt_boolean &&
+        p->m_attribute.m_basetype != bt_const_bool ){
       if ( index == 1 ) {
         this->t_error( ifpred_err, p->m_attribute );
-      } else {
+      } else if ( index == 2 ){
         this->t_error( whilepred_err, p->m_attribute );
+      } else {
+        this->t_error( forpred_err, p->m_attribute );
       }
     }
   }
@@ -1015,8 +1035,11 @@ public:
     }
     // check assign type match exist, if exist, check the type match
     if ( p->m_expr->m_attribute.m_basetype != bt_empty ) {
-      checkSimpleAssign( p->m_type->m_attribute.m_basetype,
-                         p->m_expr->m_attribute.m_basetype);
+      errortype err = checkSimpleAssign( p->m_type->m_attribute.m_basetype,
+                                         p->m_expr->m_attribute.m_basetype);
+      if ( err != no_error ) {
+        this->t_error( err, p->m_attribute );
+      }
     }
   }
 
@@ -1030,8 +1053,11 @@ public:
 
     // check assign type match exist, if exist, check the type match
     if ( p->m_expr->m_attribute.m_basetype != bt_empty ) {
-      checkSimpleAssign( s->m_basetype,
-                         p->m_expr->m_attribute.m_basetype);
+      errortype err = checkSimpleAssign( s->m_basetype,
+                                         p->m_expr->m_attribute.m_basetype);
+      if ( err != no_error ) {
+        this->t_error( err, p->m_attribute );
+      }
     }
   }
 
@@ -1064,68 +1090,81 @@ public:
       this->t_error( proc_undef, p->m_attribute );
     }
 
-    checkSimpleAssignWP( p->m_lhs->m_attribute.m_basetype,
+    errortype err = checkSimpleAssignWP( p->m_lhs->m_attribute.m_basetype,
                          s->m_return_type );
+    if ( err != no_error ) {
+      this->t_error( err, p->m_attribute );
+    }
   }
 
   void visitSIncre( SIncre *p ) { 
-    
+    default_rule( p );
   }
 
   void visitFunction_call( Function_call *p ) { 
-
+    default_rule( p );
   }
 
-  void visitIf_no_else( If_no_else *p ) { 
-
+  // check if expr is bool
+  void visitIf_no_else( If_no_else *p ) {
+    default_rule( p );
+    check_pred( p->m_expr, 1 );
   }
 
   void visitIf_with_else( If_with_else *p ) { 
-
+    default_rule( p );
+    check_pred( p->m_expr, 1 );
   }
 
   void visitWhile_loop( While_loop *p ) { 
-
+    default_rule( p );
+    check_pred( p->m_expr, 2 );
   }
 
   void visitDo_while( Do_while *p ) { 
-
+    default_rule( p );
+    check_pred( p->m_expr, 2 );
   }
 
-  void visitFor_loop( For_loop *p ) { 
-
+  void visitFor_loop( For_loop *p ) {
+    default_rule( p );
+    check_pred( p->m_expr, 3 );
   }
 
   void visitSwitch( Switch *p ) { 
-
+    default_rule( p );
   }
 
   void visitBreak( Break *p ) { 
-
+    default_rule( p );
   }
 
   void visitContinue( Continue *p ) { 
-
+    default_rule( p );
   }
 
-  void visitStat_struct_define( Stat_struct_define *p ) { 
-
+  void visitStat_struct_define( Stat_struct_define *p ) {
+    default_rule( p );
   }
 
   void visitStat_enum_define( Stat_enum_define *p ) { 
-
+    default_rule( p );
   }
 
-  void visitStat_decl( Stat_decl *p ) { 
-
+  void visitStat_decl( Stat_decl *p ) {
+    default_rule( p );
   }
 
-  void visitShort_declImpl( Short_declImpl *p ) { 
-
+  void visitShort_declImpl( Short_declImpl *p ) {
+    char * name = strdup( p->m_symname->spelling() );
+    Symbol * s = new Symbol();
+    s->m_basetype = p->m_type->m_attribute.m_basetype;
+    if(!m_st->insert(name,s))
+      this->t_error(dup_proc_name, p->m_attribute);
   }
 
   void visitReturn_statImpl( Return_statImpl *p ) { 
-
+    default_rule( p );
   }
 
   void visitTInt( TInt *p ) {
