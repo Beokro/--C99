@@ -136,13 +136,38 @@ procedureContent  : procedure
                   ;
 
 
-structDefine    : STRUCT ID '{' decls '}' ';'
+short_decls  : short_decls short_decl
+             {
+                    #ifdef DEBUG
+                    cout << "short_decls  : short_decls short_decl" << endl;
+                    #endif
+                    $1.u_short_decl_list->push_back( $2.u_short_decl );
+                    $$.u_short_decl_list = $1.u_short_decl_list;
+             }
+             | 
+             {
+                    #ifdef DEBUG
+                    cout << "short_decls  : empty" << endl;
+                    #endif
+                    $$.u_short_decl_list = new std::list< Short_decl_ptr >();
+             }
+
+short_decl : type ID ';'
+           {
+                    #ifdef DEBUG
+                    cout << "short_decl  : type symname" << endl;
+                    #endif
+                    $$.u_short_decl = new Short_declImpl( $1.u_type,
+                                                          new SymName( $2.u_base_charptr ) );
+           }
+
+structDefine    : STRUCT ID '{' short_decls '}' ';'
                 {
                   #ifdef DEBUG
                   cout << "StructDefine: structdefine" << endl;
                   #endif
                   $$.u_struct_define = new Struct_defineImpl( new SymName( $2.u_base_charptr ),
-                                                              $4.u_decl_list);
+                                                              $4.u_short_decl_list);
                 }
                 ;
 
@@ -186,22 +211,6 @@ idPrime     : ',' ID idPrime
             }
             ;
 
-decls       : decls decl
-            {
-              #ifdef DEBUG
-              cout << "Decls: more" << endl;
-              #endif
-              $1.u_decl_list->push_back( $2.u_decl );
-              $$.u_decl_list = $1.u_decl_list;                           
-            }
-            |
-            {
-              #ifdef DEBUG
-              cout << "Decls: empty" << endl;
-              #endif
-              $$.u_decl_list = new std::list<Decl_ptr>();
-            }
-            ; 
 
 //first dimention size, second dimention size 
 decl        : type ID '[' NUMBER ']' optionAssign declFollow ';'

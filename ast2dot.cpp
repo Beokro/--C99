@@ -103,6 +103,7 @@ public:
   void visitStat_struct_define(Stat_struct_define *p) { draw("Stat_struct_define", p); }
   void visitStat_enum_define(Stat_enum_define *p) { draw("Stat_enum_define", p); }
   void visitStat_decl(Stat_decl *p) { draw("Stat_decl", p); }
+  void visitShort_declImpl(Short_declImpl *p) { draw("Short_declImpl", p); }
   void visitReturn_statImpl(Return_statImpl *p) { draw("Return_statImpl", p); }
   void visitTInt(TInt *p) { draw("TInt", p); }
   void visitTChar(TChar *p) { draw("TChar", p); }

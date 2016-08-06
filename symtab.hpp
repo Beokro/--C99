@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <map>
 
 #include <cassert>
 
@@ -67,6 +68,9 @@ public:
   // These are valid only if they are procedures or struct
   std::vector<Basetype> m_arg_type;
   Basetype m_return_type;
+
+  // for the struct, add a map
+  std::map< const char*, Basetype > m_map;
 
   // length of a array, first dimentation and second dimentation
   int m_length1;

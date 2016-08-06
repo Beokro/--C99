@@ -918,7 +918,7 @@ public:
     add_decl_symbol( p );
   }
 
-  void visitDecl_function( Decl_function *p ) { 
+  void visitDecl_function( Decl_function *p ) {
 
   }
 
@@ -933,7 +933,33 @@ public:
   }
 
   void visitStruct_defineImpl( Struct_defineImpl *p ) { 
+    default_rule( p );
+    // add the name as type
+    char * name = strdup( p->m_symname->spelling() );
+    Symbol * s = new Symbol() ;
+    s->m_basetype = bt_struct_type;
 
+    // symbol need to store the type and name information
+    // use map might be a good idea
+    // go through the deal
+    for( auto iter = p->m_short_decl_list->begin();
+         iter != p->m_short_decl_list->end();
+         iter++ ) {
+      // check if name is being used
+      auto it = s->m_map.find( dynamic_cast< Short_declImpl* >
+                               ( *iter )->m_symname->spelling() );
+      if ( it != s->m_map.end() ) {
+        this->t_error(dup_var_name, p->m_attribute);
+      }
+
+      // add the deal to map one by one
+      s->m_map[ dynamic_cast< Short_declImpl* >( *iter )->m_symname->spelling() ] =
+        dynamic_cast< Short_declImpl* >( *iter )->m_type->m_attribute.m_basetype;
+    }
+
+    if(! m_st->insert(name,s)){
+      this->t_error(dup_var_name, p->m_attribute);
+    }
   }
 
   void visitCallImpl( CallImpl *p ) { 
@@ -1029,6 +1055,10 @@ public:
   }
 
   void visitStat_decl( Stat_decl *p ) { 
+
+  }
+
+  void visitShort_declImpl( Short_declImpl *p ) { 
 
   }
 

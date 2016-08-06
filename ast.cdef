@@ -12,8 +12,9 @@ AssignPair ==> SymName Expr
 Enum_define ==> Primitive SymName *SymName
 Decl:Decl_variable ==> Primitive Primitive Type *AssignPair
 Decl:Decl_function ==> Type SymName *Decl
+Short_decl ==> Type SymName
 Procedure ==> Type SymName *Decl *PContent Return_stat
-Struct_define ==> SymName *Decl
+Struct_define ==> SymName *Short_decl
 Call ==> SymName *Expr
 Case ==> Expr *Stat_can_return
 
