@@ -962,24 +962,25 @@ public:
     }
   }
 
-  void visitCallImpl( CallImpl *p ) { 
-
+  void visitCallImpl( CallImpl *p ) {
+    default_rule( p );
+    check_call( p );
   }
 
   void visitCaseImpl( CaseImpl *p ) { 
-
+    default_rule( p );
   }
 
   void visitPProcedure( PProcedure *p ) { 
-
+    default_rule( p );
   }
 
   void visitPStat( PStat *p ) { 
-
+    default_rule( p );
   }
 
   void visitInit_new( Init_new *p ) { 
-
+    
   }
 
   void visitInit_old( Init_old *p ) { 
