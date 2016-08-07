@@ -1525,135 +1525,148 @@ public:
 
   void visitCompare( Compare *p ) { 
     default_rule( p );
-
   }
 
-  void visitGt( Gt *p ) { 
-
+  void visitGt( Gt *p ) {
+    default_rule( p );
+    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
-  void visitGteq( Gteq *p ) { 
-
+  void visitGteq( Gteq *p ) {
+    default_rule( p );
+    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitLt( Lt *p ) { 
-
+    default_rule( p );
+    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitLteq( Lteq *p ) { 
-
+    default_rule( p );
+    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitMinus( Minus *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr_or_pointer( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitNoteq( Noteq *p ) { 
-
+    default_rule( p );
+    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitOr( Or *p ) { 
-
+    default_rule( p );
+    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitPlus( Plus *p ) { 
-
+    default_rule( p );
+    checkset_arithexpr_or_pointer( p, p->m_expr_1, p->m_expr_2 );
   }
 
-  void visitNot( Not *p ) { 
-
+  void visitNot( Not *p ) {
+    default_rule( p );
+    checkset_not( p, p->m_expr );
   }
 
-  void visitUminus( Uminus *p ) { 
-
+  void visitUminus( Uminus *p ) {
+    default_rule( p );
+    checkset_uminus( p, p->m_expr );
   }
 
-  void visitIdent( Ident *p ) { 
-
+  void visitIdent( Ident *p ) {
+    default_rule( p );
+    checkset_Ident( p );
   }
 
-  void visitArrayAccess( ArrayAccess *p ) { 
-
+  void visitArrayAccess( ArrayAccess *p ) {
+    default_rule( p );
+    check_array_access( p );
   }
 
-  void visitArrayDoubleAccess( ArrayDoubleAccess *p ) { 
-
+  void visitArrayDoubleAccess( ArrayDoubleAccess *p ) {
+    default_rule( p );
+    check_2d_array_access( p );
   }
 
   void visitDotAccess( DotAccess *p ) { 
+    default_rule( p );
 
   }
 
   void visitArrowAccess( ArrowAccess *p ) { 
-
+    default_rule( p );
   }
 
   void visitIntLit( IntLit *p ) { 
-
+    default_rule( p );
   }
 
   void visitCharLit( CharLit *p ) { 
-
+    default_rule( p );
   }
 
   void visitBoolLit( BoolLit *p ) { 
-
+    default_rule( p );
   }
 
   void visitStringLit( StringLit *p ) { 
-
+    default_rule( p );
   }
 
   void visitNullLit( NullLit *p ) { 
-
+    default_rule( p );
   }
 
   void visitDeref( Deref *p ) { 
-
+    default_rule( p );
   }
 
   void visitAddressOf( AddressOf *p ) { 
-
+    default_rule( p );
   }
 
   void visitEList( EList *p ) { 
-
+    default_rule( p );
   }
 
   void visitETDList( ETDList *p ) { 
-
+    default_rule( p );
   }
 
   void visitECall( ECall *p ) { 
-
+    default_rule( p );
   }
 
   void visitEmpty( Empty *p ) { 
-
+    default_rule( p );
   }
 
   void visitVariable( Variable *p ) { 
-
+    default_rule( p );
   }
 
   void visitDerefVariable( DerefVariable *p ) { 
-
+    default_rule( p );
   }
 
   void visitArrayElement( ArrayElement *p ) { 
-
+    default_rule( p );
   }
 
   void visitArrayDoubleElement( ArrayDoubleElement *p ) { 
-
+    default_rule( p );
   }
 
   void visitArrowElement( ArrowElement *p ) { 
-
+    default_rule( p );
   }
 
   void visitDotElement( DotElement *p ) { 
-
+    default_rule( p );
   }
 
   // Special cases
