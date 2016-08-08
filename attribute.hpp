@@ -65,7 +65,7 @@ class Attribute
   public:
   Basetype m_basetype;       // Type of the subtree
   int m_place;               // Register where this value is stored
-  std::string m_struct_name; //struct or enum name
+  char* m_struct_name; //struct or enum name
   int m_length1;             //first dimension length of array/list
   int m_length2;             //second dimension length of array/list
   SymScope* m_scope;         // The scope of the current symbol
@@ -75,11 +75,13 @@ class Attribute
     m_basetype = bt_undef;
     lineno = 0;
     m_scope = NULL;
-    m_struct_name  = "";
+    m_struct_name = NULL;
     m_length1 = -1;
     m_length2 = -1;
     int m_place = -1;   // Should never actually be negative
   }
+
+  ~Attribute() { delete m_struct_name; }
 };
 
 #endif //ATTRIBUTE_HPP

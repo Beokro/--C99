@@ -63,14 +63,14 @@ public:
   Basetype m_basetype;
 
   // only for struct, enum and string
-  std::string m_type_name;
+  char* m_type_name;
 
   // These are valid only if they are procedures or struct
   std::vector<Basetype> m_arg_type;
   Basetype m_return_type;
 
   // for the struct, add a map
-  std::map< const char*, Basetype > m_map;
+  std::map< const char*, std::pair< Basetype, int > > m_map;
 
   // length of a array, first dimentation and second dimentation
   int m_length1;
@@ -130,7 +130,14 @@ public:
   friend class SymScope;
   friend class SymTab;
 
-  ~Symbol() { }
+  ~Symbol() {
+    delete m_type_name;
+    for ( auto iter = m_map.begin();
+          iter != m_map.end();
+          ++iter ) {
+      delete iter->first;
+    }
+  }
 };
 
 // This is the symbol table header which is similar to the interface described

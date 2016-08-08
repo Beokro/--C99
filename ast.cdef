@@ -131,8 +131,8 @@ Expr:Uminus ==> Expr
 Expr:Ident ==> SymName
 Expr:ArrayAccess ==> SymName Expr
 Expr:ArrayDoubleAccess ==> SymName Expr Expr
-Expr:DotAccess ==> SymName SymName
-Expr:ArrowAccess ==> SymName SymName
+Expr:DotAccess ==> Lhs SymName
+Expr:ArrowAccess ==> Lhs SymName
 Expr:IntLit ==> Primitive
 Expr:CharLit ==> Primitive
 Expr:BoolLit ==> Primitive
@@ -149,8 +149,8 @@ Lhs:Variable ==> SymName
 Lhs:DerefVariable ==> SymName
 Lhs:ArrayElement ==> SymName Expr
 Lhs:ArrayDoubleElement ==> SymName Expr Expr
-Lhs:ArrowElement ==>  SymName SymName
-Lhs:DotElement ==>  SymName SymName
+Lhs:ArrowElement ==>  Lhs SymName
+Lhs:DotElement ==>  Lhs SymName
 
 # these classes should not be generated automagically
 SymName external "symtab.hpp"

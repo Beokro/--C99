@@ -48,6 +48,8 @@ private:
       forpred_err,
       list_differnt_type,
       incre_type,
+      dot_access_not_struct,
+      not_a_struct_member,
       no_error
     };
 
@@ -233,9 +235,9 @@ private:
   // same enum to enum
   // same type to same type ( except NULL and array )
   // can not assign anything to const except in decl
-  errortype checkAssign( Basetype type1, string struct_name1,
+  errortype checkAssign( Basetype type1, char* struct_name1,
                          int first_length1, int second_length1,
-                         Basetype type2, string struct_name2,
+                         Basetype type2, char* struct_name2,
                          int first_length2, int second_length2,
                          bool decl) {
     if ( is_array_type( type1 ) ) {
@@ -316,7 +318,7 @@ private:
     // ok, check the enum and struct type
     if ( type1 == bt_enum || type1 == bt_struct) {
       // only valid if type2 if of same enum type of number type
-      if ( type2 != type1 || struct_name1 != struct_name2 ) {
+      if ( type2 != type1 || strcmp( struct_name1, struct_name2 ) != 0 ) {
         return incompat_assign;
       }
       return no_error;
@@ -467,11 +469,11 @@ private:
     // two dimentation array with/without length
     // regular decl of variable
     Basetype type = p->m_type->m_attribute.m_basetype;
-    string struct_name = p->m_type->m_attribute.m_struct_name;
+    char* struct_name = strdup ( p->m_type->m_attribute.m_struct_name ) ;
     int first_length = p->m_primitive_1->m_data;
     int second_length = p->m_primitive_2->m_data;
     Basetype real_type;
-    string real_struct_name;
+    char* real_struct_name;
     int real_first_length;
     int real_second_length;
 
@@ -511,7 +513,7 @@ private:
           symIter != name_list.end();
           symIter++ ) {
 
-      real_struct_name = ( *exprIter )->m_attribute.m_struct_name;
+      real_struct_name = strdup ( ( *exprIter )->m_attribute.m_struct_name );
       real_type = ( *exprIter )->m_attribute.m_basetype;
       real_first_length = ( *exprIter )->m_attribute.m_length1;
       real_second_length = ( *exprIter )->m_attribute.m_length2;
@@ -532,7 +534,7 @@ private:
       name = strdup( (*symIter)->spelling() );
       s = new Symbol();
       s->m_basetype = type;
-      s->m_type_name = struct_name;
+      s->m_type_name = strdup( struct_name );
       s->m_length1 = real_first_length;
       s->m_length2 = real_second_length;
 
@@ -542,6 +544,8 @@ private:
       exprIter++;
     }
 
+    delete struct_name;
+    delete real_struct_name;
   }
 
   // Check that the return statement of a procedure has the appropriate type
@@ -622,9 +626,9 @@ private:
   void check_assignment(Assignment* p) {
     // use helper function checkAssign
     Basetype type1 = p->m_lhs->m_attribute.m_basetype;
-    std::string struct_name1 = p->m_lhs->m_attribute.m_struct_name;
+    char* struct_name1 = strdup( p->m_lhs->m_attribute.m_struct_name );
     Basetype type2 = p->m_expr->m_attribute.m_basetype;
-    std::string struct_name2 = p->m_expr->m_attribute.m_struct_name;
+    char* struct_name2 = strdup( p->m_expr->m_attribute.m_struct_name) ;
 
     errortype error_message;
     error_message = checkAssign( type1, struct_name1, -1, -1,
@@ -633,6 +637,8 @@ private:
     if( error_message != no_error ) {
       this->t_error( error_message, p->m_attribute );
     }
+    delete struct_name1;
+    delete struct_name2;
   }
 
   void check_string_assignment(String_assignment* p) {
@@ -901,9 +907,10 @@ private:
       s = new Symbol();
       s->m_basetype = bt_enum;
       if ( e->m_primitive->m_data == 1 ) {
-        s->m_type_name = e->m_symname_1->spelling();
+        s->m_type_name = strdup ( e->m_symname_1->spelling() );
       } else {
-        s->m_type_name = "enum no name";
+        s->m_type_name = new char[ 13 ];
+        strcpy( s->m_type_name, "no_enum_name" );
       }
       name = strdup( ( *iter )->spelling() );
       if( !m_st->insert( name, s) ) {
@@ -990,6 +997,7 @@ public:
     char * name = strdup( p->m_symname->spelling() );
     Symbol * s = new Symbol() ;
     s->m_basetype = bt_struct_type;
+    int offset = 0;
 
     // symbol need to store the type and name information
     // use map might be a good idea
@@ -1004,9 +1012,15 @@ public:
         this->t_error(dup_var_name, p->m_attribute);
       }
 
+      // create the pair to store the offset and type
+      std::pair< Basetype, int > member_info( dynamic_cast< Short_declImpl* >
+                                              ( *iter )->m_type->m_attribute.m_basetype,
+                                              offset );
+
       // add the deal to map one by one
       s->m_map[ dynamic_cast< Short_declImpl* >( *iter )->m_symname->spelling() ] =
-        dynamic_cast< Short_declImpl* >( *iter )->m_type->m_attribute.m_basetype;
+        member_info;
+      offset += 4;
     }
 
     if(! m_st->insert(name,s)){
@@ -1592,13 +1606,34 @@ public:
     check_2d_array_access( p );
   }
 
-  void visitDotAccess( DotAccess *p ) { 
+  void visitDotAccess( DotAccess *p ) {
     default_rule( p );
+    // check if it is a struct
+    if ( p->m_lhs->m_attribute.m_basetype != bt_struct ) {
+      this->t_error( dot_access_not_struct, p->m_attribute );
+    }
 
+    // find the symbol for the struct type
+    Symbol * s = m_st->lookup( p->m_lhs->m_attribute.m_struct_name );
+
+    // this check seems unnecessary, but let's just keep it here
+    if ( s->m_basetype != bt_struct_type ) {
+      this->t_error( dot_access_not_struct, p->m_attribute );
+    }
+
+    // check if rhs is a member of struct
+    auto it = s->m_map.find( p->m_symname->spelling() );
+    if ( it == s->m_map.end() ) {
+      // rhs is not a member of the struct
+      this->t_error( not_a_struct_member, p->m_attribute );
+    }
   }
 
-  void visitArrowAccess( ArrowAccess *p ) { 
+  // currently don't support this
+  // will add this feature when I implement struct *
+  void visitArrowAccess( ArrowAccess *p ) {
     default_rule( p );
+    
   }
 
   void visitIntLit( IntLit *p ) { 

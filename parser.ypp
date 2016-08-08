@@ -874,7 +874,7 @@ term        : ID sbarket
               #ifdef DEBUG
               cout << "Term: Dot Access"<< endl;
               #endif
-              $$.u_expr = new DotAccess( new SymName( $1.u_base_charptr),
+              $$.u_expr = new DotAccess( new Variable( new SymName( $1.u_base_charptr) ),
                                          new SymName( $3.u_base_charptr) );
             }
             | ID ARROW ID
@@ -882,7 +882,7 @@ term        : ID sbarket
               #ifdef DEBUG
               cout << "Term: Arrow Access"<< endl;
               #endif
-              $$.u_expr = new ArrowAccess( new SymName( $1.u_base_charptr),
+              $$.u_expr = new ArrowAccess( new Variable( new SymName( $1.u_base_charptr ) ),
                                            new SymName( $3.u_base_charptr) );
             }
             | literal
@@ -970,7 +970,7 @@ lhs         : ID sbarket
               #ifdef DEBUG
               cout << "Lhs: Arrow Assignment"<< endl;
               #endif
-              $$.u_lhs = new ArrowElement( new SymName( $1.u_base_charptr ),
+              $$.u_lhs = new ArrowElement( new Variable( new SymName( $1.u_base_charptr ) ),
                                            new SymName( $1.u_base_charptr ) );
             }
             | ID '.' ID
@@ -978,7 +978,7 @@ lhs         : ID sbarket
               #ifdef DEBUG
               cout << "Lhs: Dot Assigment"<< endl;
               #endif
-              $$.u_lhs = new DotElement( new SymName( $1.u_base_charptr ),
+              $$.u_lhs = new DotElement( new Variable( new SymName( $1.u_base_charptr ) ),
                                          new SymName( $3.u_base_charptr ) );
             }
             ;
