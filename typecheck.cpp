@@ -47,9 +47,11 @@ private:
       init_type_failed,
       forpred_err,
       list_differnt_type,
+      tdlist_differnt_type,
       incre_type,
       dot_access_not_struct,
       not_a_struct_member,
+      not_supported_feature,
       no_error
     };
 
@@ -382,6 +384,18 @@ private:
     case bt_char: return bt_char_list;
     case bt_boolean: return bt_bool_list;
     case bt_empty : return bt_empty_list;
+    default: return bt_undef;
+    }
+  }
+
+  Basetype listToTDList( Basetype type ) {
+    switch ( type ) {
+    case bt_int_list: return bt_2d_int_list;
+    case bt_long_list: return bt_2d_long_list;
+    case bt_short_list: return bt_2d_short_list;
+    case bt_char_list: return bt_2d_char_list;
+    case bt_bool_list: return bt_2d_bool_list;
+    case bt_empty_list : return bt_2d_empty_list;
     default: return bt_undef;
     }
   }
@@ -863,7 +877,7 @@ private:
     if ( s == NULL ) {
       this->t_error( var_undef, p->m_attribute );
     }
-    Basetype type = s->m_basetype;
+    Basetype type = dereference_type( s->m_basetype );
     if ( type == bt_undef ) {
       this->t_error(invalid_deref, p->m_attribute);
     }
@@ -1356,6 +1370,7 @@ public:
     for ( ;
           iter != p->m_expr_list->end();
           iter++ ) {
+      // all expr must be same type
       if ( type != ( *iter )->m_attribute.m_basetype ) {
         this->t_error( list_differnt_type, p->m_attribute );
       }
@@ -1627,81 +1642,136 @@ public:
       // rhs is not a member of the struct
       this->t_error( not_a_struct_member, p->m_attribute );
     }
+    p->m_attribute.m_basetype = it->second.first;
   }
 
   // currently don't support this
   // will add this feature when I implement struct *
   void visitArrowAccess( ArrowAccess *p ) {
     default_rule( p );
-    
+    this->t_error( not_supported_feature, p->m_attribute );
   }
 
   void visitIntLit( IntLit *p ) { 
     default_rule( p );
+    p->m_attribute.m_basetype = bt_integer;
   }
 
   void visitCharLit( CharLit *p ) { 
     default_rule( p );
+    p->m_attribute.m_basetype = bt_char;
   }
 
   void visitBoolLit( BoolLit *p ) { 
     default_rule( p );
+    p->m_attribute.m_basetype = bt_boolean;
   }
 
   void visitStringLit( StringLit *p ) { 
     default_rule( p );
+    p->m_attribute.m_basetype = bt_string;
   }
 
   void visitNullLit( NullLit *p ) { 
     default_rule( p );
+    p->m_attribute.m_basetype = bt_void;
   }
 
   void visitDeref( Deref *p ) { 
     default_rule( p );
+    checkset_deref_expr( p, p->m_expr );
   }
 
-  void visitAddressOf( AddressOf *p ) { 
+  void visitAddressOf( AddressOf *p ) {
     default_rule( p );
+    checkset_addressof( p, p->m_lhs );
   }
 
-  void visitEList( EList *p ) { 
+  void visitEList( EList *p ) {
     default_rule( p );
+    p->m_attribute.m_basetype = p->m_list->m_attribute.m_basetype;
   }
 
   void visitETDList( ETDList *p ) { 
     default_rule( p );
+    // check if all list are same list type
+    if ( p->m_list_list->size() == 0 ) {
+      this->t_error( not_supported_feature, p->m_attribute );
+    }
+
+    auto iter = p->m_list_list->begin();;
+    Basetype type = ( *iter )->m_attribute.m_basetype;
+    for( ;
+         iter != p->m_list_list->end();
+         iter++ ) {
+      if ( type != ( *iter )->m_attribute.m_basetype ) {
+        // 2d list of different type of list
+        this->t_error( tdlist_differnt_type, p->m_attribute );
+      }
+    }
+
+    p->m_attribute.m_basetype = listToTDList ( type );
   }
 
   void visitECall( ECall *p ) { 
     default_rule( p );
+    // get the return type of the function
+    Symbol * s = m_st->lookup( dynamic_cast<CallImpl*>( p->m_call )->m_symname->spelling() );
+    p->m_attribute.m_basetype = s->m_return_type;
   }
 
   void visitEmpty( Empty *p ) { 
     default_rule( p );
+    p->m_attribute.m_basetype = bt_empty;
   }
 
   void visitVariable( Variable *p ) { 
     default_rule( p );
+    checkset_variable( p );
   }
 
   void visitDerefVariable( DerefVariable *p ) { 
     default_rule( p );
+    checkset_deref_lhs( p );
   }
 
   void visitArrayElement( ArrayElement *p ) { 
     default_rule( p );
+    check_array_element( p );
   }
 
   void visitArrayDoubleElement( ArrayDoubleElement *p ) { 
     default_rule( p );
+    check_2d_array_element( p );
   }
 
   void visitArrowElement( ArrowElement *p ) { 
     default_rule( p );
+    this->t_error( not_supported_feature, p->m_attribute );
   }
 
   void visitDotElement( DotElement *p ) { 
     default_rule( p );
+    // check if it is a struct
+    if ( p->m_lhs->m_attribute.m_basetype != bt_struct ) {
+      this->t_error( dot_access_not_struct, p->m_attribute );
+    }
+
+    // find the symbol for the struct type
+    Symbol * s = m_st->lookup( p->m_lhs->m_attribute.m_struct_name );
+
+    // this check seems unnecessary, but let's just keep it here
+    if ( s->m_basetype != bt_struct_type ) {
+      this->t_error( dot_access_not_struct, p->m_attribute );
+    }
+
+    // check if rhs is a member of struct
+    auto it = s->m_map.find( p->m_symname->spelling() );
+    if ( it == s->m_map.end() ) {
+      // rhs is not a member of the struct
+      this->t_error( not_a_struct_member, p->m_attribute );
+    }
+    p->m_attribute.m_basetype = it->second.first;
   }
 
   // Special cases

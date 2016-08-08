@@ -351,15 +351,15 @@ optionAssign    : '=' exprs
                   #ifdef DEBUG
                   cout << "OptionAssign: = function call" << endl;
                   #endif
-                  $$.u_expr = new ECall( new SymName( $2.u_base_charptr ),
-                                         $4.u_expr_list );
+                  $$.u_expr = new ECall( new CallImpl( new SymName( $2.u_base_charptr ),
+                                         $4.u_expr_list ) );
                 }
-                | '=' '{' arguments '}'
+                | '=' list
                 {
                   #ifdef DEBUG
                   cout << "OptionAssign: = arguments" << endl;
                   #endif
-                  $$.u_expr = new EList( $3.u_symname_list );
+                  $$.u_expr = new EList( $2.u_list );
                 }
                 | '=' '{' lists '}'
                 {

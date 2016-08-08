@@ -140,9 +140,9 @@ Expr:StringLit ==> StringPrimitive
 Expr:NullLit ==> 
 Expr:Deref ==> Expr
 Expr:AddressOf ==> Lhs
-Expr:EList ==> *SymName
+Expr:EList ==> List
 Expr:ETDList ==> *List
-Expr:ECall ==> SymName *Expr
+Expr:ECall ==> Call
 Expr:Empty ==>
 
 Lhs:Variable ==> SymName
