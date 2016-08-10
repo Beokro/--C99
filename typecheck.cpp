@@ -185,9 +185,9 @@ private:
   }
 
   bool is_2d_array_type( Basetype type ) {
-    return  ( type == bt_2d_int_array || type != bt_2d_char_array ||
-              type != bt_2d_bool_array ||
-              type != bt_2d_long_array || type != bt_2d_short_array );
+    return  ( type == bt_2d_int_array || type == bt_2d_char_array ||
+              type == bt_2d_bool_array ||
+              type == bt_2d_long_array || type == bt_2d_short_array );
   }
 
   bool is_pure_pointer_type( Basetype type ) {
@@ -520,7 +520,8 @@ private:
     // two dimentation array with/without length
     // regular decl of variable
     Basetype type = p->m_type->m_attribute.m_basetype;
-    char* struct_name = strdup ( p->m_type->m_attribute.m_struct_name ) ;
+    char* struct_name = ( p->m_type->m_attribute.m_struct_name != NULL ) ?
+      strdup ( p->m_type->m_attribute.m_struct_name ) : NULL ;
     int first_length = p->m_primitive_1->m_data;
     int second_length = p->m_primitive_2->m_data;
     Basetype real_type;
@@ -537,15 +538,16 @@ private:
     std::list<AssignPair_ptr>::iterator pairIter;
     std::list<SymName_ptr>::iterator symIter;
     std::list<Expr_ptr>::iterator exprIter;
-    for ( pairIter = p->m_assignpair_list->begin();
-          pairIter != p->m_assignpair_list->end();
-          ++pairIter ) {
-      name_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_symname );
-      assign_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_expr );
+
+    if ( p->m_assignpair_list != NULL ) {
+      for ( pairIter = p->m_assignpair_list->begin();
+            pairIter != p->m_assignpair_list->end();
+            ++pairIter ) {
+        name_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_symname );
+        assign_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_expr );
+      }
     }
-
     exprIter = assign_list.begin();
-
     //check the array decl type is integer
     if ( first_length == -1 && second_length == -1 ) {
       // current type if the real type
@@ -555,7 +557,6 @@ private:
     } else if ( first_length != -1 && second_length != -1  ) {
       type = type_to_array( type, 2 );
     }
-
     if ( type == bt_undef ) {
       this->t_error( wrong_array_base_type, p->m_attribute );
     }
@@ -563,11 +564,14 @@ private:
     for ( symIter = name_list.begin();
           symIter != name_list.end();
           symIter++ ) {
-
-      real_struct_name = strdup ( ( *exprIter )->m_attribute.m_struct_name );
-      real_type = ( *exprIter )->m_attribute.m_basetype;
-      real_first_length = ( *exprIter )->m_attribute.m_length1;
-      real_second_length = ( *exprIter )->m_attribute.m_length2;
+      real_struct_name = ( ( *exprIter )->m_attribute.m_struct_name != NULL ) ?
+        strdup ( ( *exprIter )->m_attribute.m_struct_name ) : NULL;
+      real_type = ( *exprIter != NULL ) ?
+        ( *exprIter )->m_attribute.m_basetype : bt_undef;
+      real_first_length = ( *exprIter != NULL ) ?
+        ( *exprIter )->m_attribute.m_length1 : -1 ;
+      real_second_length = ( *exprIter != NULL ) ?
+        ( *exprIter )->m_attribute.m_length2 : -1 ;
 
       if ( ( *exprIter )->m_attribute.m_basetype != bt_empty ) {
         // there are assign come with the declare, check if assignment if valid
@@ -580,12 +584,11 @@ private:
           this->t_error( error_message, p->m_attribute );
         }
       }
-
       //assign is valid, now add this variable to the symbol table
       name = strdup( (*symIter)->spelling() );
       s = new Symbol();
       s->m_basetype = type;
-      s->m_type_name = strdup( struct_name );
+      s->m_type_name = ( struct_name != NULL ) ? strdup( struct_name ) : NULL;
       s->m_length1 = real_first_length;
       s->m_length2 = real_second_length;
 
@@ -595,8 +598,12 @@ private:
       exprIter++;
     }
 
-    delete struct_name;
-    delete real_struct_name;
+    if ( struct_name != NULL ) {
+      delete struct_name;
+    }
+    if ( real_struct_name != NULL ) {
+      delete real_struct_name;
+    }
   }
 
   // Check that the return statement of a procedure has the appropriate type
@@ -677,9 +684,11 @@ private:
   void check_assignment(Assignment* p) {
     // use helper function checkAssign
     Basetype type1 = p->m_lhs->m_attribute.m_basetype;
-    char* struct_name1 = strdup( p->m_lhs->m_attribute.m_struct_name );
+    char* struct_name1 = ( p->m_lhs->m_attribute.m_struct_name != NULL ) ?
+      strdup( p->m_lhs->m_attribute.m_struct_name ) : NULL;
     Basetype type2 = p->m_expr->m_attribute.m_basetype;
-    char* struct_name2 = strdup( p->m_expr->m_attribute.m_struct_name) ;
+    char* struct_name2 = ( p->m_expr->m_attribute.m_struct_name != NULL ) ?
+      strdup( p->m_expr->m_attribute.m_struct_name ) : NULL;
 
     errortype error_message;
     error_message = checkAssign( type1, struct_name1, -1, -1,
@@ -688,8 +697,13 @@ private:
     if( error_message != no_error ) {
       this->t_error( error_message, p->m_attribute );
     }
-    delete struct_name1;
-    delete struct_name2;
+
+    if ( struct_name1 != NULL ) {
+      delete struct_name1;
+    }
+    if ( struct_name2 != NULL ) {
+      delete struct_name2;
+    }
   }
 
   void check_string_assignment(String_assignment* p) {
