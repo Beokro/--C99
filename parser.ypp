@@ -249,14 +249,6 @@ decl        : type ID '[' NUMBER ']' optionAssign declFollow ';'
                                              new Primitive( -1 ),
                                              $1.u_type, $4.u_assignpair_list );
             }
-            | type ID '(' parameter ')' ';'
-            {
-              #ifdef DEBUG
-              cout << "Decl: function decl" << endl;
-              #endif
-              $$.u_decl = new Decl_function( $1.u_type, new SymName( $2.u_base_charptr ),
-                                             $4.u_decl_list );
-            }
             | type ID '[' ']' '[' NUMBER ']' optionAssign declFollow ';'
             {
               #ifdef DEBUG

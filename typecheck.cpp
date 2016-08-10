@@ -52,6 +52,7 @@ private:
       dot_access_not_struct,
       not_a_struct_member,
       not_supported_feature,
+      empty_list,
       no_error
     };
 
@@ -60,76 +61,112 @@ private:
     fprintf(m_errorfile,"on line number %d, ", a.lineno);
 
     switch(e) {
-      case no_main:
-        fprintf(m_errorfile, "error: no main\n");
-        exit(2);
-      case nonvoid_main:
-        fprintf(m_errorfile, "error: the Main procedure has arguments\n");
-        exit(3);
-      case dup_proc_name:
-        fprintf(m_errorfile, "error: duplicate procedure names in same scope\n");
-        exit(4);
-      case dup_var_name:
-        fprintf(m_errorfile, "error: duplicate variable names in same scope\n");
-        exit(5);
-      case proc_undef:
-        fprintf(m_errorfile, "error: call to undefined procedure\n");
-        exit(6);
-      case var_undef:
-        fprintf(m_errorfile, "error: undefined variable\n");
-        exit(7);
-      case narg_mismatch:
-        fprintf(m_errorfile, "error: procedure call has different number of args than declartion\n");
-        exit(8);
-      case arg_type_mismatch:
-        fprintf(m_errorfile, "error: argument type mismatch\n");
-        exit(9);
-      case ret_type_mismatch:
-        fprintf(m_errorfile, "error: type mismatch in return statement\n");
-        exit(10);
-      case call_type_mismatch:
-        fprintf(m_errorfile, "error: type mismatch in procedure call args\n");
-        exit(11);
-      case ifpred_err:
-        fprintf(m_errorfile, "error: predicate of if statement is not boolean\n");
-        exit(12);
-      case whilepred_err:
-        fprintf(m_errorfile, "error: predicate of while statement is not boolean\n");
-        exit(13);
-      case array_index_error:
-        fprintf(m_errorfile, "error: array index not integer\n");
-        exit(14);
-      case no_array_var:
-        fprintf(m_errorfile, "error: attempt to index non-array variable\n");
-        exit(15);
-      case incompat_assign:
-        fprintf(m_errorfile, "error: type of expr and var do not match in assignment\n");
-        exit(16);
-      case expr_type_err:
-        fprintf(m_errorfile, "error: incompatible types used in expression\n");
-        exit(17);
-      case expr_abs_error:
-        fprintf(m_errorfile, "error: absolute value can only be applied to integers and strings\n");
-        exit(17);
-      case expr_pointer_arithmetic_err:
-        fprintf(m_errorfile, "error: invalid pointer arithmetic\n");
-        exit(18);
-      case expr_addressof_error:
-        fprintf(m_errorfile, "error: AddressOf can only be applied to integers, chars, and indexed strings\n");
-        exit(19);
-      case invalid_deref:
-        fprintf(m_errorfile, "error: Deref can only be applied to integer pointers and char pointers\n");
-        exit(20);
+    case no_main:
+      fprintf( m_errorfile, "error: no main\n" );
+      exit( 2 );
+    case nonvoid_main:
+      fprintf( m_errorfile, "error: the Main procedure has arguments\n" );
+      exit( 3 );
+    case dup_proc_name:
+      fprintf( m_errorfile, "error: duplicate procedure names in same scope\n" );
+      exit( 4 );
+    case dup_var_name:
+      fprintf( m_errorfile, "error: duplicate variable names in same scope\n" );
+      exit( 5 );
+    case proc_undef:
+      fprintf( m_errorfile, "error: call to undefined procedure\n" );
+      exit( 6 );
+    case var_undef:
+      fprintf( m_errorfile, "error: undefined variable\n" );
+      exit( 7 );
+    case narg_mismatch:
+      fprintf( m_errorfile, "error: procedure call has different number of args than declartion\n" );
+      exit( 8 );
+    case arg_type_mismatch:
+      fprintf( m_errorfile, "error: argument type mismatch\n" );
+      exit( 9 );
+    case ret_type_mismatch:
+      fprintf( m_errorfile, "error: type mismatch in return statement\n" );
+      exit( 10 );
+    case call_type_mismatch:
+      fprintf( m_errorfile, "error: type mismatch in procedure call args\n" );
+      exit( 11 );
+    case ifpred_err:
+      fprintf( m_errorfile, "error: predicate of if statement is not boolean\n" );
+      exit( 12 );
+    case whilepred_err:
+      fprintf( m_errorfile, "error: predicate of while statement is not boolean\n" );
+      exit( 13 );
+    case array_index_error:
+      fprintf( m_errorfile, "error: array index not integer\n" );
+      exit( 14 );
+    case no_array_var:
+      fprintf( m_errorfile, "error: attempt to index non-array variable\n" );
+      exit( 15 );
+    case incompat_assign:
+      fprintf( m_errorfile, "error: type of expr and var do not match in assignment\n" );
+      exit( 16 );
+    case expr_type_err:
+      fprintf( m_errorfile, "error: incompatible types used in expression\n" );
+      exit( 17 );
+    case expr_abs_error:
+      fprintf( m_errorfile, "error: absolute value can only be applied to integers and strings\n" );
+      exit( 17 );
+    case expr_pointer_arithmetic_err:
+      fprintf( m_errorfile, "error: invalid pointer arithmetic\n" );
+      exit( 18 );
+    case expr_addressof_error:
+      fprintf( m_errorfile, "error: AddressOf can only be applied to integers, chars, and indexed strings\n" );
+      exit( 19 );
+    case invalid_deref:
+      fprintf(m_errorfile, "error: Deref can only be applied to integer pointers and char pointers\n");
+      exit( 20 );
     case const_assign:
       fprintf(m_errorfile, "error: trying to assign to a const type\n");
-      exit(21);
+      exit( 21 );
     case array_assign:
       fprintf(m_errorfile, "error: trying to assign a value to the array\n");
-      exit(22);
-      default:
-        fprintf(m_errorfile, "error: no good reason\n");
-        exit(21);
-      }
+      exit( 22 );
+    case one_d_array_assign:
+      fprintf(m_errorfile, "error: wrong length or wrong type in one dimension array assign");
+      exit( 23 );
+    case two_d_array_assign:
+      fprintf(m_errorfile, "error: wrong length or wrong type in two dimensions array assign");
+      exit( 24 );
+    case wrong_array_base_type:
+      fprintf(m_errorfile, "error: trying to make a array of unsupported type");
+      exit( 25 );
+    case init_type_failed:
+      fprintf(m_errorfile, "error: unsupported type in init");
+      exit( 26 );
+    case forpred_err:
+      fprintf(m_errorfile, "error: condition is not boolean in for loop ");
+      exit( 27 );
+    case list_differnt_type:
+      fprintf(m_errorfile, "error: trying to init a list contains differetn types");
+      exit( 28 );
+    case tdlist_differnt_type:
+      fprintf(m_errorfile, "error: trying to init a 2d list contains differetn types");
+      exit( 29 );
+    case incre_type:
+      fprintf(m_errorfile, "error: trying to use self change operator in unsupported type");
+      exit( 30 );
+    case dot_access_not_struct:
+      fprintf(m_errorfile, "error: use dot operator on a variable that's not struct ");
+      exit( 31 );
+    case not_a_struct_member:
+      fprintf(m_errorfile, "error: variable does not have this member ");
+      exit( 32 );
+    case not_supported_feature:
+      fprintf(m_errorfile, "error: trying to use a not-yet supported feature ");
+      exit( 33 );
+    case empty_list:
+      fprintf(m_errorfile, "error: trying to assign a empty list to something");
+      exit( 34 );
+    default:
+      fprintf(m_errorfile, "error: no good reason\n");
+      exit( 35 );
+    }
   }
 
   bool is_non_const_number_type( Basetype type ) {
@@ -804,8 +841,8 @@ private:
     } else if ( type1 == bt_const_char && type2 == bt_char ) {
     } else if ( type2 == bt_const_char && type1 == bt_char ) {
     } else if ( is_number_type( type1 ) && is_number_type( type2 ) ){
-    } else if ( is_pointer_type( type1 ) && type2 == bt_voidptr ) {
-    } else if ( is_pointer_type( type2 ) && type1 == bt_voidptr ) {
+    } else if ( is_pointer_type( type1 ) && type2 == bt_void ) {
+    } else if ( is_pointer_type( type2 ) && type1 == bt_void ) {
     } else {
       this->t_error( expr_type_err, parent->m_attribute );
     }
@@ -992,7 +1029,9 @@ public:
   }
 
   void visitDecl_function( Decl_function *p ) {
-
+    // shouldn't be called anyway
+    // removed from parser
+    default_rule( p );
   }
 
   void visitProcedureImpl( ProcedureImpl *p ) { 
@@ -1378,6 +1417,9 @@ public:
 
     // all element is same type, list would be type of that list
     p->m_attribute.m_basetype = baseToList( type );
+    if ( p->m_attribute.m_basetype == bt_empty_list ) {
+      this->t_error( empty_list, p->m_attribute );
+    }
   }
 
   void visitIncre_op( Incre_op *p ) { 
@@ -1711,6 +1753,9 @@ public:
     }
 
     p->m_attribute.m_basetype = listToTDList ( type );
+    if ( p->m_attribute.m_basetype == bt_2d_empty_list ) {
+      this->t_error( empty_list, p->m_attribute );
+    }
   }
 
   void visitECall( ECall *p ) { 
