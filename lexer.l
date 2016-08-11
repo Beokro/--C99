@@ -111,6 +111,17 @@ return NUMBER;
 					}
 				}
 
+"//" {
+			    char current = yyinput();
+					while(true){
+						if(current == '\n'){
+							break;
+					  }
+						current = yyinput();
+          }
+
+}
+
 <<EOF>> 			{yyterminate();}
 .                               yyerror((char *) "invalid character");
 

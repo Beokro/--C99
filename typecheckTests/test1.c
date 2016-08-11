@@ -1,7 +1,15 @@
+// assign the wrong type
 int main(){
-  int e;
-  e = 1;
-  e =2;
-  e = 'c';
+  int i;
+  char c;
+  bool b;
+  short s;
+  long l;
+  i = 1;
+  c = 'c';
+  b = true;
+  s = 12;
+  l = 11111;
+  i = 'c';
   return 1;
 }

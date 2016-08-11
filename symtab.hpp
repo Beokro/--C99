@@ -106,7 +106,8 @@ public:
       case bt_undef:
         // Fall through
       default:
-        assert(0);
+        return(4);
+        //assert(0);
 
         // WRITEME: add string size calc and assert size != 0
       }

@@ -58,113 +58,149 @@ private:
 
   // Print the error to file and exit
   void t_error(errortype e, Attribute a) {
-    fprintf(m_errorfile,"on line number %d, ", a.lineno);
+    fprintf( m_errorfile,"on line number %d, ", a.lineno );
+    printf( "on line number %d, ", a.lineno );
 
     switch(e) {
     case no_main:
       fprintf( m_errorfile, "error: no main\n" );
+      printf( "error: no main\n" );
       exit( 2 );
     case nonvoid_main:
       fprintf( m_errorfile, "error: the Main procedure has arguments\n" );
+      printf( "error: the Main procedure has arguments\n" );
       exit( 3 );
     case dup_proc_name:
       fprintf( m_errorfile, "error: duplicate procedure names in same scope\n" );
+      printf( "error: duplicate procedure names in same scope\n" );
       exit( 4 );
     case dup_var_name:
       fprintf( m_errorfile, "error: duplicate variable names in same scope\n" );
+      printf( "error: duplicate variable names in same scope\n" );
       exit( 5 );
     case proc_undef:
       fprintf( m_errorfile, "error: call to undefined procedure\n" );
+      printf( "error: call to undefined procedure\n" );
       exit( 6 );
     case var_undef:
       fprintf( m_errorfile, "error: undefined variable\n" );
+      printf( "error: undefined variable\n" );
       exit( 7 );
     case narg_mismatch:
       fprintf( m_errorfile, "error: procedure call has different number of args than declartion\n" );
+      printf( "error: procedure call has different number of args than declartion\n" );
       exit( 8 );
     case arg_type_mismatch:
       fprintf( m_errorfile, "error: argument type mismatch\n" );
+      printf( "error: argument type mismatch\n" );
       exit( 9 );
     case ret_type_mismatch:
       fprintf( m_errorfile, "error: type mismatch in return statement\n" );
+      printf( "error: type mismatch in return statement\n" );
       exit( 10 );
     case call_type_mismatch:
       fprintf( m_errorfile, "error: type mismatch in procedure call args\n" );
+      printf( "error: type mismatch in procedure call args\n" );
       exit( 11 );
     case ifpred_err:
       fprintf( m_errorfile, "error: predicate of if statement is not boolean\n" );
+      printf( "error: predicate of if statement is not boolean\n" );
       exit( 12 );
     case whilepred_err:
       fprintf( m_errorfile, "error: predicate of while statement is not boolean\n" );
+      printf( "error: predicate of while statement is not boolean\n" );
       exit( 13 );
     case array_index_error:
       fprintf( m_errorfile, "error: array index not integer\n" );
+      printf( "error: array index not integer\n" );
       exit( 14 );
     case no_array_var:
       fprintf( m_errorfile, "error: attempt to index non-array variable\n" );
+      printf( "error: attempt to index non-array variable\n" );
       exit( 15 );
     case incompat_assign:
       fprintf( m_errorfile, "error: type of expr and var do not match in assignment\n" );
+      printf( "error: type of expr and var do not match in assignment\n" );
       exit( 16 );
     case expr_type_err:
       fprintf( m_errorfile, "error: incompatible types used in expression\n" );
+      printf( "error: incompatible types used in expression\n" );
       exit( 17 );
     case expr_abs_error:
       fprintf( m_errorfile, "error: absolute value can only be applied to integers and strings\n" );
+      printf( "error: absolute value can only be applied to integers and strings\n" );
       exit( 17 );
     case expr_pointer_arithmetic_err:
       fprintf( m_errorfile, "error: invalid pointer arithmetic\n" );
+      printf( "error: invalid pointer arithmetic\n" );
       exit( 18 );
     case expr_addressof_error:
       fprintf( m_errorfile, "error: AddressOf can only be applied to integers, chars, and indexed strings\n" );
+      printf( "error: AddressOf can only be applied to integers, chars, and indexed strings\n" );
       exit( 19 );
     case invalid_deref:
-      fprintf(m_errorfile, "error: Deref can only be applied to integer pointers and char pointers\n");
+      fprintf( m_errorfile, "error: Deref can only be applied to integer pointers and char pointers\n" );
+      printf( "error: Deref can only be applied to integer pointers and char pointers\n" );
       exit( 20 );
     case const_assign:
-      fprintf(m_errorfile, "error: trying to assign to a const type\n");
+      fprintf( m_errorfile, "error: trying to assign to a const type\n" );
+      printf( "error: trying to assign to a const type\n" );
       exit( 21 );
     case array_assign:
-      fprintf(m_errorfile, "error: trying to assign a value to the array\n");
+      fprintf( m_errorfile, "error: trying to assign a value to the array\n" );
+      printf( "error: trying to assign a value to the array\n" );
       exit( 22 );
     case one_d_array_assign:
-      fprintf(m_errorfile, "error: wrong length or wrong type in one dimension array assign");
+      fprintf( m_errorfile, "error: wrong length or wrong type in one dimension array assign" );
+      printf( "error: wrong length or wrong type in one dimension array assign" );
       exit( 23 );
     case two_d_array_assign:
-      fprintf(m_errorfile, "error: wrong length or wrong type in two dimensions array assign");
+      fprintf( m_errorfile, "error: wrong length or wrong type in two dimensions array assign" );
+      printf( "error: wrong length or wrong type in two dimensions array assign" );
       exit( 24 );
     case wrong_array_base_type:
-      fprintf(m_errorfile, "error: trying to make a array of unsupported type");
+      fprintf( m_errorfile, "error: trying to make a array of unsupported type" );
+      printf( "error: trying to make a array of unsupported type" );
       exit( 25 );
     case init_type_failed:
-      fprintf(m_errorfile, "error: unsupported type in init");
+      fprintf( m_errorfile, "error: unsupported type in init" );
+      printf( "error: unsupported type in init" );
       exit( 26 );
     case forpred_err:
-      fprintf(m_errorfile, "error: condition is not boolean in for loop ");
+      fprintf( m_errorfile, "error: condition is not boolean in for loop " );
+      printf( "error: condition is not boolean in for loop " );
       exit( 27 );
     case list_differnt_type:
-      fprintf(m_errorfile, "error: trying to init a list contains differetn types");
+      fprintf( m_errorfile, "error: trying to init a list contains differetn types" );
+      printf( "error: trying to init a list contains differetn types" );
       exit( 28 );
     case tdlist_differnt_type:
-      fprintf(m_errorfile, "error: trying to init a 2d list contains differetn types");
+      fprintf( m_errorfile, "error: trying to init a 2d list contains differetn types" );
+      printf( "error: trying to init a 2d list contains differetn types" );
       exit( 29 );
     case incre_type:
-      fprintf(m_errorfile, "error: trying to use self change operator in unsupported type");
+      fprintf( m_errorfile, "error: trying to use self change operator in unsupported type" );
+      printf( "error: trying to use self change operator in unsupported type" );
       exit( 30 );
     case dot_access_not_struct:
-      fprintf(m_errorfile, "error: use dot operator on a variable that's not struct ");
+      fprintf( m_errorfile, "error: use dot operator on a variable that's not struct " );
+      printf( "error: use dot operator on a variable that's not struct " );
       exit( 31 );
     case not_a_struct_member:
-      fprintf(m_errorfile, "error: variable does not have this member ");
+      fprintf( m_errorfile, "error: variable does not have this member " );
+      printf( "error: variable does not have this member " );
       exit( 32 );
     case not_supported_feature:
-      fprintf(m_errorfile, "error: trying to use a not-yet supported feature ");
+      fprintf( m_errorfile, "error: trying to use a not-yet supported feature " );
+      printf( "error: trying to use a not-yet supported feature " );
       exit( 33 );
     case empty_list:
-      fprintf(m_errorfile, "error: trying to assign a empty list to something");
+      fprintf( m_errorfile, "error: trying to assign a empty list to something" );
+      printf( "error: trying to assign a empty list to something" );
       exit( 34 );
     default:
-      fprintf(m_errorfile, "error: no good reason\n");
+      fprintf( m_errorfile, "error: no good reason\n" );
+      printf( "error: no good reason\n" );
       exit( 35 );
     }
   }

@@ -1,0 +1,22 @@
+Need to fail
+01. assign to array outside the decl
+02. assign to a 1d array with size a different size
+03. assign to a 2d array with size a different size
+04. assign to a 1d array with a differnt array&list type
+05. assign to a 2d array with a differnt array&list type
+06. pointer to basetype
+07. pointer to another pointer
+08. struct with different type
+09. struct with base type
+10. enum with different type
+11. enum with base type
+
+Need to pass
+01. assign to a 1d array without size a list
+02. assign to a 2d array without size a list
+03. assign to a 1d array with size a list with same size
+04. assign to a 2d array with size a list with same size
+05. pointer with same type
+07. pointer with NULL
+08. struct with same struct type
+09. enum with same enum type
