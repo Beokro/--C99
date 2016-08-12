@@ -664,15 +664,6 @@ private:
     }
   }
 
-  // Right now let's say the reutrn type must be a base type
-  // Pointer and array is not allowed
-  // return a const type is allowed but it won't make a difference
-  void check_return(Return_statImpl *p)
-  {
-    if ( !is_return_type( p->m_expr->m_attribute.m_basetype ) ) {
-      this->t_error(ret_type_mismatch, p->m_attribute);
-    }
-  }
   // Create a symbol for the procedure and check there is none already
   // existing
   void check_call(CallImpl *p){
@@ -693,7 +684,11 @@ private:
       Basetype type2 = *(iter2);
       if(type1!=type2){
         if ( is_number_type( type1 ) && is_number_type( type2 )){
-        } if ( is_pure_pointer_type( type1 ) && type2 == bt_void){
+        } else if ( ( ( type1 == bt_boolean || type1 == bt_const_bool  )&&
+                 ( type2 == bt_boolean || type2 == bt_const_bool ) ) ||
+               (  ( type1 == bt_char || type1 == bt_const_char ) &&
+                  ( type2 == bt_char || type2 == bt_const_char ) ) ){
+        } else if ( is_pure_pointer_type( type1 ) && type2 == bt_void){
         } else {
           this->t_error(arg_type_mismatch, p->m_attribute);
         }
