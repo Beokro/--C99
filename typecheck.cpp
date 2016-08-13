@@ -913,27 +913,32 @@ private:
   void checkset_addressof(Expr* parent, Lhs* child) {
     Basetype type = child->m_attribute.m_basetype;
     switch ( type ) {
+    case bt_const_int:
     case bt_integer:
       parent->m_attribute.m_basetype = bt_intptr; break;
     case bt_intptr:
     case bt_int_array:
       parent->m_attribute.m_basetype = bt_2d_int_array; break;
     case bt_boolean:
+    case bt_const_bool:
       parent->m_attribute.m_basetype = bt_boolptr; break;
     case bt_boolptr:
     case bt_bool_array:
       parent->m_attribute.m_basetype = bt_2d_bool_array; break;
     case bt_char:
+    case bt_const_char:
       parent->m_attribute.m_basetype = bt_charptr; break;
     case bt_charptr:
     case bt_char_array:
       parent->m_attribute.m_basetype = bt_2d_char_array; break;
     case bt_long:
+    case bt_const_long:
       parent->m_attribute.m_basetype = bt_longptr; break;
     case bt_longptr:
     case bt_long_array:
       parent->m_attribute.m_basetype = bt_2d_long_array; break;
     case bt_short:
+    case bt_const_short:
       parent->m_attribute.m_basetype = bt_shortptr; break;
     case bt_shortptr:
     case bt_short_array:
@@ -1029,7 +1034,7 @@ private:
 
 public:
   void default_rule(Visitable* p){
-    static_cast<Program*>(p)->m_attribute.m_scope = m_st->get_scope();
+    dynamic_cast<Program*>(p)->m_attribute.m_scope = m_st->get_scope();
     p->visit_children(this);
   }
 
@@ -1225,27 +1230,37 @@ public:
 
   // check if expr is bool
   void visitIf_no_else( If_no_else *p ) {
+    m_st->open_scope();
     default_rule( p );
+    m_st->close_scope();
     check_pred( p->m_expr, 1 );
   }
 
   void visitIf_with_else( If_with_else *p ) { 
+    m_st->open_scope();
     default_rule( p );
+    m_st->close_scope();
     check_pred( p->m_expr, 1 );
   }
 
   void visitWhile_loop( While_loop *p ) { 
+    m_st->open_scope();
     default_rule( p );
+    m_st->close_scope();
     check_pred( p->m_expr, 2 );
   }
 
   void visitDo_while( Do_while *p ) { 
+    m_st->open_scope();
     default_rule( p );
+    m_st->close_scope();
     check_pred( p->m_expr, 2 );
   }
 
   void visitFor_loop( For_loop *p ) {
+    m_st->open_scope();
     default_rule( p );
+    m_st->close_scope();
     check_pred( p->m_expr, 3 );
   }
 
