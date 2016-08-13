@@ -40,6 +40,19 @@ Need to fail
 39. enum element with same name
 40. declare two function with same name and same scope
 41. function return a different baetype
+42. in struct, members have the same name
+43. define 2 struct with the same name
+44. in for loop's init, use a variable that has not been defined
+45. init assign a wrong base type
+46. function assignment that has different type on both side
+47. ^= &= |=, >>=, <<= ++, -- const number type and pointer, char, bool, array type
+48. && || two non boolean
+49. not all number * / ^ & %
+50. dot access a non-struct
+51. dot access a struct with member that it does not have
+52. arrow access aything. not supported
+53. declare a list of differnt type
+54. declare a 2d list with differnt sublist type
 
 Need to pass
 01. assign to a 1d array without size a list
@@ -69,7 +82,7 @@ Need to pass
 26. pointer + number, pointer - number, number might be const
 27. number > < >= <= number, pointer > < >= <. pointer
 28. same type of compare( == ), const does not matter
-29. == a pointer with NULL
+29. !=, == a pointer with NULL
 30. ! with a bool
 31. - with a number literature
 32. address of anything but 2d array ( test const type )
@@ -79,3 +92,14 @@ Need to pass
 36. declare variable / function with same name but in differnet scope
 37. function used its argument and variable in higher scope
 38. int the for, while, if, have the variable with the same name as outer scope
+39. define a regular struct with members
+40. switch differnt type and have a default
+41. in for loop, init a variable that has the same name as the outside variable
+42. function assignment that has the same type on both side
+43. in for's init, assign const to non const type
+44. += -= /= *= %= ^= &= |=, >>=, <<= ++, -- non-const number type
+45. && || 2 boolean
+46. number ( const or not ) + - * / ^ & % >> <<
+49. dot access a struct variable with member exist in this struct
+50. declare a list with same type
+51. declare a 2d list with same sublist type

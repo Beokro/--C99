@@ -755,7 +755,6 @@ private:
     }
     p->m_attribute.m_basetype = dereference_type( p->m_attribute.m_basetype );
   }
-
   void check_2d_array_access(ArrayDoubleAccess* p) {
     Symbol * s = m_st->lookup( p->m_symname->spelling() );
     if ( s == NULL ) {
@@ -1184,7 +1183,7 @@ public:
     }
   }
 
-  void visitNStat( NStat *p ) { 
+  void visitNStat( NStat *p ) {
     default_rule( p );
   }
 
@@ -1507,7 +1506,7 @@ public:
     }
   }
 
-  void visitIncre_min_t( Incre_min_t *p ) { 
+  void visitIncre_min_t( Incre_min_t *p ) {
     default_rule( p );
     if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
@@ -1517,64 +1516,56 @@ public:
   // lhs must be number, rhs can be const/nonconst number
   void visitAnd_assign( And_assign *p ) {
     default_rule( p );
-    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-        !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
 
   void visitXor_assign( Xor_assign *p ) { 
     default_rule( p );
-    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-        !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
 
   void visitOr_assign( Or_assign *p ) {
     default_rule( p );
-    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-        !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype )  ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
 
   void visitSl_assign( Sl_assign *p ) {
     default_rule( p );
-    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
 
   void visitSr_assign( Sr_assign *p ) {
     default_rule( p );
-    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
 
   void visitTimes_assign( Times_assign *p ) { 
     default_rule( p );
-    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
 
   void visitDiv_assign( Div_assign *p ) { 
     default_rule( p );
-    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
 
   void visitRem_assign( Rem_assign *p ) { 
     default_rule( p );
-    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ||
-         !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
+    if ( !is_non_const_number_type( p->m_lhs->m_attribute.m_basetype ) ) {
       this->t_error( incre_type, p->m_attribute );
     }
   }
@@ -1638,7 +1629,6 @@ public:
     default_rule( p );
     checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
   }
-
   void visitShiftL( ShiftL *p ) { 
     default_rule( p );
     checkset_arithexpr( p, p->m_expr_1, p->m_expr_2 );
