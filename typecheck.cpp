@@ -53,6 +53,7 @@ private:
       not_a_struct_member,
       not_supported_feature,
       empty_list,
+      not_ret_type,
       no_error
     };
 
@@ -151,57 +152,61 @@ private:
       printf( "error: trying to assign a value to the array\n" );
       exit( 22 );
     case one_d_array_assign:
-      fprintf( m_errorfile, "error: wrong length or wrong type in one dimension array assign" );
-      printf( "error: wrong length or wrong type in one dimension array assign" );
+      fprintf( m_errorfile, "error: wrong length or wrong type in one dimension array assign\n" );
+      printf( "error: wrong length or wrong type in one dimension array assign\n" );
       exit( 23 );
     case two_d_array_assign:
-      fprintf( m_errorfile, "error: wrong length or wrong type in two dimensions array assign" );
-      printf( "error: wrong length or wrong type in two dimensions array assign" );
+      fprintf( m_errorfile, "error: wrong length or wrong type in two dimensions array assign\n" );
+      printf( "error: wrong length or wrong type in two dimensions array assign\n" );
       exit( 24 );
     case wrong_array_base_type:
-      fprintf( m_errorfile, "error: trying to make a array of unsupported type" );
-      printf( "error: trying to make a array of unsupported type" );
+      fprintf( m_errorfile, "error: trying to make a array of unsupported type\n" );
+      printf( "error: trying to make a array of unsupported type\n" );
       exit( 25 );
     case init_type_failed:
-      fprintf( m_errorfile, "error: unsupported type in init" );
-      printf( "error: unsupported type in init" );
+      fprintf( m_errorfile, "error: unsupported type in init\n" );
+      printf( "error: unsupported type in init\n" );
       exit( 26 );
     case forpred_err:
-      fprintf( m_errorfile, "error: condition is not boolean in for loop " );
-      printf( "error: condition is not boolean in for loop " );
+      fprintf( m_errorfile, "error: condition is not boolean in for loop\n" );
+      printf( "error: condition is not boolean in for loop\n" );
       exit( 27 );
     case list_differnt_type:
-      fprintf( m_errorfile, "error: trying to init a list contains differetn types" );
-      printf( "error: trying to init a list contains differetn types" );
+      fprintf( m_errorfile, "error: trying to init a list contains differetn types\n" );
+      printf( "error: trying to init a list contains differetn types\n" );
       exit( 28 );
     case tdlist_differnt_type:
-      fprintf( m_errorfile, "error: trying to init a 2d list contains differetn types" );
-      printf( "error: trying to init a 2d list contains differetn types" );
+      fprintf( m_errorfile, "error: trying to init a 2d list contains differetn types\n" );
+      printf( "error: trying to init a 2d list contains differetn types\n" );
       exit( 29 );
     case incre_type:
-      fprintf( m_errorfile, "error: trying to use self change operator in unsupported type" );
-      printf( "error: trying to use self change operator in unsupported type" );
+      fprintf( m_errorfile, "error: trying to use self change operator in unsupported type\n" );
+      printf( "error: trying to use self change operator in unsupported type\n" );
       exit( 30 );
     case dot_access_not_struct:
-      fprintf( m_errorfile, "error: use dot operator on a variable that's not struct " );
-      printf( "error: use dot operator on a variable that's not struct " );
+      fprintf( m_errorfile, "error: use dot operator on a variable that's not struct\n" );
+      printf( "error: use dot operator on a variable that's not struct\n" );
       exit( 31 );
     case not_a_struct_member:
-      fprintf( m_errorfile, "error: variable does not have this member " );
-      printf( "error: variable does not have this member " );
+      fprintf( m_errorfile, "error: variable does not have this member\n" );
+      printf( "error: variable does not have this member\n" );
       exit( 32 );
     case not_supported_feature:
-      fprintf( m_errorfile, "error: trying to use a not-yet supported feature " );
-      printf( "error: trying to use a not-yet supported feature " );
+      fprintf( m_errorfile, "error: trying to use a not-yet supported feature\n" );
+      printf( "error: trying to use a not-yet supported feature\n" );
       exit( 33 );
     case empty_list:
-      fprintf( m_errorfile, "error: trying to assign a empty list to something" );
-      printf( "error: trying to assign a empty list to something" );
+      fprintf( m_errorfile, "error: trying to assign a empty list to something\n" );
+      printf( "error: trying to assign a empty list to something\n" );
       exit( 34 );
+    case not_ret_type:
+      fprintf( m_errorfile, "error: return type must not be a pointer type\n" );
+      printf( "error: return type must not be a pointer type\n" );
+      exit( 35 );
     default:
       fprintf( m_errorfile, "error: no good reason\n" );
       printf( "error: no good reason\n" );
-      exit( 35 );
+      exit( 36 );
     }
   }
 
@@ -648,7 +653,7 @@ private:
     Basetype real_type = static_cast<Return_statImpl *>
       (p->m_return_stat)->m_expr->m_attribute.m_basetype;
     if ( !is_return_type( correct_type ) ){
-      this->t_error(ret_type_mismatch, p->m_attribute);
+      this->t_error(not_ret_type, p->m_attribute);
     }
 
     // taking care of const case too
@@ -1033,7 +1038,7 @@ private:
 
 public:
   void default_rule(Visitable* p){
-    dynamic_cast<Program*>(p)->m_attribute.m_scope = m_st->get_scope();
+    static_cast<Program*>(p)->m_attribute.m_scope = m_st->get_scope();
     p->visit_children(this);
   }
 

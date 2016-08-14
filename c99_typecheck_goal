@@ -53,27 +53,29 @@ Need to fail
 52. arrow access aything. not supported
 53. declare a list of differnt type
 54. declare a 2d list with differnt sublist type
+55. decalre a function with pointer as return type
+56. main with argument
 
 Need to pass
 01. assign to a 1d array without size a list
 02. assign to a 2d array without size a list
 03. assign to a 1d array with size a list with same size
 04. assign to a 2d array with size a list with same size
-05. pointer with same type
-07. pointer with NULL
+05. pointer with same type                                                                 DONE
+07. pointer with NULL                                                                      DONE
 08. struct with same struct type
 09. enum with same enum type
-10. number type to number type
-11. ( const )bool/char to ( const ) bool/char
+10. number type to number type                                                             DONE
+11. ( const )bool/char to ( const ) bool/char                                              DONE
 12. deference pointer, 1d/2d array, do a assign
-13. one main
-14. declare a procedure
-15. decl and assign multiple same type variable
-16. return a NULL when pointer is required
-17. return a number type when number typ eis required
-18. return a base type when const is required
-19. return a const type when base type is required
-20. call a function with same number of args and same type
+13. one main                                                                               DONE
+14. declare a procedure                                                                    DONE
+15. decl and assign multiple same type variable                                            DONE
+16. declare a 2d list with same sublist type
+17. return a number type when number type is required                                      DONE
+18. return a base type when const is required                                              DONE
+19. return a const type when base type is required                                         DONE
+20. call a function with same number of args and same type                                 DONE
 21. call a number with same number of args and const/non const type, void/pointer type
 22. assign a string literature to a string variable
 23. array access a pointer/string type with number as index
@@ -102,4 +104,3 @@ Need to pass
 46. number ( const or not ) + - * / ^ & % >> <<
 49. dot access a struct variable with member exist in this struct
 50. declare a list with same type
-51. declare a 2d list with same sublist type
