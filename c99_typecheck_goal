@@ -76,9 +76,9 @@ Need to pass
 18. return a base type when const is required                                              DONE
 19. return a const type when base type is required                                         DONE
 20. call a function with same number of args and same type                                 DONE
-21. call a number with same number of args and const/non const type, void/pointer type
-22. assign a string literature to a string variable
-23. array access a pointer/string type with number as index
+21. call a number with same number of args and const/non const type, void/pointer type     DONE
+22. assign a string literature to a string variable                                        DONE
+23. array access a pointer/string type with number as index                                DONE
 24. double access a 2d array type with 2 number ( variable and element )
 25. and, or 2 bool/ const bool
 26. pointer + number, pointer - number, number might be const

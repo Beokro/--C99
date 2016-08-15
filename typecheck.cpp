@@ -54,6 +54,7 @@ private:
       not_supported_feature,
       empty_list,
       not_ret_type,
+      tdlist_differnt_length,
       no_error
     };
 
@@ -203,10 +204,14 @@ private:
       fprintf( m_errorfile, "error: return type must not be a pointer type\n" );
       printf( "error: return type must not be a pointer type\n" );
       exit( 35 );
+    case tdlist_differnt_length:
+      fprintf( m_errorfile, "error: 2d list with list of different length\n" );
+      printf( "error: 2d list with list of different length\n" );
+      exit( 36 );
     default:
       fprintf( m_errorfile, "error: no good reason\n" );
       printf( "error: no good reason\n" );
-      exit( 36 );
+      exit( 37 );
     }
   }
 
@@ -415,6 +420,11 @@ private:
            ( type2 == bt_boolean || type2 == bt_const_bool ) ) ||
          ( ( type1 == bt_char || type1 == bt_const_char ) &&
            ( type2 == bt_char || type2 == bt_const_char ) ) ) {
+      return no_error;
+    }
+
+    // check string assign case
+    if ( type1 == bt_string && type2 == bt_string ) {
       return no_error;
     }
     return incompat_assign;
@@ -758,7 +768,11 @@ private:
     if( !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
       this->t_error(array_index_error, p->m_attribute);
     }
-    p->m_attribute.m_basetype = dereference_type( p->m_attribute.m_basetype );
+    if ( s->m_basetype == bt_string ) {
+      p->m_attribute.m_basetype = bt_char;
+    } else {
+      p->m_attribute.m_basetype = dereference_type( s->m_basetype );
+    }
   }
   void check_2d_array_access(ArrayDoubleAccess* p) {
     Symbol * s = m_st->lookup( p->m_symname->spelling() );
@@ -787,7 +801,11 @@ private:
     if ( !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
       this->t_error(array_index_error, p->m_attribute);
     }
-    p->m_attribute.m_basetype = dereference_type( p->m_attribute.m_basetype );
+    if ( s->m_basetype == bt_string ) {
+      p->m_attribute.m_basetype = bt_char;
+    } else {
+      p->m_attribute.m_basetype = dereference_type( s->m_basetype );
+    }
   }
 
   void check_2d_array_element( ArrayDoubleElement* p ) {
@@ -1464,6 +1482,8 @@ public:
     default_rule( p );
     // if length of list is 0, type is bt_empty_list
     Basetype type;
+    // init was -1 means not a list/array
+    p->m_attribute.m_length1 = 0;
     auto iter = p->m_expr_list->begin();
     if ( p->m_expr_list->size() == 0 ) {
       type = bt_empty;
@@ -1477,6 +1497,7 @@ public:
       if ( type != ( *iter )->m_attribute.m_basetype ) {
         this->t_error( list_differnt_type, p->m_attribute );
       }
+      p->m_attribute.m_length1++;
     }
 
     // all element is same type, list would be type of that list
@@ -1787,6 +1808,7 @@ public:
   void visitEList( EList *p ) {
     default_rule( p );
     p->m_attribute.m_basetype = p->m_list->m_attribute.m_basetype;
+    p->m_attribute.m_length1 = p->m_list->m_attribute.m_length1;
   }
 
   void visitETDList( ETDList *p ) { 
@@ -1798,6 +1820,9 @@ public:
 
     auto iter = p->m_list_list->begin();;
     Basetype type = ( *iter )->m_attribute.m_basetype;
+    // length1 of list will be length2 of 2d list
+    int length2 = ( *iter )->m_attribute.m_length1;
+    int length1 = 0;
     for( ;
          iter != p->m_list_list->end();
          iter++ ) {
@@ -1805,9 +1830,15 @@ public:
         // 2d list of different type of list
         this->t_error( tdlist_differnt_type, p->m_attribute );
       }
+      if ( length2 != ( *iter )->m_attribute.m_length1 ) {
+        this->t_error( tdlist_differnt_length, p->m_attribute );
+      }
+      length1++;
     }
 
     p->m_attribute.m_basetype = listToTDList ( type );
+    p->m_attribute.m_length1 = length1;
+    p->m_attribute.m_length2 = length2;
     if ( p->m_attribute.m_basetype == bt_2d_empty_list ) {
       this->t_error( empty_list, p->m_attribute );
     }

@@ -218,12 +218,12 @@ decl        : type ID '[' NUMBER ']' optionAssign declFollow ';'
               #ifdef DEBUG
               cout << "Decl: [ X ]" << endl;
               #endif
-              $5.u_assignpair_list->push_front( new AssignPairImpl(
+              $7.u_assignpair_list->push_front( new AssignPairImpl(
                                                 new SymName($2.u_base_charptr),
                                                 $6.u_expr) );
               $$.u_decl = new Decl_variable( new Primitive( $4.u_base_int ),
                                              new Primitive( -1 ),
-                                             $1.u_type, $5.u_assignpair_list );
+                                             $1.u_type, $7.u_assignpair_list );
             }
             | type ID '[' ']' optionAssign declFollow ';'
             {
@@ -254,24 +254,24 @@ decl        : type ID '[' NUMBER ']' optionAssign declFollow ';'
               #ifdef DEBUG
               cout << "Decl: [] [ X ]" << endl;
               #endif
-              $7.u_assignpair_list->push_front( new AssignPairImpl(
+              $9.u_assignpair_list->push_front( new AssignPairImpl(
                                                 new SymName($2.u_base_charptr),
                                                 $8.u_expr) );                                          
               $$.u_decl = new Decl_variable( new Primitive( 0 ),
                                              new Primitive ( $6.u_base_int ),
-                                             $1.u_type, $7.u_assignpair_list );
+                                             $1.u_type, $9.u_assignpair_list );
             }
             | type ID '[' NUMBER ']' '[' NUMBER ']' optionAssign declFollow ';'
             {
               #ifdef DEBUG
               cout << "Decl: [ X ] [ X ] " << endl;
               #endif
-              $6.u_assignpair_list->push_front( new AssignPairImpl(
+              $10.u_assignpair_list->push_front( new AssignPairImpl(
                                                 new SymName($2.u_base_charptr),
                                                 $9.u_expr) );                                          
               $$.u_decl = new Decl_variable( new Primitive( $4.u_base_int ),
                                              new Primitive( $7.u_base_int ),
-                                             $1.u_type, $6.u_assignpair_list );
+                                             $1.u_type, $10.u_assignpair_list );
             }
             ;
 
@@ -501,7 +501,7 @@ stmt        : lhs '=' exprs ';'
               #endif
               $$.u_stat = new SIncre( $1.u_incre );
             }
-            | lhs '=' STRINGV
+            | lhs '=' STRINGV ';'
             {
               #ifdef DEBUG
               cout << "Stat:lhs '=' STRINGV "<< endl;

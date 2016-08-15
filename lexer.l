@@ -73,7 +73,7 @@ void yyerror(const char *);
 
 [\"].*[\"]			{
 char * temp = strdup(yytext);
-temp+=1;
+temp += 1;
 temp[strlen(temp)-1] = '\0';
 yylval.u_base_charptr = temp;
 return STRINGV;
