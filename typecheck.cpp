@@ -762,7 +762,7 @@ private:
     if ( s == NULL ) {
       this->t_error(var_undef, p->m_attribute);
     }
-    if ( s->m_basetype != bt_string || is_pointer_type( s->m_basetype ) ) {
+    if ( s->m_basetype != bt_string && !is_pointer_type( s->m_basetype ) ) {
       this->t_error(expr_type_err, p->m_attribute);
     }
     if( !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {
@@ -817,8 +817,8 @@ private:
     if ( !is_2d_array_type( type ) ){
       this->t_error(expr_type_err, p->m_attribute);
     }
-    if(is_number_type( p->m_expr_1->m_attribute.m_basetype ) ||
-       is_number_type( p->m_expr_2->m_attribute.m_basetype ) ) {
+    if(!is_number_type( p->m_expr_1->m_attribute.m_basetype ) ||
+       !is_number_type( p->m_expr_2->m_attribute.m_basetype ) ) {
       this->t_error(array_index_error, p->m_attribute);
     }
     p->m_attribute.m_basetype = double_dereference_type( type );
@@ -896,6 +896,7 @@ private:
     }
     parent->m_attribute.m_basetype = bt_boolean;
   }
+
 
   // For checking equality ops(equal, not equal)
   // add const support
@@ -1628,7 +1629,7 @@ public:
 
   void visitAnd( And *p ) {
     default_rule( p );
-    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
+    checkset_boolexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitTimes( Times *p ) { 
@@ -1706,7 +1707,7 @@ public:
 
   void visitOr( Or *p ) { 
     default_rule( p );
-    checkset_relationalexpr( p, p->m_expr_1, p->m_expr_2 );
+    checkset_boolexpr( p, p->m_expr_1, p->m_expr_2 );
   }
 
   void visitPlus( Plus *p ) { 

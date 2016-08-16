@@ -1,5 +1,5 @@
 Need to fail
-01. assign to array outside the decl
+01. assign to array outside the decl                                                      DONE
 02. assign to a 1d array with size a different size / not a list
 03. assign to a 2d array with size a different size / not a list
 04. assign to a 1d array with a differnt array&list type
@@ -31,11 +31,11 @@ Need to fail
 30 and or with 1 or 2 non boolean type
 31. times, divide a non number type
 32. compare( > < >= <= ) two non number and non same-pointer type
-33. ! with a non bool
+33. ! with a non bool                                                                     DONE
 34. - with anything that's not a number literature
 35. address of 2d array type
 36. deference of 5 base type and const version
-37. use a undeclare variable
+37. use a undeclare variable                                                              DONE
 38. enum collection with same name
 39. enum element with same name
 40. declare two function with same name and same scope
@@ -53,8 +53,7 @@ Need to fail
 52. arrow access aything. not supported
 53. declare a list of differnt type
 54. declare a 2d list with differnt sublist type
-55. decalre a function with pointer as return type
-56. main with argument
+55. decalre a function with pointer as return type                                         DONE
 
 Need to pass
 01. assign to a 1d array without size a list
@@ -79,18 +78,18 @@ Need to pass
 21. call a number with same number of args and const/non const type, void/pointer type     DONE
 22. assign a string literature to a string variable                                        DONE
 23. array access a pointer/string type with number as index                                DONE
-24. double access a 2d array type with 2 number ( variable and element )
-25. and, or 2 bool/ const bool
-26. pointer + number, pointer - number, number might be const
-27. number > < >= <= number, pointer > < >= <. pointer
-28. same type of compare( == ), const does not matter
-29. !=, == a pointer with NULL
-30. ! with a bool
-31. - with a number literature
-32. address of anything but 2d array ( test const type )
-33. deference of pointer, array and 2d array, rhs and lhs
-34. declare a enum collection with type name
-35. declare a enum colection without type name
+24. double access a 2d array type with 2 number ( variable and element )                   DONE
+25. and, or 2 bool/ const bool                                                             DONE
+26. pointer + number, pointer - number, number might be const                              DONE
+27. number > < >= <= number, pointer > < >= <. pointer                                     DONE
+28. same type of compare( == ), const does not matter                                      DONE
+29. !=, == a pointer with NULL                                                             DONE
+30. ! with a bool                                                                          DONE
+31. - with a number literature                                                             DONE
+32. address of anything but 2d array ( test const type )                                   DONE
+33. deference of pointer, array, rhs and lhs                                               DONE
+34. declare a enum collection with type name                                               DONE
+35. declare a enum colection without type name                                             DONE
 36. declare variable / function with same name but in differnet scope
 37. function used its argument and variable in higher scope
 38. int the for, while, if, have the variable with the same name as outer scope
