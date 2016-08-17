@@ -55,6 +55,8 @@ private:
       empty_list,
       not_ret_type,
       tdlist_differnt_length,
+      switch_case_diff_type,
+      switch_not_base,
       no_error
     };
 
@@ -208,10 +210,18 @@ private:
       fprintf( m_errorfile, "error: 2d list with list of different length\n" );
       printf( "error: 2d list with list of different length\n" );
       exit( 36 );
+    case switch_case_diff_type:
+      fprintf( m_errorfile, "error: in switch statment, case has differnt type\n" );
+      printf( "error: in switch statment, case has differnt type\n" );
+      exit( 37 );
+    case switch_not_base:
+      fprintf( m_errorfile, "error: trying to switch a non-base type\n" );
+      printf( "error: trying to switch a non-base type\n" );
+      exit( 37 );
     default:
       fprintf( m_errorfile, "error: no good reason\n" );
       printf( "error: no good reason\n" );
-      exit( 37 );
+      exit( 38 );
     }
   }
 
@@ -1118,7 +1128,8 @@ public:
   }
 
   void visitStruct_defineImpl( Struct_defineImpl *p ) { 
-    default_rule( p );
+    // default_rule( p );
+    // should not add struct's member to symtab table
     // add the name as type
     char * name = strdup( p->m_symname->spelling() );
     Symbol * s = new Symbol() ;
@@ -1144,8 +1155,8 @@ public:
                                               offset );
 
       // add the deal to map one by one
-      s->m_map[ dynamic_cast< Short_declImpl* >( *iter )->m_symname->spelling() ] =
-        member_info;
+      name = strdup( dynamic_cast< Short_declImpl* >( *iter )->m_symname->spelling() );
+      s->m_map[ name ] = member_info;
       offset += 4;
     }
 
@@ -1176,6 +1187,7 @@ public:
     default_rule( p );
     char * name = strdup( p->m_symname->spelling() );
     Symbol * s = new Symbol();
+    s->m_basetype = p->m_type->m_attribute.m_basetype;
     if(! m_st->insert(name,s)){
       this->t_error(dup_var_name, p->m_attribute);
     }
@@ -1287,8 +1299,23 @@ public:
     check_pred( p->m_expr, 3 );
   }
 
-  void visitSwitch( Switch *p ) { 
+  void visitSwitch( Switch *p ) {
     default_rule( p );
+    Basetype switchType = p->m_expr->m_attribute.m_basetype;
+    Basetype caseType;
+    // switch type must be one of the basetype
+    if ( !is_return_type( p->m_expr->m_attribute.m_basetype ) ) {
+      this->t_error( switch_not_base, p->m_attribute );
+    }
+    // check all cases has the same type as the switcher
+    for ( auto iter = p->m_case_list->begin();
+          iter != p->m_case_list->end();
+          iter++ ) {
+      caseType = dynamic_cast< CaseImpl* >( *iter )->m_expr->m_attribute.m_basetype;
+      if ( checkSimpleAssign( switchType,caseType ) != no_error) {
+        this->t_error( switch_case_diff_type, p->m_attribute );
+      }
+    }
   }
 
   void visitBreak( Break *p ) { 

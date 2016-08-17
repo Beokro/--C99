@@ -40,7 +40,7 @@ Need to fail
 39. enum element with same name
 40. declare two function with same name and same scope
 41. function return a different baetype
-42. in struct, members have the same name
+42. in struct, members have the same name                                                 DONE
 43. define 2 struct with the same name
 44. in for loop's init, use a variable that has not been defined
 45. init assign a wrong base type
@@ -54,6 +54,9 @@ Need to fail
 53. declare a list of differnt type
 54. declare a 2d list with differnt sublist type
 55. decalre a function with pointer as return type                                         DONE
+56. In scope, return type not match the function return type
+57. In switch, case has different type than switch
+58. try to switch a non-basetype statement                                                 DONE
 
 Need to pass
 01. assign to a 1d array without size a list
@@ -90,12 +93,12 @@ Need to pass
 33. deference of pointer, array, rhs and lhs                                               DONE
 34. declare a enum collection with type name                                               DONE
 35. declare a enum colection without type name                                             DONE
-36. declare variable / function with same name but in differnet scope
-37. function used its argument and variable in higher scope
-38. int the for, while, if, have the variable with the same name as outer scope
-39. define a regular struct with members
-40. switch differnt type and have a default
-41. in for loop, init a variable that has the same name as the outside variable
+36. declare variable / function with same name but in differnet scope                      DONE
+37. function used its argument and variable in higher scope                                DONE
+38. int the for, while, if, have the variable with the same name as outer scope            DONE
+39. define a regular struct with members                                                   DONE
+40. switch differnt type and have a default                                                DONE
+41. in for loop, init a variable that has the same name as the outside variable            DONE
 42. function assignment that has the same type on both side
 43. in for's init, assign const to non const type
 44. += -= /= *= %= ^= &= |=, >>=, <<= ++, -- non-const number type
