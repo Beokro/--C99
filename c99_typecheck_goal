@@ -23,7 +23,7 @@ Need to fail
 22. call a function with same number of arguments but different type
 23. while/for/if with non bool type
 24. assign a non string type to string
-25. array access a non exist variable
+25. array access a non exist variable                                                     DONE
 26. array access an non-pointer non-string type
 27. array acces with an non number type index
 28. double access a non 2d array typeo ( variable and element )
@@ -57,12 +57,13 @@ Need to fail
 56. In scope, return type not match the function return type
 57. In switch, case has different type than switch
 58. try to switch a non-basetype statement                                                 DONE
+59. function assignment fail on const type
 
-Need to pass
-01. assign to a 1d array without size a list
-02. assign to a 2d array without size a list
-03. assign to a 1d array with size a list with same size
-04. assign to a 2d array with size a list with same size
+Need to pass 
+01. assign to a 1d array without size a list                                               DONE
+02. assign to a 2d array without size a list                                               DONE
+03. assign to a 1d array with size a list with same size                                   DONE
+04. assign to a 2d array with size a list with same size                                   DONE
 05. pointer with same type                                                                 DONE
 07. pointer with NULL                                                                      DONE
 08. struct with same struct type
@@ -73,7 +74,7 @@ Need to pass
 13. one main                                                                               DONE
 14. declare a procedure                                                                    DONE
 15. decl and assign multiple same type variable                                            DONE
-16. declare a 2d list with same sublist type
+16. declare a 2d list with same sublist type                                               DONE
 17. return a number type when number type is required                                      DONE
 18. return a base type when const is required                                              DONE
 19. return a const type when base type is required                                         DONE
@@ -99,10 +100,10 @@ Need to pass
 39. define a regular struct with members                                                   DONE
 40. switch differnt type and have a default                                                DONE
 41. in for loop, init a variable that has the same name as the outside variable            DONE
-42. function assignment that has the same type on both side
-43. in for's init, assign const to non const type
-44. += -= /= *= %= ^= &= |=, >>=, <<= ++, -- non-const number type
-45. && || 2 boolean
-46. number ( const or not ) + - * / ^ & % >> <<
+42. function assignment that has the same type on both side                                DONE
+43. in for's init, assign const to non const type                                          DONE
+44. += -= /= *= %= ^= &= |=, >>=, <<= ++, -- non-const number type                         DONE
+45. && || 2 boolean                                                                        DONE
+46. number ( const or not ) + - * / ^ & % >> <<                                            DONE
 49. dot access a struct variable with member exist in this struct
-50. declare a list with same type
+50. declare a list with same type                                                          DONE

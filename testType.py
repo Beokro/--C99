@@ -24,6 +24,8 @@ runTest( 5, "on line number 31, error: undefined variable\n" )
 runTest( 6, "on line number 20, error: duplicate variable names in same scope\n" )
 runTest( 7, "on line number 47, error: duplicate variable names in same scope\n" )
 runTest( 8, "on line number 23, error: trying to switch a non-base type\n" )
+runTest( 9, "on line number 39, error: trying to assign to a const type\n" )
+runTest( 10, "on line number 22, error: undefined variable\n" )
 
 print "--------------------------------"
 print "         test passed            "

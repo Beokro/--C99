@@ -79,7 +79,7 @@ yylval.u_base_charptr = temp;
 return STRINGV;
 }
 
-[\'][a-zA-Z][\']      {yylval.u_base_int=(int)(*(yytext+1));   return CHARV;}
+[\'][a-zA-Z0-9][\']      {yylval.u_base_int=(int)(*(yytext+1));   return CHARV;}
 
 [\/\=\>\<\-\!\+\*\&\^\;\:\,\|\{\}\(\)\[\]\?\%\~\#\.]  	{return *yytext; }
 

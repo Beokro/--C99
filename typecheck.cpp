@@ -306,6 +306,10 @@ private:
   }
 
   errortype checkSimpleAssignWP( Basetype type1, Basetype type2 ) {
+    // const type can be on the lhs other than decl
+    if ( is_const_type( type1 ) ) {
+      return const_assign;
+    }
     // type1 must be one of char, bool, long, short, int or pointer
     // does not suuport pointer init in for decl
     if( is_number_type( type1 ) && is_number_type( type2 ) ) {
