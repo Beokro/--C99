@@ -1,4 +1,4 @@
-// more than one main
+// main not in outermost scope
 int main() {
   int main(){
     return 1;
