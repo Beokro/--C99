@@ -1,22 +1,22 @@
 Need to fail
 01. assign to array outside the decl                                                      DONE
-02. assign to a 1d array with size a different size / not a list
-03. assign to a 2d array with size a different size / not a list
-04. assign to a 1d array with a differnt array&list type
-05. assign to a 2d array with a differnt array&list type
-06. pointer to basetype
-07. pointer to another pointer
+02. assign to a 1d array with size a different size / not a list                          DONE
+03. assign to a 2d array with size a different size / not a list                          DONE
+04. assign to a 1d array with a differnt array&list type                                  DONE
+05. assign to a 2d array with a differnt array&list type                                  DONE
+06. pointer to basetype                                                                   DONE
+07. pointer to another pointer                                                            DONE
 08. struct with different type
 09. struct with base type
 10. enum with different type
 11. enum with base type
-12. assign to const outside const
-13. wrong basetype assign
-14. deference a base/struct type
-15. no main / more than one main
-16. main with arguments
-17. duplicate procedure name
-18. procedure reutrn differnt base type or return a basetype when pointer is required
+12. assign to const outside decl                                                          DONE
+13. wrong basetype assign                                                                 DONE
+14. deference a base/struct type                                                          DONE
+15. no main / more than one main                                                          DONE
+16. main with arguments                                                                   DONE
+17. duplicate procedure name                                                              DONE
+18. procedure reutrn differnt base type or return a basetype when pointer is required     DONE
 19. try to return a struct or array in procedure decl
 20. call a function that does not exist
 21. call a function with differnt number of arguments
@@ -24,7 +24,7 @@ Need to fail
 23. while/for/if with non bool type
 24. assign a non string type to string
 25. array access a non exist variable                                                     DONE
-26. array access an non-pointer non-string type
+26. array access an non-pointer non-string typex
 27. array acces with an non number type index
 28. double access a non 2d array typeo ( variable and element )
 29. in 2d access, one or two non number is used ( variable and element )

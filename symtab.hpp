@@ -197,6 +197,9 @@ public:
   // _nested_inside_ the higher_scope as assertion will fail
   int lexical_distance(SymScope* higher_scope, SymScope* deeper_scope);
 
+  // check if current scope if outermost
+  bool isOuterMostScope() { return m_head == m_cur_scope; }
+
   // Dump the contents of the symbol table to the file
   // descriptor provided.  very useful for debugging
   void dump(FILE* f);

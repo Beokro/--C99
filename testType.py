@@ -26,7 +26,21 @@ runTest( 7, "on line number 47, error: duplicate variable names in same scope\n"
 runTest( 8, "on line number 23, error: trying to switch a non-base type\n" )
 runTest( 9, "on line number 39, error: trying to assign to a const type\n" )
 runTest( 10, "on line number 22, error: undefined variable\n" )
-
+runTest( 11, "on line number 16, error: wrong length or wrong type in one dimension array assign\n" )
+runTest( 12, "on line number 3, error: wrong length or wrong type in two dimensions array assign\n" )
+runTest( 13, "on line number 3, error: wrong length or wrong type in one dimension array assign\n" )
+runTest( 14, "on line number 3, error: trying to init a list contains differetn types\n" )
+runTest( 15, "on line number 5, error: type of expr and var do not match in assignment\n" )
+runTest( 16, "on line number 4, error: trying to assign to a const type\n" )
+runTest( 17, "on line number 5, error: type of expr and var do not match in assignment\n" )
+runTest( 18, "on line number 5, error: Deref can only be applied to integer pointers and char pointers\n" )
+runTest( 19, "on line number 5, error: no main\n" )
+runTest( 20, "on line number 5, error: main not declare in outermost scope\n" )
+runTest( 21, "on line number 4, error: the Main procedure has arguments\n" )
+runTest( 22, "on line number 7, error: duplicate procedure names in same scope\n" )
+runTest( 23, "on line number 4, error: type mismatch in return statement\n" )
+runTest( 24, "on line number 5, error: type mismatch in return statement\n" )
+runTest( 25, "on line number 3, error: call to undefined procedure\n" )
 print "--------------------------------"
 print "         test passed            "
 print "--------------------------------"

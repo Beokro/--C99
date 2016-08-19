@@ -57,6 +57,7 @@ private:
       tdlist_differnt_length,
       switch_case_diff_type,
       switch_not_base,
+      main_not_outmost,
       no_error
     };
 
@@ -218,10 +219,14 @@ private:
       fprintf( m_errorfile, "error: trying to switch a non-base type\n" );
       printf( "error: trying to switch a non-base type\n" );
       exit( 37 );
+    case main_not_outmost:
+      fprintf( m_errorfile, "error: main not declare in outermost scope\n" );
+      printf( "error: main not declare in outermost scope\n" );
+      exit( 38 );
     default:
       fprintf( m_errorfile, "error: no good reason\n" );
       printf( "error: no good reason\n" );
-      exit( 38 );
+      exit( 39 );
     }
   }
 
@@ -559,6 +564,11 @@ private:
     std::list<Decl_ptr>::iterator iter;
     char * name = strdup( p->m_symname->spelling() );
     Symbol *s = new Symbol();
+
+    if ( strcmp( name, "main" ) == 0 && !m_st->isOuterMostScope() ){
+      // main must be outer most scope
+      this->t_error( main_not_outmost, p->m_attribute );
+    }
 
     // add the parameter type to the symbol
     for (iter = p->m_decl_list->begin(); iter != p->m_decl_list->end(); ++iter){

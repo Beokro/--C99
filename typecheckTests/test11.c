@@ -2,6 +2,7 @@
 // assign to a 2d array without size a list
 // assign to a 1d array with size a list with same size
 // assign to a 2d array with size a list with same size
+// assign to a 1d array with size a different size / not a list
 
 int main() {
   int a[] = { 1, 2, 3, 4 };
@@ -12,5 +13,6 @@ int main() {
   char cd[ 4 ] = { '1', '2', '3', '4' };
   int a2d[ 3 ][ 2 ] = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
   char c2d[ 3 ][ 2 ] = { { '1', '2' }, {'3', '4' }, { '5', '6' } };
+  int anot[ 3 ] = { 1 };
   return 1;
-  };
+};
