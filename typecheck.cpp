@@ -819,7 +819,7 @@ private:
     if ( s == NULL ) {
       this->t_error(var_undef, p->m_attribute);
     }
-    if ( s->m_basetype != bt_string || is_pointer_type( s->m_basetype ) ) {
+    if ( s->m_basetype != bt_string && !is_pointer_type( s->m_basetype ) ) {
       this->t_error(expr_type_err, p->m_attribute);
     }
     if ( !is_number_type( p->m_expr->m_attribute.m_basetype ) ) {

@@ -41,6 +41,17 @@ runTest( 22, "on line number 7, error: duplicate procedure names in same scope\n
 runTest( 23, "on line number 4, error: type mismatch in return statement\n" )
 runTest( 24, "on line number 5, error: type mismatch in return statement\n" )
 runTest( 25, "on line number 3, error: call to undefined procedure\n" )
+runTest( 26, "on line number 7, error: procedure call has different number of args than declartion\n" )
+runTest( 27, "on line number 6, error: argument type mismatch\n" )
+runTest( 28, "on line number 3, error: predicate of while statement is not boolean\n" )
+runTest( 29, "on line number 3, error: predicate of if statement is not boolean\n" )
+runTest( 30, "on line number 3, error: condition is not boolean in for loop\n" )
+runTest( 31, "on line number 4, error: type of expr and var do not match in assignment\n" )
+runTest( 32, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 33, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 34, "on line number 6, error: incompatible types used in expression\n" )
+runTest( 35, "on line number 6, error: incompatible types used in expression\n" )
+runTest( 36, "on line number 5, error: array index not integer\n" )
 print "--------------------------------"
 print "         test passed            "
 print "--------------------------------"

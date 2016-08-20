@@ -18,17 +18,17 @@ Need to fail
 17. duplicate procedure name                                                              DONE
 18. procedure reutrn differnt base type or return a basetype when pointer is required     DONE
 19. try to return a struct or array in procedure decl
-20. call a function that does not exist
-21. call a function with differnt number of arguments
-22. call a function with same number of arguments but different type
-23. while/for/if with non bool type
-24. assign a non string type to string
+20. call a function that does not exist                                                   DONE
+21. call a function with differnt number of arguments                                     DONE
+22. call a function with same number of arguments but different type                      DONE
+23. while/for/if with non bool type                                                       DONE
+24. assign a non string type to string                                                    DONE
 25. array access a non exist variable                                                     DONE
-26. array access an non-pointer non-string typex
-27. array acces with an non number type index
-28. double access a non 2d array typeo ( variable and element )
+26. array access an non-pointer non-string typex                                          DONE
+27. array acces with an non number type index                                             DONE
+28. double access a non 2d array type ( variable and element )                            DONE
 29. in 2d access, one or two non number is used ( variable and element )
-30 and or with 1 or 2 non boolean type
+30. and or with 1 or 2 non boolean type
 31. times, divide a non number type
 32. compare( > < >= <= ) two non number and non same-pointer type
 33. ! with a non bool                                                                     DONE
