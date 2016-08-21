@@ -1,8 +1,9 @@
 import subprocess, sys
 
-def checkOutput( expect, real ):
+def checkOutput( number, expect, real ):
     if ( expect != real ):
         print "***************************"
+        print "failed test", number
         print "expect  " + expect
         print "but get " + real
         print "***************************"
@@ -13,7 +14,7 @@ def runTest( number, expect ):
                              "/etc/services"], stdout=subprocess.PIPE, shell=True)
     (out, err) = proc.communicate()
 
-    checkOutput( expect, out )
+    checkOutput( number, expect, out )
 
 
 runTest( 1, "on line number 34, error: type of expr and var do not match in assignment\n")
@@ -48,10 +49,32 @@ runTest( 29, "on line number 3, error: predicate of if statement is not boolean\
 runTest( 30, "on line number 3, error: condition is not boolean in for loop\n" )
 runTest( 31, "on line number 4, error: type of expr and var do not match in assignment\n" )
 runTest( 32, "on line number 5, error: incompatible types used in expression\n" )
-runTest( 33, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 33, "on line number 5, error: array index not integer\n" )
 runTest( 34, "on line number 6, error: incompatible types used in expression\n" )
 runTest( 35, "on line number 6, error: incompatible types used in expression\n" )
 runTest( 36, "on line number 5, error: array index not integer\n" )
+runTest( 37, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 38, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 39, "on line number 4, error: incompatible types used in expression\n" )
+runTest( 40, "on line number 4, error: incompatible types used in expression\n" )
+runTest( 41, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 42, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 43, "on line number 9, error: incompatible types used in expression\n" )
+runTest( 44, "on line number 5, error: incompatible types used in expression\n" )
+runTest( 45, "on line number 8, error: AddressOf can only be applied to integers, chars, and indexed strings\n" )
+runTest( 46, "on line number 6, error: Deref can only be applied to integer pointers and char pointers\n" )
+runTest( 47, "on line number 6, error: Deref can only be applied to integer pointers and char pointers\n" )
+runTest( 48, "on line number 6, error: Deref can only be applied to integer pointers and char pointers\n" )
+runTest( 49, "on line number 3, error: duplicate variable names in same scope\n" )
+runTest( 50, "on line number 3, error: duplicate variable names in same scope\n" )
+runTest( 51, "on line number 3, error: duplicate procedure names in same scope\n" )
+runTest( 52, "on line number 4, error: type mismatch in return statement\n" )
+runTest( 53, "\n" )
+runTest( 54, "\n" )
+runTest( 55, "\n" )
+runTest( 56, "\n" )
+runTest( 57, "\n" )
+runTest( 58, "\n" )
 print "--------------------------------"
 print "         test passed            "
 print "--------------------------------"

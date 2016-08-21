@@ -27,19 +27,19 @@ Need to fail
 26. array access an non-pointer non-string typex                                          DONE
 27. array acces with an non number type index                                             DONE
 28. double access a non 2d array type ( variable and element )                            DONE
-29. in 2d access, one or two non number is used ( variable and element )
-30. and or with 1 or 2 non boolean type
-31. times, divide a non number type
-32. compare( > < >= <= ) two non number and non same-pointer type
+29. in 2d access, one or two non number is used ( variable and element )                  DONE
+30. and or with 1 or 2 non boolean type                                                   DONE
+31. times, divide a non number type                                                       DONE
+32. compare( > < >= <= ) two non number and non same-pointer type                         DONE
 33. ! with a non bool                                                                     DONE
-34. - with anything that's not a number literature
-35. address of 2d array type
-36. deference of 5 base type and const version
+34. - with anything that's not a number literature                                        DONE
+35. address of array and 2d array type                                                    DONE
+36. deference of 5 base type and const version                                            DONE
 37. use a undeclare variable                                                              DONE
-38. enum collection with same name
-39. enum element with same name
-40. declare two function with same name and same scope
-41. function return a different baetype
+38. enum collection with same name                                                        DONE
+39. enum element with same name                                                           DONE
+40. declare two function with same name and same scope                                    DONE
+41. function return a different baetype                                                   DONE
 42. in struct, members have the same name                                                 DONE
 43. define 2 struct with the same name
 44. in for loop's init, use a variable that has not been defined
