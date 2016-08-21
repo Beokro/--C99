@@ -376,23 +376,6 @@ optionAssign    : '=' exprs
                 }
                 ;
 
-stmts       : stmts stmt
-            {
-              #ifdef DEBUG
-              cout << "Statments: more" << endl;
-              #endif
-              $1.u_stat_list->push_back( $2.u_stat );
-              $$.u_stat_list = $1.u_stat_list;
-            }
-            |
-            {
-              #ifdef DEBUG
-              cout << "Statments: empty" << endl;
-              #endif
-              $$.u_stat_list = new std::list<Stat_ptr>();
-            }
-            ;
-
 stmtsCanReturn    : stmtsCanReturn stmtCanReturn
                   {
                     #ifdef DEBUG
@@ -532,13 +515,13 @@ stmt        : lhs '=' exprs ';'
               #endif
               $$.u_stat = new While_loop( $3.u_expr, $6.u_stat_can_return_list );
             }
-            | FOR '(' init ';' exprs ';' incre ')' '{' stmts '}'
+            | FOR '(' init ';' exprs ';' incre ')' '{' stmtsCanReturn '}'
             {
               #ifdef DEBUG
               cout << "Stat:For loop "<< endl;
               #endif
               $$.u_stat = new For_loop( $3.u_init, $5.u_expr,
-                                        $7.u_incre, $10.u_stat_list );
+                                        $7.u_incre, $10.u_stat_can_return_list );
             }
             | DO '{' stmtsCanReturn '}' WHILE '(' exprs ')' ';'
             {

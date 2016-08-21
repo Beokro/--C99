@@ -41,23 +41,23 @@ Need to fail
 40. declare two function with same name and same scope                                    DONE
 41. function return a different baetype                                                   DONE
 42. in struct, members have the same name                                                 DONE
-43. define 2 struct with the same name
-44. in for loop's init, use a variable that has not been defined
-45. init assign a wrong base type
-46. function assignment that has different type on both side
-47. ^= &= |=, >>=, <<= ++, -- const number type and pointer, char, bool, array type
-48. && || two non boolean
-49. not all number * / ^ & %
-50. dot access a non-struct
-51. dot access a struct with member that it does not have
-52. arrow access aything. not supported
-53. declare a list of differnt type
-54. declare a 2d list with differnt sublist type
-55. decalre a function with pointer as return type                                         DONE
-56. In scope, return type not match the function return type
-57. In switch, case has different type than switch
-58. try to switch a non-basetype statement                                                 DONE
-59. function assignment fail on const type
+43. define 2 struct with the same name                                                    DONE
+44. in for loop's init, use a variable that has not been defined                          DONE
+45. init assign a wrong base type                                                         DONE
+46. function assignment that has different type on both side                              DONE
+47. ^= &= |=, >>=, <<= ++, -- const number type and pointer, char, bool, array type       DONE
+48. && || two non boolean                                                                 DONE
+49. not all number * / ^ & %                                                              DONE
+50. dot access a non-struct                                                               DONE
+51. dot access a struct with member that it does not have 
+52. arrow access aything. not supported                                                   DONE
+53. declare a list of differnt type                                                       DONE
+54. declare a 2d list with differnt sublist type                                          DONE
+55. decalre a function with pointer as return type                                        DONE
+56. In scope, return type not match the function return type                              DONE
+57. In switch, case has different type than switch                                        DONE
+58. try to switch a non-basetype statement                                                DONE
+59. function assignment fail on const type                                                DONE
 
 Need to pass 
 01. assign to a 1d array without size a list                                               DONE

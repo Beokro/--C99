@@ -70,7 +70,7 @@ public:
   Basetype m_return_type;
 
   // for the struct, add a map
-  std::map< const char*, std::pair< Basetype, int > > m_map;
+  std::map< std::string, std::pair< Basetype, int > > m_map;
 
   // length of a array, first dimentation and second dimentation
   int m_length1;
@@ -133,11 +133,6 @@ public:
 
   ~Symbol() {
     delete m_type_name;
-    for ( auto iter = m_map.begin();
-          iter != m_map.end();
-          ++iter ) {
-      delete iter->first;
-    }
   }
 };
 

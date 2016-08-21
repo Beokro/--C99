@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstring>
-
+#include <string>
 #include "ast.hpp"
 #include "symtab.hpp"
 #include "primitive.hpp"
@@ -168,8 +168,8 @@ private:
       printf( "error: trying to make a array of unsupported type\n" );
       exit( 25 );
     case init_type_failed:
-      fprintf( m_errorfile, "error: unsupported type in init\n" );
-      printf( "error: unsupported type in init\n" );
+      fprintf( m_errorfile, "error: unsupported type in init or types not match\n" );
+      printf( "error: unsupported type in init or types not match\n" );
       exit( 26 );
     case forpred_err:
       fprintf( m_errorfile, "error: condition is not boolean in for loop\n" );
@@ -1145,7 +1145,7 @@ public:
     // default_rule( p );
     // should not add struct's member to symtab table
     // add the name as type
-    char * name = strdup( p->m_symname->spelling() );
+    char * name;
     Symbol * s = new Symbol() ;
     s->m_basetype = bt_struct_type;
     int offset = 0;
@@ -1156,9 +1156,8 @@ public:
     for( auto iter = p->m_short_decl_list->begin();
          iter != p->m_short_decl_list->end();
          iter++ ) {
-      // check if name is being used
-      auto it = s->m_map.find( dynamic_cast< Short_declImpl* >
-                               ( *iter )->m_symname->spelling() );
+      name = strdup( dynamic_cast< Short_declImpl* >( *iter )->m_symname->spelling() );
+      auto it = s->m_map.find( string(name) );
       if ( it != s->m_map.end() ) {
         this->t_error(dup_var_name, p->m_attribute);
       }
@@ -1169,12 +1168,15 @@ public:
                                               offset );
 
       // add the deal to map one by one
-      name = strdup( dynamic_cast< Short_declImpl* >( *iter )->m_symname->spelling() );
-      s->m_map[ name ] = member_info;
+      s->m_map[ string( name ) ] = member_info;
+      if ( name ) {
+        delete name;
+      }
       offset += 4;
     }
 
-    if(! m_st->insert(name,s)){
+    name = strdup( p->m_symname->spelling() );
+    if(!m_st->insert(name,s)){
       this->t_error(dup_var_name, p->m_attribute);
     }
   }

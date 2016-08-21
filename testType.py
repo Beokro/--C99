@@ -69,12 +69,22 @@ runTest( 49, "on line number 3, error: duplicate variable names in same scope\n"
 runTest( 50, "on line number 3, error: duplicate variable names in same scope\n" )
 runTest( 51, "on line number 3, error: duplicate procedure names in same scope\n" )
 runTest( 52, "on line number 4, error: type mismatch in return statement\n" )
-runTest( 53, "\n" )
-runTest( 54, "\n" )
-runTest( 55, "\n" )
-runTest( 56, "\n" )
-runTest( 57, "\n" )
-runTest( 58, "\n" )
+runTest( 53, "on line number 13, error: duplicate variable names in same scope\n" )
+runTest( 54, "on line number 7, error: undefined variable\n" )
+runTest( 55, "on line number 5, error: unsupported type in init or types not match\n" )
+runTest( 56, "on line number 8, error: type of expr and var do not match in assignment\n" )
+runTest( 57, "on line number 4, error: trying to use self change operator in unsupported type\n" )
+runTest( 58, "on line number 5, error: trying to use self change operator in unsupported type\n" )
+runTest( 59, "on line number 8, error: incompatible types used in expression\n" )
+runTest( 60, "on line number 4, error: trying to use a not-yet supported feature\n" )
+runTest( 61, "on line number 4, error: trying to init a list contains differetn types\n" )
+runTest( 62, "on line number 4, error: use dot operator on a variable that's not struct\n" )
+runTest( 63, "on line number 4, error: trying to init a 2d list contains differetn types\n" )
+runTest( 64, "on line number 4, error: type mismatch in return statement\n" )
+runTest( 65, "on line number 9, error: in switch statment, case has differnt type\n" )
+runTest( 66, "on line number 8, error: trying to switch a non-base type\n" )
+runTest( 67, "on line number 8, error: trying to assign to a const type\n" )
+
 print "--------------------------------"
 print "         test passed            "
 print "--------------------------------"

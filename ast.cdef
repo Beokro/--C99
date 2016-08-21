@@ -37,7 +37,7 @@ Stat:If_no_else ==> Expr *Stat_can_return
 Stat:If_with_else ==> Expr *Stat_can_return *Stat_can_return 
 Stat:While_loop ==>  Expr *Stat_can_return 
 Stat:Do_while ==> Expr *Stat_can_return 
-Stat:For_loop ==> Init Expr Incre *Stat
+Stat:For_loop ==> Init Expr Incre *Stat_can_return
 Stat:Switch ==> Expr *Case *Stat_can_return
 Stat:Break ==>
 Stat:Continue ==>
