@@ -6,10 +6,10 @@ Need to fail
 05. assign to a 2d array with a differnt array&list type                                  DONE
 06. pointer to basetype                                                                   DONE
 07. pointer to another pointer                                                            DONE
-08. struct with different type
-09. struct with base type
-10. enum with different type
-11. enum with base type
+08. struct with different type                                                            DONE
+09. struct with base type                                                                 DONE
+10. enum with different type                                                              DONE
+11. enum with base type                                                                   DONE
 12. assign to const outside decl                                                          DONE
 13. wrong basetype assign                                                                 DONE
 14. deference a base/struct type                                                          DONE
@@ -17,7 +17,7 @@ Need to fail
 16. main with arguments                                                                   DONE
 17. duplicate procedure name                                                              DONE
 18. procedure reutrn differnt base type or return a basetype when pointer is required     DONE
-19. try to return a struct or array in procedure decl
+19. try to return a struct or array in procedure decl                                     DONE
 20. call a function that does not exist                                                   DONE
 21. call a function with differnt number of arguments                                     DONE
 22. call a function with same number of arguments but different type                      DONE
@@ -49,7 +49,7 @@ Need to fail
 48. && || two non boolean                                                                 DONE
 49. not all number * / ^ & %                                                              DONE
 50. dot access a non-struct                                                               DONE
-51. dot access a struct with member that it does not have 
+51. dot access a struct with member that it does not have                                 DONE
 52. arrow access aything. not supported                                                   DONE
 53. declare a list of differnt type                                                       DONE
 54. declare a 2d list with differnt sublist type                                          DONE
@@ -66,11 +66,11 @@ Need to pass
 04. assign to a 2d array with size a list with same size                                   DONE
 05. pointer with same type                                                                 DONE
 07. pointer with NULL                                                                      DONE
-08. struct with same struct type
-09. enum with same enum type
+08. struct with same struct type                                                           DONE
+09. enum with same enum type                                                               DONE
 10. number type to number type                                                             DONE
 11. ( const )bool/char to ( const ) bool/char                                              DONE
-12. deference pointer, 1d/2d array, do a assign
+12. deference pointer, 1d/2d array, do a assign                                            DONE
 13. one main                                                                               DONE
 14. declare a procedure                                                                    DONE
 15. decl and assign multiple same type variable                                            DONE
@@ -105,5 +105,5 @@ Need to pass
 44. += -= /= *= %= ^= &= |=, >>=, <<= ++, -- non-const number type                         DONE
 45. && || 2 boolean                                                                        DONE
 46. number ( const or not ) + - * / ^ & % >> <<                                            DONE
-49. dot access a struct variable with member exist in this struct
+49. dot access a struct variable with member exist in this struct                          DONE
 50. declare a list with same type                                                          DONE

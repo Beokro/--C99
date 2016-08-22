@@ -1133,12 +1133,12 @@ type        : BOOL
               #endif
               $$.u_type = new TStruct( new SymName( $2.u_base_charptr ) );
             }
-            | ENUM ID
+            | ID
             {
               #ifdef DEBUG
               cout << "Type: Enum"<< endl;
               #endif
-              $$.u_type = new TEnum( new SymName( $2.u_base_charptr ) );
+              $$.u_type = new TEnum( new SymName( $1.u_base_charptr ) );
             }
             | STRING
             {

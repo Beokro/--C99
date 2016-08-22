@@ -58,6 +58,7 @@ private:
       switch_case_diff_type,
       switch_not_base,
       main_not_outmost,
+      struct_enum_no_name,
       no_error
     };
 
@@ -144,8 +145,8 @@ private:
       printf( "error: AddressOf can only be applied to integers, chars, and indexed strings\n" );
       exit( 19 );
     case invalid_deref:
-      fprintf( m_errorfile, "error: Deref can only be applied to integer pointers and char pointers\n" );
-      printf( "error: Deref can only be applied to integer pointers and char pointers\n" );
+      fprintf( m_errorfile, "error: Deref can only be applied to pointers and arrays\n" );
+      printf( "error: Deref can only be applied to pointers and arrays\n" );
       exit( 20 );
     case const_assign:
       fprintf( m_errorfile, "error: trying to assign to a const type\n" );
@@ -223,6 +224,10 @@ private:
       fprintf( m_errorfile, "error: main not declare in outermost scope\n" );
       printf( "error: main not declare in outermost scope\n" );
       exit( 38 );
+    case struct_enum_no_name:
+      fprintf( m_errorfile, "error: struct or enum don't have type name\n" );
+      printf( "error: struct or enum don't have type name\n" );
+      exit( 38 );
     default:
       fprintf( m_errorfile, "error: no good reason\n" );
       printf( "error: no good reason\n" );
@@ -285,6 +290,7 @@ private:
                   type2 == bt_2d_long_list ) ) {
     } else if ( type1 == bt_2d_bool_array && type2 == bt_2d_bool_list ) {
     } else if ( type1 == bt_2d_char_array && type2 == bt_2d_char_list ) {
+    } else if ( type1 == type2 ) {
     } else {
       return false;
     }
@@ -797,7 +803,12 @@ private:
     } else {
       p->m_attribute.m_basetype = dereference_type( s->m_basetype );
     }
+    if ( is_2d_array_type( s->m_basetype ) ) {
+      // assign the length as well
+      p->m_attribute.m_length1 = s->m_length2;
+    }
   }
+
   void check_2d_array_access(ArrayDoubleAccess* p) {
     Symbol * s = m_st->lookup( p->m_symname->spelling() );
     if ( s == NULL ) {
@@ -829,6 +840,10 @@ private:
       p->m_attribute.m_basetype = bt_char;
     } else {
       p->m_attribute.m_basetype = dereference_type( s->m_basetype );
+    }
+    if ( is_2d_array_type( s->m_basetype ) ) {
+      // assign the length as well
+      p->m_attribute.m_length1 = s->m_length2;
     }
   }
 
@@ -1023,7 +1038,15 @@ private:
     if ( s == NULL ) {
       this->t_error( var_undef, p->m_attribute );
     }
-    p->m_attribute.m_basetype = s->m_basetype;
+
+    Basetype type = s->m_basetype;
+    p->m_attribute.m_basetype = type;
+    if ( type == bt_struct || type == bt_enum ) {
+      if ( s->m_type_name == NULL ) {
+        this->t_error( struct_enum_no_name, p->m_attribute );
+      }
+      p->m_attribute.m_struct_name = strdup( s->m_type_name );
+    }
   }
 
   void checkset_Ident(Ident* p) {
@@ -1031,7 +1054,15 @@ private:
     if ( s == NULL ) {
       this->t_error( var_undef, p->m_attribute );
     }
-    p->m_attribute.m_basetype = s->m_basetype;
+
+    Basetype type = s->m_basetype;
+    p->m_attribute.m_basetype = type;
+    if ( type == bt_struct || type == bt_enum ) {
+      if ( s->m_type_name == NULL ) {
+        this->t_error( struct_enum_no_name, p->m_attribute );
+      }
+      p->m_attribute.m_struct_name = strdup( s->m_type_name );
+    }
   }
 
   void addEnum_define( Enum_defineImpl * e ) {
@@ -1142,7 +1173,9 @@ public:
   }
 
   void visitStruct_defineImpl( Struct_defineImpl *p ) { 
-    // default_rule( p );
+    m_st->open_scope();
+    default_rule( p );
+    m_st->close_scope();
     // should not add struct's member to symtab table
     // add the name as type
     char * name;
@@ -1355,11 +1388,12 @@ public:
   }
 
   void visitShort_declImpl( Short_declImpl *p ) {
+    default_rule( p );
     char * name = strdup( p->m_symname->spelling() );
     Symbol * s = new Symbol();
     s->m_basetype = p->m_type->m_attribute.m_basetype;
     if(!m_st->insert(name,s))
-      this->t_error(dup_proc_name, p->m_attribute);
+      this->t_error(dup_var_name, p->m_attribute);
   }
 
   void visitReturn_statImpl( Return_statImpl *p ) { 
@@ -1399,11 +1433,13 @@ public:
   void visitTStruct( TStruct *p ) {
     default_rule( p );
     p->m_attribute.m_basetype = bt_struct;
+    p->m_attribute.m_struct_name = strdup( p->m_symname->spelling() );
   }
 
   void visitTEnum( TEnum *p ) {
     default_rule( p );
     p->m_attribute.m_basetype = bt_enum;
+    p->m_attribute.m_struct_name = strdup( p->m_symname->spelling() );
   }
 
   void visitTCInt( TCInt *p ) {
@@ -1941,7 +1977,7 @@ public:
     }
 
     // check if rhs is a member of struct
-    auto it = s->m_map.find( p->m_symname->spelling() );
+    auto it = s->m_map.find( string( p->m_symname->spelling() ) );
     if ( it == s->m_map.end() ) {
       // rhs is not a member of the struct
       this->t_error( not_a_struct_member, p->m_attribute );
