@@ -2,6 +2,8 @@
 #include <fstream>
 #include <string>
 #include <cassert>
+#include <stdio.h>
+#include <string.h>
 using namespace std;
 
 //this file is used to read ast.cdef and generate
