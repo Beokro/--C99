@@ -142,6 +142,19 @@ class Codegen : public Visitor
     fprintf( m_outputfile, "pushl %%eax\n\n" );
   }
 
+  void gen_binary( string op ) {
+    string temp = op + " %%ebx, %%eax\n";
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "%s", temp.c_str() );
+    fprintf( m_outputfile, "pushl %%eax\n\n" );
+  }
+
+  void gen_lit( int val ) {
+    string temp = "pushl $"+std::to_string( val )+"\n";
+    fprintf( m_outputfile,"%s", temp.c_str() );
+  }
+
   void emit_prologue(SymName *name, unsigned int size_locals, unsigned int num_args)
   {
   }
@@ -161,517 +174,559 @@ public:
     label_count = 0;
   }
   
-  void visitProgramImpl( ProgramImpl *p ) { 
+  void visitProgramImpl( ProgramImpl *p ) {
     set_text_mode();
     p->visit_children(this);
   }
 
-  void visitOut_enum_define( Out_enum_define *p ) { 
+  void visitOut_enum_define( Out_enum_define *p ) {
 
   }
 
-  void visitOut_decl( Out_decl *p ) { 
+  void visitOut_decl( Out_decl *p ) {
 
   }
 
-  void visitOut_procedure( Out_procedure *p ) { 
+  void visitOut_procedure( Out_procedure *p ) {
 
   }
 
-  void visitOut_struct_define( Out_struct_define *p ) { 
+  void visitOut_struct_define( Out_struct_define *p ) {
 
   }
 
-  void visitAssignPairImpl( AssignPairImpl *p ) { 
+  void visitAssignPairImpl( AssignPairImpl *p ) {
 
   }
 
-  void visitEnum_defineImpl( Enum_defineImpl *p ) { 
+  void visitEnum_defineImpl( Enum_defineImpl *p ) {
 
   }
 
-  void visitDecl_variable( Decl_variable *p ) { 
+  void visitDecl_variable( Decl_variable *p ) {
 
   }
 
-  void visitDecl_function( Decl_function *p ) { 
+  void visitDecl_function( Decl_function *p ) {
 
   }
 
-  void visitShort_declImpl( Short_declImpl *p ) { 
+  void visitShort_declImpl( Short_declImpl *p ) {
 
   }
 
-  void visitProcedureImpl( ProcedureImpl *p ) { 
+  void visitProcedureImpl( ProcedureImpl *p ) {
 
   }
 
-  void visitStruct_defineImpl( Struct_defineImpl *p ) { 
+  void visitStruct_defineImpl( Struct_defineImpl *p ) {
 
   }
 
-  void visitCallImpl( CallImpl *p ) { 
+  void visitCallImpl( CallImpl *p ) {
 
   }
 
-  void visitCaseImpl( CaseImpl *p ) { 
+  void visitCaseImpl( CaseImpl *p ) {
 
   }
 
-  void visitPProcedure( PProcedure *p ) { 
+  void visitPProcedure( PProcedure *p ) {
 
   }
 
-  void visitPStat( PStat *p ) { 
+  void visitPStat( PStat *p ) {
 
   }
 
-  void visitInit_new( Init_new *p ) { 
+  void visitInit_new( Init_new *p ) {
 
   }
 
-  void visitInit_old( Init_old *p ) { 
+  void visitInit_old( Init_old *p ) {
 
   }
 
-  void visitNStat( NStat *p ) { 
+  void visitNStat( NStat *p ) {
 
   }
 
-  void visitRStat( RStat *p ) { 
+  void visitRStat( RStat *p ) {
 
   }
 
-  void visitAssignment( Assignment *p ) { 
+  void visitAssignment( Assignment *p ) {
 
   }
 
-  void visitString_assignment( String_assignment *p ) { 
+  void visitString_assignment( String_assignment *p ) {
 
   }
 
-  void visitFunction_assignment( Function_assignment *p ) { 
+  void visitFunction_assignment( Function_assignment *p ) {
 
   }
 
-  void visitSIncre( SIncre *p ) { 
+  void visitSIncre( SIncre *p ) {
 
   }
 
-  void visitFunction_call( Function_call *p ) { 
+  void visitFunction_call( Function_call *p ) {
 
   }
 
-  void visitIf_no_else( If_no_else *p ) { 
+  void visitIf_no_else( If_no_else *p ) {
 
   }
 
-  void visitIf_with_else( If_with_else *p ) { 
+  void visitIf_with_else( If_with_else *p ) {
 
   }
 
-  void visitWhile_loop( While_loop *p ) { 
+  void visitWhile_loop( While_loop *p ) {
 
   }
 
-  void visitDo_while( Do_while *p ) { 
+  void visitDo_while( Do_while *p ) {
 
   }
 
-  void visitFor_loop( For_loop *p ) { 
+  void visitFor_loop( For_loop *p ) {
 
   }
 
-  void visitSwitch( Switch *p ) { 
+  void visitSwitch( Switch *p ) {
 
   }
 
-  void visitBreak( Break *p ) { 
+  void visitBreak( Break *p ) {
 
   }
 
-  void visitContinue( Continue *p ) { 
+  void visitContinue( Continue *p ) {
 
   }
 
-  void visitStat_struct_define( Stat_struct_define *p ) { 
+  void visitStat_struct_define( Stat_struct_define *p ) {
 
   }
 
-  void visitStat_enum_define( Stat_enum_define *p ) { 
+  void visitStat_enum_define( Stat_enum_define *p ) {
 
   }
 
-  void visitStat_decl( Stat_decl *p ) { 
+  void visitStat_decl( Stat_decl *p ) {
 
   }
 
-  void visitReturn_statImpl( Return_statImpl *p ) { 
+  void visitReturn_statImpl( Return_statImpl *p ) {
 
   }
 
-  void visitTInt( TInt *p ) { 
+  void visitTInt( TInt *p ) {
 
   }
 
-  void visitTChar( TChar *p ) { 
+  void visitTChar( TChar *p ) {
 
   }
 
-  void visitTBool( TBool *p ) { 
+  void visitTBool( TBool *p ) {
 
   }
 
-  void visitTShort( TShort *p ) { 
+  void visitTShort( TShort *p ) {
 
   }
 
-  void visitTVoid( TVoid *p ) { 
+  void visitTVoid( TVoid *p ) {
 
   }
 
-  void visitTLong( TLong *p ) { 
+  void visitTLong( TLong *p ) {
 
   }
 
-  void visitTStruct( TStruct *p ) { 
+  void visitTStruct( TStruct *p ) {
 
   }
 
-  void visitTEnum( TEnum *p ) { 
+  void visitTEnum( TEnum *p ) {
 
   }
 
-  void visitTCInt( TCInt *p ) { 
+  void visitTCInt( TCInt *p ) {
 
   }
 
-  void visitTCChar( TCChar *p ) { 
+  void visitTCChar( TCChar *p ) {
 
   }
 
-  void visitTCBool( TCBool *p ) { 
+  void visitTCBool( TCBool *p ) {
 
   }
 
-  void visitTCShort( TCShort *p ) { 
+  void visitTCShort( TCShort *p ) {
 
   }
 
-  void visitTCLong( TCLong *p ) { 
+  void visitTCLong( TCLong *p ) {
 
   }
 
-  void visitTCharPtr( TCharPtr *p ) { 
+  void visitTCharPtr( TCharPtr *p ) {
 
   }
 
-  void visitTIntPtr( TIntPtr *p ) { 
+  void visitTIntPtr( TIntPtr *p ) {
 
   }
 
-  void visitTBoolPtr( TBoolPtr *p ) { 
+  void visitTBoolPtr( TBoolPtr *p ) {
 
   }
 
-  void visitTShortPtr( TShortPtr *p ) { 
+  void visitTShortPtr( TShortPtr *p ) {
 
   }
 
-  void visitTVoidPtr( TVoidPtr *p ) { 
+  void visitTVoidPtr( TVoidPtr *p ) {
 
   }
 
-  void visitTLongPtr( TLongPtr *p ) { 
+  void visitTLongPtr( TLongPtr *p ) {
 
   }
 
-  void visitTIntArray( TIntArray *p ) { 
+  void visitTIntArray( TIntArray *p ) {
 
   }
 
-  void visitTCharArray( TCharArray *p ) { 
+  void visitTCharArray( TCharArray *p ) {
 
   }
 
-  void visitTBoolArray( TBoolArray *p ) { 
+  void visitTBoolArray( TBoolArray *p ) {
 
   }
 
-  void visitTShortArray( TShortArray *p ) { 
+  void visitTShortArray( TShortArray *p ) {
 
   }
 
-  void visitTLongArray( TLongArray *p ) { 
+  void visitTLongArray( TLongArray *p ) {
 
   }
 
-  void visitTTDIntArray( TTDIntArray *p ) { 
+  void visitTTDIntArray( TTDIntArray *p ) {
 
   }
 
-  void visitTTDCharArray( TTDCharArray *p ) { 
+  void visitTTDCharArray( TTDCharArray *p ) {
 
   }
 
-  void visitTTDBoolArray( TTDBoolArray *p ) { 
+  void visitTTDBoolArray( TTDBoolArray *p ) {
 
   }
 
-  void visitTTDShortArray( TTDShortArray *p ) { 
+  void visitTTDShortArray( TTDShortArray *p ) {
 
   }
 
-  void visitTTDLongArray( TTDLongArray *p ) { 
+  void visitTTDLongArray( TTDLongArray *p ) {
 
   }
 
-  void visitTString( TString *p ) { 
+  void visitTString( TString *p ) {
 
   }
 
-  void visitNo_type( No_type *p ) { 
+  void visitNo_type( No_type *p ) {
 
   }
 
-  void visitListImpl( ListImpl *p ) { 
+  void visitListImpl( ListImpl *p ) {
 
   }
 
-  void visitIncre_op( Incre_op *p ) { 
+  void visitIncre_op( Incre_op *p ) {
 
   }
 
-  void visitIncre_t_add( Incre_t_add *p ) { 
+  void visitIncre_t_add( Incre_t_add *p ) {
 
   }
 
-  void visitIncre_t_min( Incre_t_min *p ) { 
+  void visitIncre_t_min( Incre_t_min *p ) {
 
   }
 
-  void visitIncre_add_t( Incre_add_t *p ) { 
+  void visitIncre_add_t( Incre_add_t *p ) {
 
   }
 
-  void visitIncre_min_t( Incre_min_t *p ) { 
+  void visitIncre_min_t( Incre_min_t *p ) {
 
   }
 
-  void visitAnd_assign( And_assign *p ) { 
+  void visitAnd_assign( And_assign *p ) {
 
   }
 
-  void visitXor_assign( Xor_assign *p ) { 
+  void visitXor_assign( Xor_assign *p ) {
 
   }
 
-  void visitOr_assign( Or_assign *p ) { 
+  void visitOr_assign( Or_assign *p ) {
 
   }
 
-  void visitSl_assign( Sl_assign *p ) { 
+  void visitSl_assign( Sl_assign *p ) {
 
   }
 
-  void visitSr_assign( Sr_assign *p ) { 
+  void visitSr_assign( Sr_assign *p ) {
 
   }
 
-  void visitTimes_assign( Times_assign *p ) { 
+  void visitTimes_assign( Times_assign *p ) {
 
   }
 
-  void visitDiv_assign( Div_assign *p ) { 
+  void visitDiv_assign( Div_assign *p ) {
 
   }
 
-  void visitRem_assign( Rem_assign *p ) { 
+  void visitRem_assign( Rem_assign *p ) {
 
   }
 
-  void visitAdd_assign( Add_assign *p ) { 
+  void visitAdd_assign( Add_assign *p ) {
 
   }
 
-  void visitMinus_assign( Minus_assign *p ) { 
+  void visitMinus_assign( Minus_assign *p ) {
 
   }
 
-  void visitEq( Eq *p ) { 
+  void visitEq( Eq *p ) {
     p->visit_children( this );
     gen_compare( "sete" );
   }
 
-  void visitNeq( Neq *p ) { 
+  void visitNeq( Neq *p ) {
+    p->visit_children( this );
+    gen_compare( "setne" );
+  }
+
+  void visitAnd( And *p ) {
+    // to do, the output should only be 0 or 1
+    p->visit_children( this );
+    gen_binary( "and" );
+  }
+
+  void visitTimes( Times *p ) {
+    p->visit_children( this );
+    gen_binary( "impl" );
+  }
+
+  void visitArithAnd( ArithAnd *p ) {
+    p->visit_children( this );
+    gen_binary( "impl" );
+  }
+
+  void visitArithOr( ArithOr *p ) {
+    p->visit_children( this );
+    gen_binary( "or" );
+  }
+
+  void visitArithXor( ArithXor *p ) {
+    p->visit_children( this );
+    gen_binary( "xor" );
+  }
+
+  void visitRem( Rem *p ) {
+    p->visit_children(this);
+    fprintf( m_outputfile, "#doing remain\n" );
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "cdq\n" );
+    fprintf( m_outputfile, "idiv %%ebx\n" );
+    fprintf( m_outputfile, "pushl %%edx\n\n" );
+  }
+
+  void visitShiftL( ShiftL *p ) {
+    p->visit_children( this );
+    gen_binary( "shl" );
+  }
+
+  void visitShiftR( ShiftR *p ) {
+    p->visit_children( this );
+    gen_binary( "shr" );
+  }
+
+  void visitDiv( Div *p ) {
+    p->visit_children(this);
+    fprintf( m_outputfile, "#doing divide\n" );
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "cdq\n" );
+    fprintf( m_outputfile, "idiv %%ebx\n" );
+    fprintf( m_outputfile, "pushl %%eax\n\n" );
+  }
+
+  void visitCompare( Compare *p ) {
+    //todo, remove this from here, typechecker and cdef
+    p->visit_children( this );
+  }
+
+  void visitGt( Gt *p ) {
+    p->visit_children( this );
+    gen_compare( "setg" );
+  }
+
+  void visitGteq( Gteq *p ) {
+    p->visit_children( this );
+    gen_compare( "setge" );
+  }
+
+  void visitLt( Lt *p ) {
+    p->visit_children( this );
+    gen_compare( "setl" );
+  }
+
+  void visitLteq( Lteq *p ) {
+    p->visit_children( this );
+    gen_compare( "setle" );
+  }
+
+  void visitMinus( Minus *p ) {
+    p->visit_children( this );
+    gen_binary( "shr" );
+  }
+
+  void visitNoteq( Noteq *p ) {
+    p->visit_children( this );
+    gen_binary( "subl" );
+  }
+
+  void visitOr( Or *p ) {
+    // todo, output should only be 0 or 1
+    p->visit_children( this );
+    gen_binary( "or" );
+  }
+
+  void visitPlus( Plus *p ) {
+    p->visit_children( this );
+    gen_binary( "addl" );
+  }
+
+  void visitNot( Not *p ) {
+    p->visit_children(this);
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "mov $1, %%ebx\n" );
+    fprintf( m_outputfile, "xor %%ebx, %%eax\n" );
+    fprintf( m_outputfile, "pushl %%eax\n" );
+  }
+
+  void visitUminus( Uminus *p ) {
+    p->visit_children(this);
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "neg %%eax\n" );
+    fprintf( m_outputfile, "pushl %%eax\n" );
+  }
+
+  void visitIdent( Ident *p ) {
 
   }
 
-  void visitAnd( And *p ) { 
+  void visitArrayAccess( ArrayAccess *p ) {
 
   }
 
-  void visitTimes( Times *p ) { 
+  void visitArrayDoubleAccess( ArrayDoubleAccess *p ) {
 
   }
 
-  void visitArithAnd( ArithAnd *p ) { 
+  void visitDotAccess( DotAccess *p ) {
 
   }
 
-  void visitArithOr( ArithOr *p ) { 
+  void visitArrowAccess( ArrowAccess *p ) {
+    p->visit_children(this);
+  }
+
+  void visitIntLit( IntLit *p ) {
+    p->visit_children(this);
+    gen_lit( p->m_primitive->m_data );
+  }
+
+  void visitCharLit( CharLit *p ) {
+    p->visit_children(this);
+    gen_lit( p->m_primitive->m_data );
+  }
+
+  void visitBoolLit( BoolLit *p ) {
+    p->visit_children(this);
+    gen_lit( p->m_primitive->m_data );
+  }
+
+  void visitStringLit( StringLit *p ) {
 
   }
 
-  void visitArithXor( ArithXor *p ) { 
+  void visitNullLit( NullLit *p ) {
+    p->visit_children(this);
+    gen_lit( 0 );
+  }
+
+  void visitDeref( Deref *p ) {
 
   }
 
-  void visitRem( Rem *p ) { 
+  void visitAddressOf( AddressOf *p ) {
 
   }
 
-  void visitShiftL( ShiftL *p ) { 
+  void visitEList( EList *p ) {
 
   }
 
-  void visitShiftR( ShiftR *p ) { 
+  void visitETDList( ETDList *p ) {
 
   }
 
-  void visitDiv( Div *p ) { 
+  void visitECall( ECall *p ) {
 
   }
 
-  void visitCompare( Compare *p ) { 
+  void visitEmpty( Empty *p ) {
 
   }
 
-  void visitGt( Gt *p ) { 
+  void visitVariable( Variable *p ) {
 
   }
 
-  void visitGteq( Gteq *p ) { 
+  void visitDerefVariable( DerefVariable *p ) {
 
   }
 
-  void visitLt( Lt *p ) { 
+  void visitArrayElement( ArrayElement *p ) {
 
   }
 
-  void visitLteq( Lteq *p ) { 
+  void visitArrayDoubleElement( ArrayDoubleElement *p ) {
 
   }
 
-  void visitMinus( Minus *p ) { 
+  void visitArrowElement( ArrowElement *p ) {
 
   }
 
-  void visitNoteq( Noteq *p ) { 
-
-  }
-
-  void visitOr( Or *p ) { 
-
-  }
-
-  void visitPlus( Plus *p ) { 
-
-  }
-
-  void visitNot( Not *p ) { 
-
-  }
-
-  void visitUminus( Uminus *p ) { 
-
-  }
-
-  void visitIdent( Ident *p ) { 
-
-  }
-
-  void visitArrayAccess( ArrayAccess *p ) { 
-
-  }
-
-  void visitArrayDoubleAccess( ArrayDoubleAccess *p ) { 
-
-  }
-
-  void visitDotAccess( DotAccess *p ) { 
-
-  }
-
-  void visitArrowAccess( ArrowAccess *p ) { 
-
-  }
-
-  void visitIntLit( IntLit *p ) { 
-
-  }
-
-  void visitCharLit( CharLit *p ) { 
-
-  }
-
-  void visitBoolLit( BoolLit *p ) { 
-
-  }
-
-  void visitStringLit( StringLit *p ) { 
-
-  }
-
-  void visitNullLit( NullLit *p ) { 
-
-  }
-
-  void visitDeref( Deref *p ) { 
-
-  }
-
-  void visitAddressOf( AddressOf *p ) { 
-
-  }
-
-  void visitEList( EList *p ) { 
-
-  }
-
-  void visitETDList( ETDList *p ) { 
-
-  }
-
-  void visitECall( ECall *p ) { 
-
-  }
-
-  void visitEmpty( Empty *p ) { 
-
-  }
-
-  void visitVariable( Variable *p ) { 
-
-  }
-
-  void visitDerefVariable( DerefVariable *p ) { 
-
-  }
-
-  void visitArrayElement( ArrayElement *p ) { 
-
-  }
-
-  void visitArrayDoubleElement( ArrayDoubleElement *p ) { 
-
-  }
-
-  void visitArrowElement( ArrowElement *p ) { 
-
-  }
-
-  void visitDotElement( DotElement *p ) { 
+  void visitDotElement( DotElement *p ) {
 
   }
 
