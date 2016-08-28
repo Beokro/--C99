@@ -11,127 +11,130 @@ using namespace std;
 
 class Codegen : public Visitor
 {
-  private:
-    FILE* m_outputfile;
-    SymTab *m_st;
+private:
+  FILE* m_outputfile;
+  SymTab *m_st;
+  int nest_level = 0;
 
-    // Basic size of a word (integers and booleans) in bytes
-    static const int wordsize = 4;
+  // Basic size of a word (integers and booleans) in bytes
+  static const int wordsize = 4;
 
-    int label_count; // Access with new_label
+  int label_count; // Access with new_label
 
-    // Helpers
-    // This is used to get new unique labels (cleverly names label1, label2, ...)
-    int new_label()
-    {
-        return label_count++;
-    }
+  // Helpers
+  // This is used to get new unique labels (cleverly names label1, label2, ...)
+  int new_label()
+  {
+    return label_count++;
+  }
 
-    void set_text_mode()
-    {
-        fprintf(m_outputfile, ".text\n\n");
-    }
+  void set_text_mode()
+  {
+    fprintf(m_outputfile, ".text\n\n");
+  }
 
-    void set_data_mode()
-    {
-        fprintf(m_outputfile, ".data\n\n");
-    }
+  void set_data_mode()
+  {
+    fprintf(m_outputfile, ".data\n\n");
+  }
 
-    // PART 1:
-    // 1) get arithmetic expressions on integers working:
-    //  you wont really be able to run your code,
-    //  but you can visually inspect it to see that the correct
-    //  chains of opcodes are being generated.
-    // 2) get procedure calls working:
-    //  if you want to see at least a very simple program compile
-    //  and link successfully against gcc-produced code, you
-    //  need to get at least this far
-    // 3) get boolean operation working
-    //  before we can implement any of the conditional control flow
-    //  stuff, we need to have booleans worked out.
-    // 4) control flow:
-    //  we need a way to have if-elses and while loops in our language.
-    // 5) arrays: just like variables, but with an index
+  // PART 1:
+  // 1) get arithmetic expressions on integers working:
+  //  you wont really be able to run your code,
+  //  but you can visually inspect it to see that the correct
+  //  chains of opcodes are being generated.
+  // 2) get procedure calls working:
+  //  if you want to see at least a very simple program compile
+  //  and link successfully against gcc-produced code, you
+  //  need to get at least this far
+  // 3) get boolean operation working
+  //  before we can implement any of the conditional control flow
+  //  stuff, we need to have booleans worked out.
+  // 4) control flow:
+  //  we need a way to have if-elses and while loops in our language.
+  // 5) arrays: just like variables, but with an index
 
-    // Hint: the symbol table has been augmented to track an offset
-    //  with all of the symbols.  That offset can be used to figure
-    //  out where in the activation record you should look for a particuar
-    //  variable
+  // Hint: the symbol table has been augmented to track an offset
+  //  with all of the symbols.  That offset can be used to figure
+  //  out where in the activation record you should look for a particuar
+  //  variable
 
 
-    ///////////////////////////////////////////////////////////////////////////////
-    //
-    //  function_prologue
-    //  function_epilogue
-    //
-    //  Together these two functions implement the callee-side of the calling
-    //  convention.  A stack frame has the following layout:
-    //
-    //                         <- SP (before pre-call / after epilogue)
-    //  high -----------------
-    //       | actual arg 1  |
-    //       |    ...        |
-    //       | actual arg n  |
-    //       -----------------
-    //       |  Return Addr  |
-    //       =================
-    //       | temporary 1   | <- SP (when starting prologue)
-    //       |    ...        |
-    //       | temporary n   |
-    //   low ----------------- <- SP (when done prologue)
-    //
-    //
-    //              ||
-    //              ||
-    //             \  /
-    //              \/
-    //
-    //
-    //  The caller is responsible for placing the actual arguments
-    //  and the return address on the stack. Actually, the return address
-    //  is put automatically on the stack as part of the x86 call instruction.
-    //
-    //  On function entry, the callee
-    //
-    //  (1) allocates space for the callee's temporaries on the stack
-    //
-    //  (2) saves callee-saved registers (see below) - including the previous activation record pointer (%ebp)
-    //
-    //  (3) makes the activation record pointer (frmae pointer - %ebp) point to the start of the temporary region
-    //
-    //  (4) possibly copies the actual arguments into the temporary variables to allow easier access
-    //
-    //  On function exit, the callee:
-    //
-    //  (1) pops the callee's activation record (temporay area) off the stack
-    //
-    //  (2) restores the callee-saved registers, including the activation record of the caller (%ebp)
-    //
-    //  (3) jumps to the return address (using the x86 "ret" instruction, this automatically pops the
-    //      return address off the stack
-    //
-    //////////////////////////////////////////////////////////////////////////////
-    //
-    // Since we are interfacing with code produced by GCC, we have to respect the
-    // calling convention that GCC demands:
-    //
-    // Contract between caller and callee on x86:
-    //    * after call instruction:
-    //           o %eip points at first instruction of function
-    //           o %esp+4 points at first argument
-    //           o %esp points at return address
-    //    * after ret instruction:
-    //           o %eip contains return address
-    //           o %esp points at arguments pushed by caller
-    //           o called function may have trashed arguments
-    //           o %eax contains return value (or trash if function is void)
-    //           o %ecx, %edx may be trashed
-    //           o %ebp, %ebx, %esi, %edi must contain contents from time of call
-    //    * Terminology:
-    //           o %eax, %ecx, %edx are "caller save" registers
-    //           o %ebp, %ebx, %esi, %edi are "callee save" registers
-    ////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////
+  //
+  //  function_prologue
+  //  function_epilogue
+  //
+  //  Together these two functions implement the callee-side of the calling
+  //  convention.  A stack frame has the following layout:
+  //
+  //                         <- SP (before pre-call / after epilogue)
+  //  high -----------------
+  //       | actual arg 1  |
+  //       |    ...        |
+  //       | actual arg n  |
+  //       -----------------
+  //       |  Return Addr  |
+  //       =================
+  //       | temporary 1   | <- SP (when starting prologue)
+  //       |    ...        |
+  //       | temporary n   |
+  //   low ----------------- <- SP (when done prologue)
+  //
+  //
+  //              ||
+  //              ||
+  //             \  /
+  //              \/
+  //
+  //
+  //  The caller is responsible for placing the actual arguments
+  //  and the return address on the stack. Actually, the return address
+  //  is put automatically on the stack as part of the x86 call instruction.
+  //
+  //  On function entry, the callee
+  //
+  //  (1) allocates space for the callee's temporaries on the stack
+  //
+  //  (2) saves callee-saved registers (see below) - including the previous activation record pointer (%ebp)
+  //
+  //  (3) makes the activation record pointer (frmae pointer - %ebp) point to the start of the temporary region
+  //
+  //  (4) possibly copies the actual arguments into the temporary variables to allow easier access
+  //
+  //  On function exit, the callee:
+  //
+  //  (1) pops the callee's activation record (temporay area) off the stack
+  //
+  //  (2) restores the callee-saved registers, including the activation record of the caller (%ebp)
+  //
+  //  (3) jumps to the return address (using the x86 "ret" instruction, this automatically pops the
+  //      return address off the stack
+  //
+  //////////////////////////////////////////////////////////////////////////////
+  //
+  // Since we are interfacing with code produced by GCC, we have to respect the
+  // calling convention that GCC demands:
+  //
+  // Contract between caller and callee on x86:
+  //    * after call instruction:
+  //           o %eip points at first instruction of function
+  //           o %esp+4 points at first argument
+  //           o %esp points at return address
+  //    * after ret instruction:
+  //           o %eip contains return address
+  //           o %esp points at arguments pushed by caller
+  //           o called function may have trashed arguments
+  //           o %eax contains return value (or trash if function is void)
+  //           o %ecx, %edx may be trashed
+  //           o %ebp, %ebx, %esi, %edi must contain contents from time of call
+  //    * Terminology:
+  //           o %eax, %ecx, %edx are "caller save" registers
+  //           o %ebp, %ebx, %esi, %edi are "callee save" registers
+  ////////////////////////////////////////////////////////////////////////////////
 
+  // generate assembly code for compare operator like
+  // ==, !=, >, >= ....
   void gen_compare( string op ) {
     string temp = op + " %%dl\n";
     fprintf( m_outputfile, "pop  %%ebx\n" );
@@ -142,6 +145,8 @@ class Codegen : public Visitor
     fprintf( m_outputfile, "pushl %%eax\n\n" );
   }
 
+  // generate assembly code for binary arithmetic operator like
+  // +, -, *, / .....
   void gen_binary( string op ) {
     string temp = op + " %%ebx, %%eax\n";
     fprintf( m_outputfile, "pop %%ebx\n" );
@@ -150,6 +155,8 @@ class Codegen : public Visitor
     fprintf( m_outputfile, "pushl %%eax\n\n" );
   }
 
+  // generate assembly code for literatures like
+  // char literature, int literature ...
   void gen_lit( int val ) {
     string temp = "pushl $"+std::to_string( val )+"\n";
     fprintf( m_outputfile,"%s", temp.c_str() );
@@ -157,13 +164,43 @@ class Codegen : public Visitor
 
   void emit_prologue(SymName *name, unsigned int size_locals, unsigned int num_args)
   {
+    // declare the function as global
+    string temp = ".global "+string(name->spelling())+"\n";
+    fprintf(m_outputfile, "%s", temp.c_str());
+    // start of defination
+    temp = string(name->spelling()) + ":\n";
+    fprintf(m_outputfile, "%s", temp.c_str());
+    // save the ebp and make it point to start of the temporary region
+    fprintf(m_outputfile, "pushl %%ebp\n");
+    fprintf(m_outputfile, "movl %%esp, %%ebp\n");
+    // create the space for all variable in this procedure
+    // esp point to the end of the procedure space
+    temp = "sub $" + std::to_string(size_locals) +", %esp\n\n";
+    fprintf(m_outputfile, "%s", temp.c_str());
   }
 
   void emit_epilogue()
   {
+    // resotre the callee save registers
+    fprintf(m_outputfile, "pop %%edi\n");
+    fprintf(m_outputfile, "pop %%esi\n");
+    fprintf(m_outputfile, "pop %%ebx\n");
+    // restore ebp and esp
+    fprintf(m_outputfile, "movl %%ebp, %%esp\n");
+    fprintf(m_outputfile, "pop %%ebp\n");
+    // end of procedure, retunr to caller if it exist
+    fprintf(m_outputfile, "ret\n\n");
   }
 
-  // WRITEME: more functions to emit code
+  void visit_stat_can_return( std::list<Stat_can_return_ptr> *stat_list ) {
+    nest_level++;
+    for( auto iter = stat_list->begin();
+         iter != stat_list->end();
+         ++iter ){
+      ( *iter )->accept( this );
+    }
+    nest_level--;
+  }
 
 public:
 
@@ -180,19 +217,19 @@ public:
   }
 
   void visitOut_enum_define( Out_enum_define *p ) {
-
+    p->visit_children(this);
   }
 
   void visitOut_decl( Out_decl *p ) {
-
+    p->visit_children(this);
   }
 
   void visitOut_procedure( Out_procedure *p ) {
-
+    p->visit_children(this);
   }
 
   void visitOut_struct_define( Out_struct_define *p ) {
-
+    p->visit_children(this);
   }
 
   void visitAssignPairImpl( AssignPairImpl *p ) {
@@ -232,11 +269,11 @@ public:
   }
 
   void visitPProcedure( PProcedure *p ) {
-
+    p->visit_children(this);
   }
 
   void visitPStat( PStat *p ) {
-
+    p->visit_children(this);
   }
 
   void visitInit_new( Init_new *p ) {
@@ -248,11 +285,11 @@ public:
   }
 
   void visitNStat( NStat *p ) {
-
+    p->visit_children(this);
   }
 
   void visitRStat( RStat *p ) {
-
+    p->visit_children(this);
   }
 
   void visitAssignment( Assignment *p ) {
@@ -268,15 +305,26 @@ public:
   }
 
   void visitSIncre( SIncre *p ) {
-
+    p->visit_children(this);
   }
 
   void visitFunction_call( Function_call *p ) {
 
   }
 
+  // Control flow
   void visitIf_no_else( If_no_else *p ) {
-
+    // check the if condition
+    p->m_expr->accept(this);
+    string labelNum = std::to_string(new_label());
+    fprintf(m_outputfile, "pop %%eax\n");
+    fprintf(m_outputfile, "cmp $0, %%eax\n");
+    string instruction = "je if_end" + labelNum+"\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    // output the statement in if block
+    visit_stat_can_return( p->m_stat_can_return_list );
+    instruction = "if_end" + labelNum+":\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
   }
 
   void visitIf_with_else( If_with_else *p ) {
