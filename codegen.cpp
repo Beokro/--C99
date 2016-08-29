@@ -210,7 +210,7 @@ public:
     m_st = st;
     label_count = 0;
   }
-  
+
   void visitProgramImpl( ProgramImpl *p ) {
     set_text_mode();
     p->visit_children(this);

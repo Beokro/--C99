@@ -12,6 +12,7 @@
 
 #include "ast.hpp"
 #include "attribute.hpp"
+#include <iostream>
 
 class Symbol;
 
@@ -65,7 +66,7 @@ public:
   // only for struct, enum and string
   char* m_type_name;
 
-  // These are valid only if they are procedures or struct
+  // These are valid only if they are procedures
   std::vector<Basetype> m_arg_type;
   Basetype m_return_type;
 
@@ -73,8 +74,11 @@ public:
   std::map< std::string, std::pair< Basetype, int > > m_map;
 
   // length of a array, first dimentation and second dimentation
+  // if baseType is bt_enum or bt_struct, length1 represent the
+  // size of struct or real value of the enum
   int m_length1;
   int m_length2;
+
 
   Symbol()
   {
@@ -85,32 +89,51 @@ public:
 
   int get_size()
   {
-    switch(m_basetype)
-      {
-      case bt_integer:
-        return(4);
-      case bt_boolean:
-        return(4);
-      case bt_char:
-        return(1);
-      case bt_procedure:
-        return(0);
-      case bt_string:
-        return(1);
-      case bt_ptr:
-        return(4);
-      case bt_charptr:
-        return(4);
-      case bt_intptr:
-        return(4);
-      case bt_undef:
-        // Fall through
-      default:
-        return(4);
-        //assert(0);
-
-        // WRITEME: add string size calc and assert size != 0
-      }
+    switch(m_basetype) {
+    case bt_integer:
+    case bt_const_int:
+    case bt_intptr:
+    case bt_boolean:
+    case bt_const_bool:
+    case bt_boolptr:
+    case bt_char:
+    case bt_const_char:
+    case bt_charptr:
+    case bt_short:
+    case bt_const_short:
+    case bt_shortptr:
+    case bt_long:
+    case bt_const_long:
+    case bt_longptr:
+      return 4;
+    case bt_int_array:
+    case bt_bool_array:
+    case bt_char_array:
+    case bt_short_array:
+    case bt_long_array:
+      return m_length1 * 4;
+    case bt_2d_int_array:
+    case bt_2d_bool_array:
+    case bt_2d_char_array:
+    case bt_2d_short_array:
+    case bt_2d_long_array:
+      return m_length1 * m_length2 * 4;
+    case bt_struct:
+      return m_length1;
+    case bt_enum:
+      return 4;
+    case bt_string:
+      return 4;
+    case bt_procedure:
+    case bt_struct_type:
+    case bt_enum_type:
+      return 0;
+    case bt_undef:
+      // Fall through
+    default:
+      std::cerr<<m_basetype<<std::endl;
+      assert(0);
+    }
   }
 
   // If either of these assert fails, you tried to get a variable that was

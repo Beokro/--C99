@@ -12,6 +12,7 @@ using namespace std;
 
 // ToDo: fix int * a, b. b is still a pointer problem
 // ToDO: make sure break, continue can only present in loop/switch
+// ToDo: make sure void and void * won't be type of a variable
 class Typecheck : public Visitor
 {
 private:
@@ -1070,6 +1071,8 @@ private:
   void addEnum_define( Enum_defineImpl * e ) {
     Symbol * s;
     char * name;
+    // the unsigned value that each enum represented
+    int real_value = 0;
     if ( e->m_primitive->m_data == 1 ) {
       //enum has a type name
       s = new Symbol();
@@ -1093,10 +1096,12 @@ private:
         s->m_type_name = new char[ 13 ];
         strcpy( s->m_type_name, "no_enum_name" );
       }
+      s->m_length1 = real_value;
       name = strdup( ( *iter )->spelling() );
       if( !m_st->insert( name, s) ) {
         this->t_error(dup_var_name, e->m_attribute);
       }
+      real_value++;
     }
 
   }
@@ -1210,6 +1215,7 @@ public:
       offset += 4;
     }
 
+    s->m_length1 = offset;
     name = strdup( p->m_symname->spelling() );
     if(!m_st->insert(name,s)){
       this->t_error(dup_var_name, p->m_attribute);
