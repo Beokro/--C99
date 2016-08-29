@@ -8,7 +8,7 @@
 #include "primitive.hpp"
 using namespace std;
 
-
+// Todo, remove ARRAY node, they will never be used anyway
 class Codegen : public Visitor
 {
 private:
@@ -315,28 +315,81 @@ public:
   // Control flow
   void visitIf_no_else( If_no_else *p ) {
     // check the if condition
-    p->m_expr->accept(this);
-    string labelNum = std::to_string(new_label());
-    fprintf(m_outputfile, "pop %%eax\n");
-    fprintf(m_outputfile, "cmp $0, %%eax\n");
+    p->m_expr->accept( this );
+    string labelNum = std::to_string( new_label() );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "cmp $0, %%eax\n" );
     string instruction = "je if_end" + labelNum+"\n\n";
-    fprintf(m_outputfile, "%s",instruction.c_str());
-    // output the statement in if block
+    fprintf( m_outputfile, "%s",instruction.c_str() );
+
+    // if contents
     visit_stat_can_return( p->m_stat_can_return_list );
     instruction = "if_end" + labelNum+":\n\n";
-    fprintf(m_outputfile, "%s",instruction.c_str());
+    fprintf( m_outputfile, "%s",instruction.c_str() );
   }
 
   void visitIf_with_else( If_with_else *p ) {
+    p->m_expr->accept(this);
+    string labelNum = std::to_string(new_label());
+    // check if condition
+    fprintf(m_outputfile, "pop %%eax\n");
+    fprintf(m_outputfile, "cmp $0, %%eax\n");
 
+    // if condition not met, go to else branch
+    string instruction = "je else" + labelNum+"\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+
+    // if contents
+    visit_stat_can_return( p->m_stat_can_return_list_1 );
+    instruction = "jmp if_else_end" + labelNum+"\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    instruction = "else" + labelNum+":\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+
+    // else contents
+    visit_stat_can_return( p->m_stat_can_return_list_2 );
+    instruction = "if_else_end" + labelNum+":\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
   }
 
   void visitWhile_loop( While_loop *p ) {
+    p->m_expr->accept( this );
+    string labelNum = std::to_string(new_label());
+    // check while condition
+    fprintf(m_outputfile, "pop %%eax\n");
+    fprintf(m_outputfile, "cmp $0, %%eax\n");
+    string instruction = "je loop_end" + labelNum+"\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
 
+    // while contents
+    instruction = "loop_start" + labelNum+":\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    visit_stat_can_return( p->m_stat_can_return_list );
+
+    // check while conditions agagin, if not false, go back
+    p->m_expr->accept(this);
+    fprintf(m_outputfile, "pop %%eax\n");
+    fprintf(m_outputfile, "cmp $0, %%eax\n");
+    instruction = "jne loop_start" + labelNum+"\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    instruction = "loop_end" + labelNum+":\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
   }
 
   void visitDo_while( Do_while *p ) {
+    string labelNum = std::to_string(new_label());
+    // while contents
+    string instruction = "loop_start" + labelNum+":\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    visit_stat_can_return( p->m_stat_can_return_list );
 
+    // check while conditions, if not false, go back
+    p->m_expr->accept(this);
+    fprintf(m_outputfile, "pop %%eax\n");
+    fprintf(m_outputfile, "cmp $0, %%eax\n");
+    instruction = "jne loop_start" + labelNum+"\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    fprintf(m_outputfile, "%s",instruction.c_str());
   }
 
   void visitFor_loop( For_loop *p ) {
@@ -348,11 +401,11 @@ public:
   }
 
   void visitBreak( Break *p ) {
-
+    // need to keep a record of breakLabel
   }
 
   void visitContinue( Continue *p ) {
-
+    // need to keep a record of continueLabel
   }
 
   void visitStat_struct_define( Stat_struct_define *p ) {
@@ -372,127 +425,127 @@ public:
   }
 
   void visitTInt( TInt *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTChar( TChar *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTBool( TBool *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTShort( TShort *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTVoid( TVoid *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTLong( TLong *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTStruct( TStruct *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTEnum( TEnum *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTCInt( TCInt *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTCChar( TCChar *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTCBool( TCBool *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTCShort( TCShort *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTCLong( TCLong *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTCharPtr( TCharPtr *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTIntPtr( TIntPtr *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTBoolPtr( TBoolPtr *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTShortPtr( TShortPtr *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTVoidPtr( TVoidPtr *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTLongPtr( TLongPtr *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTIntArray( TIntArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTCharArray( TCharArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTBoolArray( TBoolArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTShortArray( TShortArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTLongArray( TLongArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTTDIntArray( TTDIntArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTTDCharArray( TTDCharArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTTDBoolArray( TTDBoolArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTTDShortArray( TTDShortArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTTDLongArray( TTDLongArray *p ) {
-
+    p->visit_children(this);
   }
 
   void visitTString( TString *p ) {
-
+    p->visit_children(this);
   }
 
   void visitNo_type( No_type *p ) {
-
+    p->visit_children(this);
   }
 
   void visitListImpl( ListImpl *p ) {

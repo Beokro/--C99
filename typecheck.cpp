@@ -10,6 +10,8 @@ using namespace std;
 
 #include <typeinfo>
 
+// ToDo: fix int * a, b. b is still a pointer problem
+// ToDO: make sure break, continue can only present in loop/switch
 class Typecheck : public Visitor
 {
 private:
