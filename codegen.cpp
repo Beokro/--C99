@@ -218,7 +218,16 @@ public:
   }
 
   void visitProcedureImpl( ProcedureImpl *p ) {
-    // maybe I should accpet the procedure decalre inside??
+    // accpet the procedure define first so I can call them in this procedure
+    PProcedure * procedure = NULL;
+    for ( auto iter = p->m_pcontent_list->begin();
+          iter != p->m_pcontent_list->end();
+          iter++ ) {
+      procedure = dynamic_cast< PProcedure * >( *iter );
+      if ( procedure ) {
+        procedure->accept( this );
+      }
+    }
     // emit prologue so that I have the ebp and esp at right place
     emit_prologue( p->m_symname,m_st->scopesize(p->m_attribute.m_scope) );
 
@@ -247,7 +256,16 @@ public:
     fprintf( m_outputfile, "pushl %%edi\n" );
     fprintf( m_outputfile,"#Ending moving arg to local\n" );
 
-
+    // accept the regular statement except Procedure
+    for ( auto iter = p->m_pcontent_list->begin();
+          iter != p->m_pcontent_list->end();
+          iter++ ) {
+      if ( dynamic_cast< PProcedure * >( *iter ) == NULL ) {
+        ( *iter )->accept( this );
+      }
+    }
+    // accept the return statement
+    p->m_return_stat->accept( this );
   }
 
   void visitOut_enum_define( Out_enum_define *p ) {
