@@ -9,6 +9,7 @@
 using namespace std;
 
 // Todo, remove ARRAY node, they will never be used anyway
+// Todo, make char 1 byte instead of 4 byte
 class Codegen : public Visitor
 {
 private:
@@ -162,34 +163,34 @@ private:
     fprintf( m_outputfile,"%s", temp.c_str() );
   }
 
-  void emit_prologue(SymName *name, unsigned int size_locals, unsigned int num_args)
+  void emit_prologue( SymName *name, unsigned int size_locals )
   {
     // declare the function as global
-    string temp = ".global "+string(name->spelling())+"\n";
-    fprintf(m_outputfile, "%s", temp.c_str());
+    string temp = ".global "+string( name->spelling() )+"\n";
+    fprintf( m_outputfile, "%s", temp.c_str() );
     // start of defination
-    temp = string(name->spelling()) + ":\n";
-    fprintf(m_outputfile, "%s", temp.c_str());
+    temp = string( name->spelling() ) + ":\n";
+    fprintf( m_outputfile, "%s", temp.c_str() );
     // save the ebp and make it point to start of the temporary region
-    fprintf(m_outputfile, "pushl %%ebp\n");
-    fprintf(m_outputfile, "movl %%esp, %%ebp\n");
+    fprintf( m_outputfile, "pushl %%ebp\n" );
+    fprintf( m_outputfile, "movl %%esp, %%ebp\n" );
     // create the space for all variable in this procedure
-    // esp point to the end of the procedure space
-    temp = "sub $" + std::to_string(size_locals) +", %esp\n\n";
-    fprintf(m_outputfile, "%s", temp.c_str());
+    // esp point to the end of the local variable space
+    temp = "sub $" + std::to_string( size_locals ) +", %esp\n\n";
+    fprintf( m_outputfile, "%s", temp.c_str() );
   }
 
   void emit_epilogue()
   {
     // resotre the callee save registers
-    fprintf(m_outputfile, "pop %%edi\n");
-    fprintf(m_outputfile, "pop %%esi\n");
-    fprintf(m_outputfile, "pop %%ebx\n");
+    fprintf( m_outputfile, "pop %%edi\n" );
+    fprintf( m_outputfile, "pop %%esi\n" );
+    fprintf( m_outputfile, "pop %%ebx\n" );
     // restore ebp and esp
-    fprintf(m_outputfile, "movl %%ebp, %%esp\n");
-    fprintf(m_outputfile, "pop %%ebp\n");
+    fprintf( m_outputfile, "movl %%ebp, %%esp\n" );
+    fprintf( m_outputfile, "pop %%ebp\n" );
     // end of procedure, retunr to caller if it exist
-    fprintf(m_outputfile, "ret\n\n");
+    fprintf( m_outputfile, "ret\n\n" );
   }
 
   void visit_stat_can_return( std::list<Stat_can_return_ptr> *stat_list ) {
@@ -214,6 +215,39 @@ public:
   void visitProgramImpl( ProgramImpl *p ) {
     set_text_mode();
     p->visit_children(this);
+  }
+
+  void visitProcedureImpl( ProcedureImpl *p ) {
+    // maybe I should accpet the procedure decalre inside??
+    // emit prologue so that I have the ebp and esp at right place
+    emit_prologue( p->m_symname,m_st->scopesize(p->m_attribute.m_scope) );
+
+    // start to move arg to local
+    // 0( $ebp ) is the old ebp, 4( $ebp ) is return address
+    // the first argument is in 8( $ebp )
+    int current = 8;
+    int argu_offset = 0;
+    string instruction1 = "";
+    string instruction2 = "";
+    fprintf( m_outputfile,"\n#Starting moving arg to local\n" );
+    for( int i = 0; i < p->m_decl_list->size(); i++ ){
+      // move the arg to ecx
+      instruction1 = "movl "+std::to_string( current )+"(%ebp), %ecx\n";
+      argu_offset = current-4;
+      // move the arg to the local address space
+      instruction2 = "movl %ecx, -"+std::to_string(argu_offset) + "(%ebp)\n";
+      fprintf(m_outputfile, "%s", instruction1.c_str());
+      fprintf(m_outputfile, "%s", instruction2.c_str());
+      // increment the current offset 
+      current+=4;
+    }
+    // save the callee save register
+    fprintf( m_outputfile, "pushl %%ebx\n" );
+    fprintf( m_outputfile, "pushl %%esi\n" );
+    fprintf( m_outputfile, "pushl %%edi\n" );
+    fprintf( m_outputfile,"#Ending moving arg to local\n" );
+
+
   }
 
   void visitOut_enum_define( Out_enum_define *p ) {
@@ -245,14 +279,10 @@ public:
   }
 
   void visitDecl_function( Decl_function *p ) {
-
+    // doesn't reallt matter since it won't be used anyway
   }
 
   void visitShort_declImpl( Short_declImpl *p ) {
-
-  }
-
-  void visitProcedureImpl( ProcedureImpl *p ) {
 
   }
 
