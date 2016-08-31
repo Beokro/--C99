@@ -9,7 +9,7 @@
 using namespace std;
 
 // Todo, remove ARRAY node, they will never be used anyway
-// Todo, make char 1 byte instead of 4 byte
+// Todo, Add string support, now the size can't be determine
 class Codegen : public Visitor
 {
 private:
@@ -163,6 +163,20 @@ private:
     fprintf( m_outputfile,"%s", temp.c_str() );
   }
 
+  // helper to get to the same lexical distance
+  void get_same_level( int lexical_distance ) {
+    if(lexical_distance!=0){
+      string temp = "#lexical_distance is "+std::to_string(lexical_distance)+"\n";
+      fprintf(m_outputfile, "%s",temp.c_str());
+    }
+    fprintf(m_outputfile, "movl %%ebp, %%ecx\n");
+    lexical_distance-=nest_level;
+    for(int i =0; i<lexical_distance; i++){
+      // keep going back until we at the same lexical level as the variabl
+      fprintf(m_outputfile, "movl 0(%%ecx), %%ecx\n");
+    }
+  }
+
   void emit_prologue( SymName *name, unsigned int size_locals )
   {
     // declare the function as global
@@ -201,6 +215,28 @@ private:
       ( *iter )->accept( this );
     }
     nest_level--;
+  }
+
+  void assignment_helper( Lhs * lhs, Expr * expr, SymScope * scope ) {
+    // Lhs:Variable
+    Variable * v = dynamic_cast< Variable * >( lhs );
+    if ( v != NULL ) {
+      // push the value we want to assign to stack and move it to %eax
+      expr->accept( this );
+      fprintf( m_outputfile, "pop %%eax\n" );
+      Symbol * s = m_st->lookup( scope, v->m_symname->spelling() );
+      int off_set = s->get_offset() + 4;
+      int lexical_distance = m_st->lexical_distance( s->get_scope(), scope );
+      get_same_level( lexical_distance );
+      string instruction = "movl %eax, -" + std::to_string( off_set ) + "(%ecx)\n\n";
+      fprintf( m_outputfile, "%s",instruction.c_str() );
+      return;
+    }
+    // Lhs:DerefVariable
+    // Lhs:ArrayElement
+    // Lhs:ArrayDoubleElement
+    // Lhs:ArrowElement ==>
+    // Lhs:DotElement ==>
   }
 
 public:
@@ -601,10 +637,13 @@ public:
   }
 
   void visitIncre_op( Incre_op *p ) {
-
+    p->visit_children(this);
   }
 
   void visitIncre_t_add( Incre_t_add *p ) {
+    // since I do not support a = b++
+    // I will make no return value for incre
+    // a++ is same as a += 1
 
   }
 
@@ -863,8 +902,31 @@ public:
 
   }
 
+  // should push up the address of the array element
   void visitArrayElement( ArrayElement *p ) {
-
+    // 2 cases, array or string
+    p->visit_children( this );
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    Basetype type = s->m_basetype;
+    int offset = s->get_offset();
+    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    get_same_level( lexical_distance );
+    fprintf(m_outputfile, "pop %%eax\n");
+    // if it is a array
+    if ( type == bt_int_array || type == bt_bool_array || type == bt_long_array ||
+         type ==  bt_short_array ) {
+      // the end of their address is offset + 4 * size of array
+      offset += 4 * s->m_length1;
+      // index * 4 is the true offset
+      fprintf(m_outputfile, "imul $4, %%eax\n");
+    } else if ( type == bt_char_array ) {
+      offset += s->m_length1;
+      // since size of char is 1, no need to modify the index
+    } // todo, add the string case
+    fprintf( m_outputfile, "addl %%eax, %%ecx\n" );
+    string temp = "lea -" + std::to_string( offset )+ "(%ecx), %eax\n";
+    fprintf( m_outputfile, "%s",temp.c_str() );
+    fprintf( m_outputfile, "pushl %%eax\n" );
   }
 
   void visitArrayDoubleElement( ArrayDoubleElement *p ) {
