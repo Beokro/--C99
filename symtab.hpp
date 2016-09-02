@@ -89,7 +89,7 @@ public:
 
   int get_size()
   {
-    switch(m_basetype) {
+    switch( m_basetype ) {
     case bt_integer:
     case bt_const_int:
     case bt_intptr:

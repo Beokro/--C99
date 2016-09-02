@@ -644,7 +644,6 @@ public:
     // since I do not support a = b++
     // I will make no return value for incre
     // a++ is same as a += 1
-
   }
 
   void visitIncre_t_min( Incre_t_min *p ) {
@@ -930,11 +929,40 @@ public:
   }
 
   void visitArrayDoubleElement( ArrayDoubleElement *p ) {
-
+    p->visit_children( this );
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    Basetype type = s->m_basetype;
+    int offset = s->get_offset();
+    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    string instruction = "";
+    get_same_level( lexical_distance );
+    // array[ a ][ b ], ( a * m_length2 + b ) * sizeof( array[ 0 ][ 0 ] )
+    fprintf( m_outputfile, "pop %%ebx\n" ); // %ebx = index b
+    fprintf( m_outputfile, "pop %%eax\n" ); // %eax = index a
+    // if it is a array
+    if ( type == bt_2d_int_array || type == bt_2d_bool_array ||
+         type == bt_2d_long_array || type == bt_2d_short_array ) {
+      // the end of their address is offset + 4 * size of array
+      offset += 4 * s->m_length1 * s->m_length2;
+      // indexa * 4 * m_length2 + indexb * 4 is the true offset
+      fprintf( m_outputfile, "imul $4, %%eax\n" );
+      fprintf( m_outputfile, "imul $4, %%ebx\n" );
+    } else if ( type == bt_2d_char_array ) {
+      offset += s->m_length1 * s->m_length2;
+      // since size of char is 1,
+      // indexa * m_length2 + indexb is the true offset
+    }
+    instruction = "imul " + std::to_string( s->m_length2 ) + ", %%eax\n";
+    fprintf( m_outputfile, "%s",instruction.c_str() );
+    fprintf( m_outputfile, "addl %%eax, %%ecx\n" );
+    fprintf( m_outputfile, "addl %%ebx, %%ecx\n" );
+    string temp = "lea -" + std::to_string( offset )+ "(%ecx), %eax\n";
+    fprintf( m_outputfile, "%s",temp.c_str() );
+    fprintf( m_outputfile, "pushl %%eax\n" );
   }
 
   void visitArrowElement( ArrowElement *p ) {
-
+    // won't be use anyway
   }
 
   void visitDotElement( DotElement *p ) {
