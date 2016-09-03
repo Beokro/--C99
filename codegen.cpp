@@ -10,6 +10,7 @@ using namespace std;
 
 // Todo, remove ARRAY node, they will never be used anyway
 // Todo, Add string support, now the size can't be determine
+// Todo, Handle the return array name which is a address case
 class Codegen : public Visitor
 {
 private:
@@ -826,7 +827,12 @@ public:
   }
 
   void visitIdent( Ident *p ) {
-
+    Symbol * s = m_st->lookup(p->m_attribute.m_scope, p->m_symname->spelling());
+    int off_set = s->get_offset()+4;
+    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    get_same_level( lexical_distance );
+    string temp = "pushl -"+std::to_string(off_set)+"(%ecx)\n";
+    fprintf(m_outputfile, "%s",temp.c_str());
   }
 
   void visitArrayAccess( ArrayAccess *p ) {
@@ -869,8 +875,15 @@ public:
     gen_lit( 0 );
   }
 
+  // push up the address of variable it points to
   void visitDeref( Deref *p ) {
-
+    // ... = *a
+    // expect visit child will push up the value of a
+    p->visit_children( this );
+    fprintf( m_outputfile, "pop %%eax");
+    // do a access get the value of *a, push it to the stack
+    fprintf( m_outputfile, "pushl 0(%%eax)");
+    string instruction = "";
   }
 
   void visitAddressOf( AddressOf *p ) {
@@ -894,10 +907,20 @@ public:
   }
 
   void visitVariable( Variable *p ) {
-
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    int off_set = s->get_offset() + 4;
+    int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
+    get_same_level( lexical_distance );
+    // get the right address by adding offset to current base (%ecx)
+    string instruction = "addll -" + std::to_string( off_set ) + "(%ecx)\n\n";
+    fprintf( m_outputfile, "%s",instruction.c_str() );
+    // push the address of this variable
+    fprintf( m_outputfile, "pushl %%ecx");
+    return;
   }
 
   void visitDerefVariable( DerefVariable *p ) {
+    // *a = ...
 
   }
 
