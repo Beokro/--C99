@@ -11,7 +11,7 @@ ASTBUILDER = astbuilder.gawk
 TARGET     = c99--
 
 OBJS += lexer.o parser.o main.o ast.o primitive.o  ast2dot.o symtab.o typecheck.o codegen.o
-RMFILES = core.* *.dot *.pdf temp.txt lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp gen $(TARGET) $(OBJS)
+RMFILES = core.* *.dot *.pdf temp.txt lexer.cpp parser.cpp parser.hpp parser.output ast.hpp ast.cpp gen start output.s $(TARGET) $(OBJS)
 
 
 # dependencies
@@ -56,7 +56,7 @@ clean:
 OUTPUT = "output"
 TESTNAME = "test1"
 exec: .PHONY
-	cat ./tests/$(TESTNAME).csimple | ./csimple > $(OUTPUT).s
+	cat ./codeGenTest/$(TESTNAME).c | ./c99-- > $(OUTPUT).s
 	gcc -c -m32 -o $(OUTPUT).o $(OUTPUT).s
 	gcc -c -m32 -o start.o start.c
 	gcc -m32 -o start start.o $(OUTPUT).o

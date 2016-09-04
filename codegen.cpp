@@ -8,6 +8,8 @@
 #include "primitive.hpp"
 using namespace std;
 
+#define DEBUG 1
+
 // Todo, remove ARRAY node, they will never be used anyway
 // Todo, Add string support, now the size can't be determine
 // Todo, Handle the return array name which is a address case
@@ -150,7 +152,7 @@ private:
   // generate assembly code for binary arithmetic operator like
   // +, -, *, / .....
   void gen_binary( string op ) {
-    string temp = op + " %%ebx, %%eax\n";
+    string temp = op + " %ebx, %eax\n";
     fprintf( m_outputfile, "pop %%ebx\n" );
     fprintf( m_outputfile, "pop %%eax\n" );
     fprintf( m_outputfile, "%s", temp.c_str() );
@@ -181,10 +183,10 @@ private:
   void emit_prologue( SymName *name, unsigned int size_locals )
   {
     // declare the function as global
-    string temp = ".global "+string( name->spelling() )+"\n";
+    string temp = ".global assem_"+string( name->spelling() )+"\n";
     fprintf( m_outputfile, "%s", temp.c_str() );
     // start of defination
-    temp = string( name->spelling() ) + ":\n";
+    temp = "assem_" + string( name->spelling() ) + ":\n";
     fprintf( m_outputfile, "%s", temp.c_str() );
     // save the ebp and make it point to start of the temporary region
     fprintf( m_outputfile, "pushl %%ebp\n" );
@@ -218,7 +220,7 @@ private:
     nest_level--;
   }
 
-  void assignment_helper( Lhs * lhs, Expr * expr, SymScope * scope ) {
+  void assignment_helper( Lhs * lhs, Expr * expr ) {
     Basetype lhs_type = lhs->m_attribute.m_basetype;
     string instruction = "";
     // accpet the lhs and expr so that address of lhs and value
@@ -232,7 +234,7 @@ private:
     if ( expr->m_attribute.m_basetype != bt_char &&
          expr->m_attribute.m_basetype != bt_const_char ) {
       // size of the expr will be 4, just do a movl
-      fprintf( m_outputfile, "movl %%ebx, 0(%%eax))\n" );
+      fprintf( m_outputfile, "movl %%ebx, 0(%%eax)\n" );
     } else {
       // size of the expr is 1, now there are 2 cases
       // if it is a char array or string, we need to use the movb
@@ -298,7 +300,7 @@ public:
     fprintf( m_outputfile, "pushl %%ebx\n" );
     fprintf( m_outputfile, "pushl %%esi\n" );
     fprintf( m_outputfile, "pushl %%edi\n" );
-    fprintf( m_outputfile,"#Ending moving arg to local\n" );
+    fprintf( m_outputfile,"#Ending moving arg to local\n\n" );
 
     // accept the regular statement except Procedure
     for ( auto iter = p->m_pcontent_list->begin();
@@ -310,6 +312,7 @@ public:
     }
     // accept the return statement
     p->m_return_stat->accept( this );
+    emit_epilogue();
   }
 
   void visitOut_enum_define( Out_enum_define *p ) {
@@ -365,7 +368,7 @@ public:
   }
 
   void visitPStat( PStat *p ) {
-    p->visit_children(this);
+    p->m_stat->accept( this );
   }
 
   void visitInit_new( Init_new *p ) {
@@ -385,7 +388,7 @@ public:
   }
 
   void visitAssignment( Assignment *p ) {
-
+    assignment_helper( p->m_lhs, p->m_expr );
   }
 
   void visitString_assignment( String_assignment *p ) {
@@ -513,7 +516,19 @@ public:
   }
 
   void visitReturn_statImpl( Return_statImpl *p ) {
-
+#ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start return\n" );
+#endif
+    p->visit_children(this);
+    if( p->m_expr->m_attribute.m_basetype != bt_char &&
+        p->m_expr->m_attribute.m_basetype != bt_const_char )
+      fprintf( m_outputfile, "pop %%eax\n\n" );
+    else{
+      //lowest byte is the char
+      fprintf( m_outputfile, "pop %%eax\n" );
+      fprintf( m_outputfile, "movl $0xff,%%ebx\n" );
+      fprintf( m_outputfile, "and %%ebx, %%eax\n\n" );
+    }
   }
 
   void visitTInt( TInt *p ) {
@@ -932,12 +947,18 @@ public:
     int off_set = s->get_offset() + 4;
     int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
     string instruction = "";
+#ifdef DEBUG
+    fprintf( m_outputfile, "#start visit variable\n");
+#endif
     get_same_level( lexical_distance );
     // get the right address by adding offset to current base (%ecx)
-    instruction = "addll -" + std::to_string( off_set ) + "(%ecx)\n\n";
+    instruction = "addl $-" + std::to_string( off_set ) + ", %ecx\n";
     fprintf( m_outputfile, "%s",instruction.c_str() );
     // push the address of this variable
-    fprintf( m_outputfile, "pushl %%ecx");
+    fprintf( m_outputfile, "pushl %%ecx\n");
+#ifdef DEBUG
+    fprintf( m_outputfile, "#end visit variable\n");
+#endif
     return;
   }
 
