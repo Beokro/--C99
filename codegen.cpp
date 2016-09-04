@@ -219,25 +219,32 @@ private:
   }
 
   void assignment_helper( Lhs * lhs, Expr * expr, SymScope * scope ) {
-    // Lhs:Variable
-    Variable * v = dynamic_cast< Variable * >( lhs );
-    if ( v != NULL ) {
-      // push the value we want to assign to stack and move it to %eax
-      expr->accept( this );
-      fprintf( m_outputfile, "pop %%eax\n" );
-      Symbol * s = m_st->lookup( scope, v->m_symname->spelling() );
-      int off_set = s->get_offset() + 4;
-      int lexical_distance = m_st->lexical_distance( s->get_scope(), scope );
-      get_same_level( lexical_distance );
-      string instruction = "movl %eax, -" + std::to_string( off_set ) + "(%ecx)\n\n";
-      fprintf( m_outputfile, "%s",instruction.c_str() );
-      return;
+    Basetype lhs_type = lhs->m_attribute.m_basetype;
+    string instruction = "";
+    // accpet the lhs and expr so that address of lhs and value
+    // of expr will be push to the stack
+    lhs->accept( this );
+    expr->accept( this );
+    // value of expr in %ebx, address of lhs in %eax
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    // check if the type of expr to know the size of expr
+    if ( expr->m_attribute.m_basetype != bt_char &&
+         expr->m_attribute.m_basetype != bt_const_char ) {
+      // size of the expr will be 4, just do a movl
+      fprintf( m_outputfile, "movl %%ebx, 0(%%eax))\n" );
+    } else {
+      // size of the expr is 1, now there are 2 cases
+      // if it is a char array or string, we need to use the movb
+      // otherwise, movl is fine since we reserve 4 byte for char
+      // and const char variable
+      if ( lhs_type != bt_char_array && lhs_type != bt_2d_char_array &&
+           lhs_type != bt_string ) {
+        fprintf( m_outputfile, "movb %%bl, 0(%%eax))\n" );
+      } else {
+        fprintf( m_outputfile, "movl %%ebx, 0(%%eax))\n" );
+      }
     }
-    // Lhs:DerefVariable
-    // Lhs:ArrayElement
-    // Lhs:ArrayDoubleElement
-    // Lhs:ArrowElement ==>
-    // Lhs:DotElement ==>
   }
 
 public:
@@ -844,7 +851,21 @@ public:
   }
 
   void visitDotAccess( DotAccess *p ) {
-
+    // ... = a.b
+    p->visit_children( this );
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    string instruction = "";
+    Symbol * s_struct = m_st->lookup( p->m_lhs->m_attribute.m_struct_name );
+    auto it = s_struct->m_map.find( string( p->m_symname->spelling() ) );
+    // get the relative offset of a element in this struct
+    int offset = it->second.second * 4;
+    get_same_level( lexical_distance );
+    // address of a will be save in %eax
+    fprintf( m_outputfile, "pop %%eax\n" );
+    // use the offset( for b ) and address of a to push the value of a.b
+    instruction = "pushl " + std::to_string( offset ) + "(%%eax)\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
   }
 
   void visitArrowAccess( ArrowAccess *p ) {
@@ -910,9 +931,10 @@ public:
     Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
     int off_set = s->get_offset() + 4;
     int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
+    string instruction = "";
     get_same_level( lexical_distance );
     // get the right address by adding offset to current base (%ecx)
-    string instruction = "addll -" + std::to_string( off_set ) + "(%ecx)\n\n";
+    instruction = "addll -" + std::to_string( off_set ) + "(%ecx)\n\n";
     fprintf( m_outputfile, "%s",instruction.c_str() );
     // push the address of this variable
     fprintf( m_outputfile, "pushl %%ecx");
@@ -921,7 +943,15 @@ public:
 
   void visitDerefVariable( DerefVariable *p ) {
     // *a = ...
-
+    // use the symname to get the symbol
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    int off_set = s->get_offset()+4;
+    int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
+    string instruction = "";
+    get_same_level( lexical_distance );
+    // push up the value of a, or address of *a
+    instruction = "pushl -" + std::to_string( off_set )+ "(%ecx)\n";
+    fprintf( m_outputfile, "%s",instruction.c_str() );
   }
 
   // should push up the address of the array element
@@ -932,6 +962,7 @@ public:
     Basetype type = s->m_basetype;
     int offset = s->get_offset();
     int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    string instruction = "";
     get_same_level( lexical_distance );
     fprintf(m_outputfile, "pop %%eax\n");
     // if it is a array
@@ -946,8 +977,8 @@ public:
       // since size of char is 1, no need to modify the index
     } // todo, add the string case
     fprintf( m_outputfile, "addl %%eax, %%ecx\n" );
-    string temp = "lea -" + std::to_string( offset )+ "(%ecx), %eax\n";
-    fprintf( m_outputfile, "%s",temp.c_str() );
+    instruction = "lea -" + std::to_string( offset )+ "(%ecx), %eax\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
     fprintf( m_outputfile, "pushl %%eax\n" );
   }
 
@@ -989,7 +1020,24 @@ public:
   }
 
   void visitDotElement( DotElement *p ) {
-
+    // a.b = ...
+    p->visit_children( this );
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    string instruction = "";
+    Symbol * s_struct = m_st->lookup( p->m_lhs->m_attribute.m_struct_name );
+    auto it = s_struct->m_map.find( string( p->m_symname->spelling() ) );
+    // get the relative offset of a element in this struct
+    int offset = it->second.second * 4;
+    get_same_level( lexical_distance );
+    // address of a will be save in %eax
+    fprintf( m_outputfile, "pop %%eax\n" );
+    // add the offset( for b ) to the address of a to get the
+    // address of a.b
+    instruction = "addl $" + std::to_string( offset ) + ", %%eax\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
+    // push the address of a.b to stack
+    fprintf( m_outputfile, "pushl %%eax\n" );
   }
 
   // Special cases
