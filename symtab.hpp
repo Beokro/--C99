@@ -108,16 +108,18 @@ public:
       return 4;
     case bt_int_array:
     case bt_bool_array:
-    case bt_char_array:
     case bt_short_array:
     case bt_long_array:
       return m_length1 * 4;
+    case bt_char_array:
+      return m_length1;
     case bt_2d_int_array:
     case bt_2d_bool_array:
-    case bt_2d_char_array:
     case bt_2d_short_array:
     case bt_2d_long_array:
       return m_length1 * m_length2 * 4;
+    case bt_2d_char_array:
+      return m_length1 * m_length2;
     case bt_struct:
       return m_length1;
     case bt_enum:

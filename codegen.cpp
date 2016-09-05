@@ -140,7 +140,7 @@ private:
 
   bool is_array_type( Basetype type ) {
     return ( type == bt_int_array || type == bt_char_array || type == bt_bool_array ||
-             type == bt_long_array || type == bt_short_array || is_2d_array_type( type ) );
+             type == bt_long_array || type == bt_short_array );
   }
 
   bool is_2d_array_type( Basetype type ) {
@@ -257,9 +257,9 @@ private:
       // and const char variable
       if ( lhs_type != bt_char_array && lhs_type != bt_2d_char_array &&
            lhs_type != bt_string ) {
-        fprintf( m_outputfile, "movb %%bl, 0(%%eax))\n" );
+        fprintf( m_outputfile, "movb %%bl, 0(%%eax)\n" );
       } else {
-        fprintf( m_outputfile, "movl %%ebx, 0(%%eax))\n" );
+        fprintf( m_outputfile, "movl %%ebx, 0(%%eax)\n" );
       }
     }
     #ifdef DEBUG
@@ -355,7 +355,7 @@ public:
     // offset + relative_offset = real_offset from %ebp
     int offset = s->get_offset();
     int relative_offset = 0;
-    int current_offset = 4;
+    int current_offset;
     int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
     string instruction = "";
     if ( p->m_expr->m_attribute.m_basetype == bt_empty ) {
@@ -394,10 +394,20 @@ public:
       #ifdef DEBUG
       fprintf( m_outputfile, "\n#Start to move list to 1d array\n" );
       #endif
-      for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
-        fprintf( m_outputfile, "pop %%eax\n" );
-        instruction = "movl %eax, -" + std::to_string( current_offset ) +"(%ecx)\n";
-        fprintf( m_outputfile, "%s",instruction.c_str() );
+      if ( type != bt_char_array ) {
+        current_offset = 4;
+        for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
+          fprintf( m_outputfile, "pop %%eax\n" );
+          instruction = "movl %eax, -" + std::to_string( current_offset ) +"(%ecx)\n";
+          fprintf( m_outputfile, "%s",instruction.c_str() );
+        }
+      } else {
+        current_offset = 1;
+        for( current_offset; current_offset <= relative_offset; current_offset += 1 ) {
+          fprintf( m_outputfile, "pop %%eax\n" );
+          instruction = "movb %al, -" + std::to_string( current_offset ) +"(%ecx)\n";
+          fprintf( m_outputfile, "%s",instruction.c_str() );
+        }
       }
       #ifdef DEBUG
       fprintf( m_outputfile, "\n#End move list to array\n" );
@@ -435,10 +445,20 @@ public:
       #ifdef DEBUG
       fprintf( m_outputfile, "\n#Start to move list to 2d array\n" );
       #endif
-      for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
-        fprintf( m_outputfile, "pop %%eax\n" );
-        instruction = "movl %eax, $-" + std::to_string( current_offset ) +"(%ecx)\n";
-        fprintf( m_outputfile, "%s",instruction.c_str() );
+      if ( type != bt_2d_char_array ) {
+        current_offset = 4;
+        for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
+          fprintf( m_outputfile, "pop %%eax\n" );
+          instruction = "movl %eax, -" + std::to_string( current_offset ) +"(%ecx)\n";
+          fprintf( m_outputfile, "%s",instruction.c_str() );
+        }
+      } else {
+        current_offset = 1;
+        for( current_offset; current_offset <= relative_offset; current_offset += 1 ) {
+          fprintf( m_outputfile, "pop %%eax\n" );
+          instruction = "movb %al, -" + std::to_string( current_offset ) +"(%ecx)\n";
+          fprintf( m_outputfile, "%s",instruction.c_str() );
+        }
       }
       #ifdef DEBUG
       fprintf( m_outputfile, "\n#End move list to 2d array\n" );
@@ -1030,7 +1050,35 @@ public:
   }
 
   void visitArrayDoubleAccess( ArrayDoubleAccess *p ) {
-
+    p->visit_children( this );
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    Basetype type = s->m_basetype;
+    int offset = s->get_offset();
+    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    string instruction = "";
+    get_same_level( lexical_distance );
+    // array[ a ][ b ], ( a * m_length2 + b ) * sizeof( array[ 0 ][ 0 ] )
+    fprintf( m_outputfile, "pop %%ebx\n" ); // %ebx = index b
+    fprintf( m_outputfile, "pop %%eax\n" ); // %eax = index a
+    // if it is a array
+    if ( type == bt_2d_int_array || type == bt_2d_bool_array ||
+         type == bt_2d_long_array || type == bt_2d_short_array ) {
+      // the end of their address is offset + 4 * size of array
+      offset += 4 * s->m_length1 * s->m_length2;
+      // indexa * 4 * m_length2 + indexb * 4 is the true offset
+      fprintf( m_outputfile, "imul $4, %%eax\n" );
+      fprintf( m_outputfile, "imul $4, %%ebx\n" );
+    } else if ( type == bt_2d_char_array ) {
+      offset += s->m_length1 * s->m_length2;
+      // since size of char is 1,
+      // indexa * m_length2 + indexb is the true offset
+    }
+    instruction = "imul $" + std::to_string( s->m_length2 ) + ", %eax\n";
+    fprintf( m_outputfile, "%s",instruction.c_str() );
+    fprintf( m_outputfile, "addl %%eax, %%ecx\n" );
+    fprintf( m_outputfile, "addl %%ebx, %%ecx\n" );
+    instruction = "push -" + std::to_string( offset )+ "(%ecx)\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
   }
 
   void visitDotAccess( DotAccess *p ) {
@@ -1199,12 +1247,12 @@ public:
       // since size of char is 1,
       // indexa * m_length2 + indexb is the true offset
     }
-    instruction = "imul " + std::to_string( s->m_length2 ) + ", %%eax\n";
+    instruction = "imul $" + std::to_string( s->m_length2 ) + ", %eax\n";
     fprintf( m_outputfile, "%s",instruction.c_str() );
     fprintf( m_outputfile, "addl %%eax, %%ecx\n" );
     fprintf( m_outputfile, "addl %%ebx, %%ecx\n" );
-    string temp = "lea -" + std::to_string( offset )+ "(%ecx), %eax\n";
-    fprintf( m_outputfile, "%s",temp.c_str() );
+    instruction = "lea -" + std::to_string( offset )+ "(%ecx), %eax\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
     fprintf( m_outputfile, "pushl %%eax\n" );
   }
 

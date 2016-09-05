@@ -1,3 +1,4 @@
+// expect output is 3
 int main() {
   int a[ 2 ] = { 3, 1 };
   int b = a[ 0 ];
