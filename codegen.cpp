@@ -239,6 +239,9 @@ private:
     // of expr will be push to the stack
     lhs->accept( this );
     expr->accept( this );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start to assign\n" );
+    #endif
     // value of expr in %ebx, address of lhs in %eax
     fprintf( m_outputfile, "pop %%ebx\n" );
     fprintf( m_outputfile, "pop %%eax\n" );
@@ -259,6 +262,9 @@ private:
         fprintf( m_outputfile, "movl %%ebx, 0(%%eax))\n" );
       }
     }
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#End assign\n" );
+    #endif
   }
 
 public:
@@ -385,17 +391,17 @@ public:
         we are going to pop 6 time to get all the expr, first pop
         will give us 5 because they are push to array in order
       */
-#ifdef DEBUG
+      #ifdef DEBUG
       fprintf( m_outputfile, "\n#Start to move list to 1d array\n" );
-#endif
+      #endif
       for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
         fprintf( m_outputfile, "pop %%eax\n" );
         instruction = "movl %eax, -" + std::to_string( current_offset ) +"(%ecx)\n";
         fprintf( m_outputfile, "%s",instruction.c_str() );
       }
-#ifdef DEBUG
+      #ifdef DEBUG
       fprintf( m_outputfile, "\n#End move list to array\n" );
-#endif
+      #endif
       return;
     } else if ( is_2d_array_type( type ) ) {
       // accept the expr so that value of list will be push to the stack
@@ -426,17 +432,17 @@ public:
         we are going to pop 6 time to get all the expr, first pop
         will give us 5 because they are push to array in order
       */
-#ifdef DEBUG
+      #ifdef DEBUG
       fprintf( m_outputfile, "\n#Start to move list to 2d array\n" );
-#endif
+      #endif
       for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
         fprintf( m_outputfile, "pop %%eax\n" );
         instruction = "movl %eax, $-" + std::to_string( current_offset ) +"(%ecx)\n";
         fprintf( m_outputfile, "%s",instruction.c_str() );
       }
-#ifdef DEBUG
+      #ifdef DEBUG
       fprintf( m_outputfile, "\n#End move list to 2d array\n" );
-#endif
+      #endif
       return;
     } else {
       // variable is non-array, use the assignment_helper
@@ -525,6 +531,9 @@ public:
   void visitIf_no_else( If_no_else *p ) {
     // check the if condition
     p->m_expr->accept( this );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start If no else\n" );
+    #endif
     string labelNum = std::to_string( new_label() );
     fprintf( m_outputfile, "pop %%eax\n" );
     fprintf( m_outputfile, "cmp $0, %%eax\n" );
@@ -535,10 +544,16 @@ public:
     visit_stat_can_return( p->m_stat_can_return_list );
     instruction = "if_end" + labelNum+":\n\n";
     fprintf( m_outputfile, "%s",instruction.c_str() );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End If no else\n" );
+    #endif
   }
 
   void visitIf_with_else( If_with_else *p ) {
     p->m_expr->accept(this);
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start If with else\n" );
+    #endif
     string labelNum = std::to_string(new_label());
     // check if condition
     fprintf(m_outputfile, "pop %%eax\n");
@@ -559,10 +574,16 @@ public:
     visit_stat_can_return( p->m_stat_can_return_list_2 );
     instruction = "if_else_end" + labelNum+":\n\n";
     fprintf(m_outputfile, "%s",instruction.c_str());
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End if with else\n" );
+    #endif
   }
 
   void visitWhile_loop( While_loop *p ) {
     p->m_expr->accept( this );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start While Loop\n" );
+    #endif
     string labelNum = std::to_string(new_label());
     // check while condition
     fprintf(m_outputfile, "pop %%eax\n");
@@ -583,11 +604,17 @@ public:
     fprintf(m_outputfile, "%s",instruction.c_str());
     instruction = "loop_end" + labelNum+":\n\n";
     fprintf(m_outputfile, "%s",instruction.c_str());
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End while loop\n" );
+    #endif
   }
 
   void visitDo_while( Do_while *p ) {
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start do while\n" );
+    #endif
     string labelNum = std::to_string(new_label());
-    // while contents
+    // while content
     string instruction = "loop_start" + labelNum+":\n\n";
     fprintf(m_outputfile, "%s",instruction.c_str());
     visit_stat_can_return( p->m_stat_can_return_list );
@@ -599,6 +626,9 @@ public:
     instruction = "jne loop_start" + labelNum+"\n\n";
     fprintf(m_outputfile, "%s",instruction.c_str());
     fprintf(m_outputfile, "%s",instruction.c_str());
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End do while\n" );
+    #endif
   }
 
   void visitFor_loop( For_loop *p ) {
@@ -1049,15 +1079,19 @@ public:
     gen_lit( 0 );
   }
 
-  // push up the address of variable it points to
   void visitDeref( Deref *p ) {
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start Deref rhs\n" );
+    #endif
     // ... = *a
     // expect visit child will push up the value of a
     p->visit_children( this );
     fprintf( m_outputfile, "pop %%eax");
     // do a access get the value of *a, push it to the stack
     fprintf( m_outputfile, "pushl 0(%%eax)");
-    string instruction = "";
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End Deref rhs\n" );
+    #endif
   }
 
   void visitAddressOf( AddressOf *p ) {
