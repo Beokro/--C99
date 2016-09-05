@@ -476,7 +476,7 @@ public:
   }
 
   void visitEnum_defineImpl( Enum_defineImpl *p ) {
-
+    // do nothing
   }
 
   void visitDecl_variable( Decl_variable *p ) {
@@ -488,11 +488,11 @@ public:
   }
 
   void visitShort_declImpl( Short_declImpl *p ) {
-
+    // don't have assign, do nothing
   }
 
   void visitStruct_defineImpl( Struct_defineImpl *p ) {
-
+    // do nothing
   }
 
   void visitCallImpl( CallImpl *p ) {
@@ -680,9 +680,9 @@ public:
   }
 
   void visitReturn_statImpl( Return_statImpl *p ) {
-#ifdef DEBUG
+    #ifdef DEBUG
     fprintf( m_outputfile, "\n#Start return\n" );
-#endif
+    #endif
     p->visit_children(this);
     if( p->m_expr->m_attribute.m_basetype != bt_char &&
         p->m_expr->m_attribute.m_basetype != bt_const_char )
@@ -1084,19 +1084,25 @@ public:
   void visitDotAccess( DotAccess *p ) {
     // ... = a.b
     p->visit_children( this );
-    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
-    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    int lexical_distance = m_st->lexical_distance(p->m_lhs->m_attribute.m_scope,
+                                                  p->m_attribute.m_scope);
     string instruction = "";
     Symbol * s_struct = m_st->lookup( p->m_lhs->m_attribute.m_struct_name );
     auto it = s_struct->m_map.find( string( p->m_symname->spelling() ) );
     // get the relative offset of a element in this struct
-    int offset = it->second.second * 4;
+    int offset = it->second.second;
     get_same_level( lexical_distance );
     // address of a will be save in %eax
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start dot access\n" );
+    #endif
     fprintf( m_outputfile, "pop %%eax\n" );
     // use the offset( for b ) and address of a to push the value of a.b
-    instruction = "pushl " + std::to_string( offset ) + "(%%eax)\n";
+    instruction = "pushl " + std::to_string( offset ) + "(%eax)\n";
     fprintf( m_outputfile, "%s", instruction.c_str() );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End dot access\n" );
+    #endif
   }
 
   void visitArrowAccess( ArrowAccess *p ) {
@@ -1164,21 +1170,29 @@ public:
 
   void visitVariable( Variable *p ) {
     Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
-    int off_set = s->get_offset() + 4;
+    Basetype type = s->m_basetype;
+    int offset = 0;
     int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
     string instruction = "";
-#ifdef DEBUG
+    #ifdef DEBUG
     fprintf( m_outputfile, "#start visit variable\n");
-#endif
+    #endif
+    if ( type == bt_struct ) {
+      // offset will be symbol offset + size of this struct
+      offset = s->get_offset() + s->m_length1;
+    } else {
+      // otherwise offset will be symbol offset to 4
+      offset = s->get_offset() + 4;
+    }
     get_same_level( lexical_distance );
     // get the right address by adding offset to current base (%ecx)
-    instruction = "addl $-" + std::to_string( off_set ) + ", %ecx\n";
+    instruction = "addl $-" + std::to_string( offset ) + ", %ecx\n";
     fprintf( m_outputfile, "%s",instruction.c_str() );
     // push the address of this variable
     fprintf( m_outputfile, "pushl %%ecx\n");
-#ifdef DEBUG
+    #ifdef DEBUG
     fprintf( m_outputfile, "#end visit variable\n");
-#endif
+    #endif
     return;
   }
 
@@ -1263,22 +1277,28 @@ public:
   void visitDotElement( DotElement *p ) {
     // a.b = ...
     p->visit_children( this );
-    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
-    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    int lexical_distance = m_st->lexical_distance(p->m_lhs->m_attribute.m_scope,
+                                                  p->m_attribute.m_scope);
     string instruction = "";
     Symbol * s_struct = m_st->lookup( p->m_lhs->m_attribute.m_struct_name );
     auto it = s_struct->m_map.find( string( p->m_symname->spelling() ) );
     // get the relative offset of a element in this struct
-    int offset = it->second.second * 4;
+    int offset = it->second.second;
     get_same_level( lexical_distance );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start dot element\n");
+    #endif
     // address of a will be save in %eax
     fprintf( m_outputfile, "pop %%eax\n" );
     // add the offset( for b ) to the address of a to get the
     // address of a.b
-    instruction = "addl $" + std::to_string( offset ) + ", %%eax\n";
+    instruction = "addl $" + std::to_string( offset ) + ", %eax\n";
     fprintf( m_outputfile, "%s", instruction.c_str() );
     // push the address of a.b to stack
     fprintf( m_outputfile, "pushl %%eax\n" );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End dot element\n");
+    #endif
   }
 
   // Special cases

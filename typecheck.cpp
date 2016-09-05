@@ -674,7 +674,13 @@ private:
       s = new Symbol();
       s->m_basetype = type;
       s->m_type_name = ( struct_name != NULL ) ? strdup( struct_name ) : NULL;
-      s->m_length1 = real_first_length;
+      if ( type == bt_struct && struct_name != NULL ) {
+        // for struct type, m_length1 will store the size of this struct
+        Symbol * struct_s = m_st->lookup( s->m_type_name );
+        s->m_length1 = ( struct_s != NULL ) ? struct_s->m_length1 : -1;
+      } else {
+        s->m_length1 = real_first_length;
+      }
       s->m_length2 = real_second_length;
 
       if(! m_st->insert(name,s)){
@@ -1180,7 +1186,7 @@ public:
     check_proc( p );
   }
 
-  void visitStruct_defineImpl( Struct_defineImpl *p ) { 
+  void visitStruct_defineImpl( Struct_defineImpl *p ) {
     m_st->open_scope();
     default_rule( p );
     m_st->close_scope();
