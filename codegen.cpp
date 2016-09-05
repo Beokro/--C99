@@ -1,5 +1,6 @@
 #include <cassert>
 #include <typeinfo>
+#include <cstring>
 #include <string>
 #include <iostream>
 
@@ -384,12 +385,67 @@ public:
         we are going to pop 6 time to get all the expr, first pop
         will give us 5 because they are push to array in order
       */
+#ifdef DEBUG
+      fprintf( m_outputfile, "\n#Start to move list to 1d array\n" );
+#endif
       for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
-        fprintf( m_outputfile, "pop %%eax" );
-        instruction = "movl %eax, $-" + std::to_string( current_offset ) +"(%ecx)";
+        fprintf( m_outputfile, "pop %%eax\n" );
+        instruction = "movl %eax, -" + std::to_string( current_offset ) +"(%ecx)\n";
         fprintf( m_outputfile, "%s",instruction.c_str() );
       }
+#ifdef DEBUG
+      fprintf( m_outputfile, "\n#End move list to array\n" );
+#endif
       return;
+    } else if ( is_2d_array_type( type ) ) {
+      // accept the expr so that value of list will be push to the stack
+      // first pop will get the last element in array
+      p->m_expr->accept( this );
+      get_same_level( lexical_distance );
+      // start to calculate the offset relative to current offset
+      if ( type == bt_2d_char_array ) {
+        // size of char is 1
+        relative_offset = s->m_length1 * s->m_length2;
+      } else {
+        // size of one element is 4
+        relative_offset = s->m_length1 * s->m_length2 * 4;
+      }
+      instruction = "addl $-" + std::to_string( offset ) + ", %ecx\n";
+      fprintf( m_outputfile, "%s",instruction.c_str() );
+      /*
+        int a [ 2 ][ 3 ] = { { 0, 1, 2 }, { 3, 4, 5 } };
+        000                    %ecx - 4
+        001                    %ecx - 8
+        010                    %ecx - 12
+        011                    %ecx - 16
+        100                    %ecx - 20
+        101                    %ecx - 24
+
+        about why is %ecx instead of %ebp, look at function get_same_level
+        assume 101 is the address of a , 000 is address of a[ 1 ][ 2 ]
+        we are going to pop 6 time to get all the expr, first pop
+        will give us 5 because they are push to array in order
+      */
+#ifdef DEBUG
+      fprintf( m_outputfile, "\n#Start to move list to 2d array\n" );
+#endif
+      for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
+        fprintf( m_outputfile, "pop %%eax\n" );
+        instruction = "movl %eax, $-" + std::to_string( current_offset ) +"(%ecx)\n";
+        fprintf( m_outputfile, "%s",instruction.c_str() );
+      }
+#ifdef DEBUG
+      fprintf( m_outputfile, "\n#End move list to 2d array\n" );
+#endif
+      return;
+    } else {
+      // variable is non-array, use the assignment_helper
+      char * name_helper = strdup( p->m_symname->spelling() );
+      Variable * v = new Variable( new SymName( name_helper ) );
+      v->m_attribute.m_basetype = s->m_basetype;
+      v->m_attribute.m_scope = p->m_attribute.m_scope;
+      v->m_attribute.lineno = p->m_attribute.lineno;
+      assignment_helper( v, p->m_expr );
     }
   }
 
@@ -398,7 +454,7 @@ public:
   }
 
   void visitDecl_variable( Decl_variable *p ) {
-
+    p->visit_children(this);
   }
 
   void visitDecl_function( Decl_function *p ) {
@@ -570,7 +626,7 @@ public:
   }
 
   void visitStat_decl( Stat_decl *p ) {
-
+    p->visit_children(this);
   }
 
   void visitReturn_statImpl( Return_statImpl *p ) {
@@ -916,7 +972,31 @@ public:
   }
 
   void visitArrayAccess( ArrayAccess *p ) {
-
+    // 2 cases, array or string
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    Basetype type = s->m_basetype;
+    int offset = s->get_offset();
+    int lexical_distance = m_st->lexical_distance(s->get_scope(), p->m_attribute.m_scope);
+    string instruction = "";
+    // push the index to the stack
+    p->visit_children( this );
+    get_same_level( lexical_distance );
+    // index now in %eax
+    fprintf(m_outputfile, "pop %%eax\n");
+    // if it is a array
+    if ( type == bt_int_array || type == bt_bool_array || type == bt_long_array ||
+         type ==  bt_short_array ) {
+      // the end of their address is offset + 4 * size of array
+      offset += 4 * s->m_length1;
+      // index * 4 is the true offset
+      fprintf(m_outputfile, "imul $4, %%eax\n");
+    } else if ( type == bt_char_array ) {
+      offset += s->m_length1;
+      // since size of char is 1, no need to modify the index
+    } // todo, add the string case
+    fprintf( m_outputfile, "addl %%eax, %%ecx\n" );
+    instruction = "pushl -" + std::to_string( offset )+ "(%ecx)\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
   }
 
   void visitArrayDoubleAccess( ArrayDoubleAccess *p ) {

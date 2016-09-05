@@ -627,6 +627,7 @@ private:
       for ( pairIter = p->m_assignpair_list->begin();
             pairIter != p->m_assignpair_list->end();
             ++pairIter ) {
+        ( *pairIter )->m_attribute.m_scope = m_st->get_scope();
         name_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_symname );
         assign_list.push_back( static_cast<AssignPairImpl*>( *pairIter )->m_expr );
       }
