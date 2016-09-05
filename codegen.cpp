@@ -137,6 +137,17 @@ private:
   //           o %ebp, %ebx, %esi, %edi are "callee save" registers
   ////////////////////////////////////////////////////////////////////////////////
 
+  bool is_array_type( Basetype type ) {
+    return ( type == bt_int_array || type == bt_char_array || type == bt_bool_array ||
+             type == bt_long_array || type == bt_short_array || is_2d_array_type( type ) );
+  }
+
+  bool is_2d_array_type( Basetype type ) {
+    return  ( type == bt_2d_int_array || type == bt_2d_char_array ||
+              type == bt_2d_bool_array ||
+              type == bt_2d_long_array || type == bt_2d_short_array );
+  }
+
   // generate assembly code for compare operator like
   // ==, !=, >, >= ....
   void gen_compare( string op ) {
@@ -332,7 +343,54 @@ public:
   }
 
   void visitAssignPairImpl( AssignPairImpl *p ) {
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    Basetype type = s->m_basetype;
+    // offset + relative_offset = real_offset from %ebp
+    int offset = s->get_offset();
+    int relative_offset = 0;
+    int current_offset = 4;
+    int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
+    string instruction = "";
+    if ( p->m_expr->m_attribute.m_basetype == bt_empty ) {
+      // does not assign to anything during init, just return
+      return;
+    }
+    if ( is_array_type( type ) ) {
+      // accept the expr so that value of list will be push to the stack
+      // first pop will get the last element in array
+      p->m_expr->accept( this );
+      get_same_level( lexical_distance );
+      // start to calculate the offset relative to current offset
+      if ( type == bt_char_array ) {
+        // size of char is 1
+        relative_offset = s->m_length1;
+      } else {
+        // size of one element is 4
+        relative_offset = s->m_length1 * 4;
+      }
+      instruction = "addl $-" + std::to_string( offset ) + ", %ecx\n";
+      fprintf( m_outputfile, "%s",instruction.c_str() );
+      /*
+        int a [ 6 ] = { 0, 1, 2, 3, 4, 5 };
+        000                    %ecx - 4
+        001                    %ecx - 8
+        010                    %ecx - 12
+        011                    %ecx - 16
+        100                    %ecx - 20
+        101                    %ecx - 24
 
+        about why is %ecx instead of %ebp, look at function get_same_level
+        assume 101 is the address of a , 000 is address of a[ 5 ]
+        we are going to pop 6 time to get all the expr, first pop
+        will give us 5 because they are push to array in order
+      */
+      for( current_offset; current_offset <= relative_offset; current_offset += 4 ) {
+        fprintf( m_outputfile, "pop %%eax" );
+        instruction = "movl %eax, $-" + std::to_string( current_offset ) +"(%ecx)";
+        fprintf( m_outputfile, "%s",instruction.c_str() );
+      }
+      return;
+    }
   }
 
   void visitEnum_defineImpl( Enum_defineImpl *p ) {
@@ -656,7 +714,7 @@ public:
   }
 
   void visitListImpl( ListImpl *p ) {
-
+    p->visit_children(this);
   }
 
   void visitIncre_op( Incre_op *p ) {
@@ -927,11 +985,11 @@ public:
   }
 
   void visitEList( EList *p ) {
-
+    p->visit_children(this);
   }
 
   void visitETDList( ETDList *p ) {
-
+    p->visit_children(this);
   }
 
   void visitECall( ECall *p ) {
