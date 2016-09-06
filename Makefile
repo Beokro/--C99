@@ -54,7 +54,7 @@ clean:
 	rm -f $(RMFILES)
 
 OUTPUT = "output"
-TESTNAME = "test07"
+TESTNAME = "test09"
 exec: .PHONY
 	cat ./codeGenTest/$(TESTNAME).c | ./c99-- > $(OUTPUT).s
 	gcc -c -m32 -o $(OUTPUT).o $(OUTPUT).s

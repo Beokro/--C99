@@ -232,6 +232,25 @@ private:
     nest_level--;
   }
 
+  void incre_helper( string op ) {
+    string instruction = op + " $1, %eax\n";
+    // expect the node push up the address of lhs
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    // get the val of a and save it in %eax
+    fprintf( m_outputfile, "movl 0(%%ebx), %%eax\n" );
+    fprintf( m_outputfile, "%s", instruction.c_str() );
+    fprintf( m_outputfile, "movl %%eax, 0(%%ebx)\n" );
+  }
+
+  void self_assign_helper( string op ) {
+    string instruction = op + " 0(%eax), %ebx\n";
+    // value of expr in %ebx, address of lhs in %eax
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "%s", instruction.c_str() );
+    fprintf( m_outputfile, "movl %%ebx, 0(%%eax)\n" );
+  }
+
   void assignment_helper( Lhs * lhs, Expr * expr ) {
     Basetype lhs_type = lhs->m_attribute.m_basetype;
     string instruction = "";
@@ -828,37 +847,46 @@ public:
   }
 
   void visitIncre_t_add( Incre_t_add *p ) {
-    // since I do not support a = b++
-    // I will make no return value for incre
-    // a++ is same as a += 1
+    // accept the lhs so the address of lhs will be
+    // push to the stack and save it in %ebx
+    p->m_lhs->accept( this );
+    incre_helper( "addl" );
   }
 
   void visitIncre_t_min( Incre_t_min *p ) {
-
+    p->m_lhs->accept( this );
+    incre_helper( "subl" );
   }
 
   void visitIncre_add_t( Incre_add_t *p ) {
-
+    p->m_lhs->accept( this );
+    incre_helper( "addl" );
   }
 
   void visitIncre_min_t( Incre_min_t *p ) {
-
+    p->m_lhs->accept( this );
+    incre_helper( "subl" );
   }
 
   void visitAnd_assign( And_assign *p ) {
-
+    // accept the child, expr and address of lhs
+    // is pushed on stack 
+    p->visit_children(this);
+    self_assign_helper( "andl" );
   }
 
   void visitXor_assign( Xor_assign *p ) {
-
+    p->visit_children(this);
+    self_assign_helper( "xorl" );
   }
 
   void visitOr_assign( Or_assign *p ) {
-
+    p->visit_children(this);
+    self_assign_helper( "orl" );
   }
 
   void visitSl_assign( Sl_assign *p ) {
-
+    // shift need special care
   }
 
   void visitSr_assign( Sr_assign *p ) {
@@ -866,11 +894,19 @@ public:
   }
 
   void visitTimes_assign( Times_assign *p ) {
-
+    p->visit_children(this);
+    self_assign_helper( "imul" );
   }
 
   void visitDiv_assign( Div_assign *p ) {
-
+    p->visit_children(this);
+    fprintf( m_outputfile, "#doing divide\n" );
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%edi\n" );
+    fprintf( m_outputfile, "movl 0(%%edi), %%eax\n" );
+    fprintf( m_outputfile, "cdq\n" );
+    fprintf( m_outputfile, "idiv %%ebx\n" );
+    fprintf( m_outputfile, "movl %%eax, 0(%%edi)\n\n" );
   }
 
   void visitRem_assign( Rem_assign *p ) {
@@ -878,11 +914,19 @@ public:
   }
 
   void visitAdd_assign( Add_assign *p ) {
-
+    p->visit_children(this);
+    self_assign_helper( "addl" );
   }
 
   void visitMinus_assign( Minus_assign *p ) {
-
+    p->visit_children(this);
+    // value of expr in %ebx, address of lhs in %eax
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    //save the value of lhs in %edx
+    fprintf( m_outputfile, "movl 0(%%eax), %%edx\n" );
+    fprintf( m_outputfile, "subl %%ebx, %%edx\n" );
+    fprintf( m_outputfile, "movl %%edx, 0(%%eax)\n" );
   }
 
   void visitEq( Eq *p ) {
@@ -1140,16 +1184,18 @@ public:
     // ... = *a
     // expect visit child will push up the value of a
     p->visit_children( this );
-    fprintf( m_outputfile, "pop %%eax");
+    fprintf( m_outputfile, "pop %%eax\n");
     // do a access get the value of *a, push it to the stack
-    fprintf( m_outputfile, "pushl 0(%%eax)");
+    fprintf( m_outputfile, "pushl 0(%%eax)\n");
     #ifdef DEBUG
     fprintf( m_outputfile, "#End Deref rhs\n" );
     #endif
   }
 
   void visitAddressOf( AddressOf *p ) {
-
+    // Lhs:DotElement ==>  Lhs SymName
+    // visit lhs will push up the address
+    p->visit_children(this);
   }
 
   void visitEList( EList *p ) {
