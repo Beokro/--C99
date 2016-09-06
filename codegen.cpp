@@ -274,8 +274,12 @@ private:
       // if it is a char array or string, we need to use the movb
       // otherwise, movl is fine since we reserve 4 byte for char
       // and const char variable
-      if ( lhs_type != bt_char_array && lhs_type != bt_2d_char_array &&
-           lhs_type != bt_string ) {
+      ArrayElement * test = dynamic_cast< ArrayElement* >( lhs );
+      std::cout<<lhs_type<<std::endl;
+      std::cout<<(test == NULL)<<std::endl;
+      if ( ( ( lhs_type == bt_char || lhs_type == bt_const_char ) &&
+             test != NULL ) ||
+           lhs_type == bt_string ) {
         fprintf( m_outputfile, "movb %%bl, 0(%%eax)\n" );
       } else {
         fprintf( m_outputfile, "movl %%ebx, 0(%%eax)\n" );
@@ -515,7 +519,21 @@ public:
   }
 
   void visitCallImpl( CallImpl *p ) {
+    // we want to push the arguments in reverser order
+    std::list< Expr_ptr >::iterator iter = p->m_expr_list->end();
+    string instruction;
+    iter--;
+    for( iter; iter != p->m_expr_list->begin(); iter-- ) {
+      ( *iter )->accept( this );
+    }
+    // get the first one
+    if( p->m_expr_list->size()>0 )
+      ( *iter )->accept( this );
 
+    instruction = "call assem_" + string( p->m_symname->spelling() ) + "\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
+    // save the return value of the function call in %ebx
+    fprintf( m_outputfile, "pop %%ebx" );
   }
 
   void visitCaseImpl( CaseImpl *p ) {
@@ -551,11 +569,35 @@ public:
   }
 
   void visitString_assignment( String_assignment *p ) {
-
+    // no string, do nothing
   }
 
   void visitFunction_assignment( Function_assignment *p ) {
+    Basetype lhs_type = p->m_lhs->m_attribute.m_basetype;
+    string instruction = "";
+    // accpet the lhs and expr so that address of lhs and value
+    // of expr will be push to the stack
+    p->m_lhs->accept( this );
+    p->m_call->accept( this );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start to function assign\n" );
+    #endif
+    // return of function call in %ebx, address of lhs in %eax
+    fprintf( m_outputfile, "pop %%eax\n" );
+    // size of the expr is 1, now there are 2 cases
+    // if it is a char array or string, we need to use the movb
+    // otherwise, movl is fine since we reserve 4 byte for char
+    // and const char variable
+    if ( lhs_type == bt_char_array || lhs_type == bt_2d_char_array ||
+         lhs_type == bt_string ) {
+      fprintf( m_outputfile, "movb %%bl, 0(%%eax)\n" );
+    } else {
+      fprintf( m_outputfile, "movl %%ebx, 0(%%eax)\n" );
+    }
 
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#End assign\n" );
+    #endif
   }
 
   void visitSIncre( SIncre *p ) {
@@ -687,11 +729,11 @@ public:
   }
 
   void visitStat_struct_define( Stat_struct_define *p ) {
-
+    // do nothing
   }
 
   void visitStat_enum_define( Stat_enum_define *p ) {
-
+    // do nothing
   }
 
   void visitStat_decl( Stat_decl *p ) {
@@ -887,10 +929,23 @@ public:
 
   void visitSl_assign( Sl_assign *p ) {
     // shift need special care
+    p->visit_children(this);
+    fprintf( m_outputfile, "pop %%ecx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "movl 0(%%eax), %%edi\n" );
+    // shift can be used on 8 bit constant or register %cl
+    fprintf( m_outputfile, "shl %%cl, %%edi\n" );
+    fprintf( m_outputfile, "movl %%edi, 0(%%eax)\n\n" );
   }
 
   void visitSr_assign( Sr_assign *p ) {
-
+    p->visit_children(this);
+    fprintf( m_outputfile, "pop %%ecx\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "movl 0(%%eax), %%edi\n" );
+    // shift can be used on 8 bit constant or register %cl
+    fprintf( m_outputfile, "shr %%cl, %%edi\n" );
+    fprintf( m_outputfile, "movl %%edi, 0(%%eax)\n\n" );
   }
 
   void visitTimes_assign( Times_assign *p ) {
@@ -900,7 +955,6 @@ public:
 
   void visitDiv_assign( Div_assign *p ) {
     p->visit_children(this);
-    fprintf( m_outputfile, "#doing divide\n" );
     fprintf( m_outputfile, "pop %%ebx\n" );
     fprintf( m_outputfile, "pop %%edi\n" );
     fprintf( m_outputfile, "movl 0(%%edi), %%eax\n" );
@@ -910,7 +964,13 @@ public:
   }
 
   void visitRem_assign( Rem_assign *p ) {
-
+    p->visit_children(this);
+    fprintf( m_outputfile, "pop %%ebx\n" );
+    fprintf( m_outputfile, "pop %%edi\n" );
+    fprintf( m_outputfile, "movl 0(%%edi), %%eax\n" );
+    fprintf( m_outputfile, "cdq\n" );
+    fprintf( m_outputfile, "idiv %%ebx\n" );
+    fprintf( m_outputfile, "movl %%edx, 0(%%edi)\n\n" );
   }
 
   void visitAdd_assign( Add_assign *p ) {
@@ -1257,6 +1317,7 @@ public:
 
   // should push up the address of the array element
   void visitArrayElement( ArrayElement *p ) {
+    std::cout<<"visit arrayelement\n";
     // 2 cases, array or string
     p->visit_children( this );
     Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
