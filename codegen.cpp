@@ -152,7 +152,7 @@ private:
   // generate assembly code for compare operator like
   // ==, !=, >, >= ....
   void gen_compare( string op ) {
-    string temp = op + " %%dl\n";
+    string temp = op + " %dl\n";
     fprintf( m_outputfile, "pop  %%ebx\n" );
     fprintf( m_outputfile, "pop  %%eax\n" );
     fprintf(m_outputfile, "cmp %%ebx, %%eax\n");
@@ -275,10 +275,9 @@ private:
       // otherwise, movl is fine since we reserve 4 byte for char
       // and const char variable
       ArrayElement * test = dynamic_cast< ArrayElement* >( lhs );
-      std::cout<<lhs_type<<std::endl;
-      std::cout<<(test == NULL)<<std::endl;
+      ArrayDoubleElement * test2 = dynamic_cast< ArrayDoubleElement* >( lhs );
       if ( ( ( lhs_type == bt_char || lhs_type == bt_const_char ) &&
-             test != NULL ) ||
+             test != NULL || test2 != NULL) ||
            lhs_type == bt_string ) {
         fprintf( m_outputfile, "movb %%bl, 0(%%eax)\n" );
       } else {
@@ -532,8 +531,7 @@ public:
 
     instruction = "call assem_" + string( p->m_symname->spelling() ) + "\n";
     fprintf( m_outputfile, "%s", instruction.c_str() );
-    // save the return value of the function call in %ebx
-    fprintf( m_outputfile, "pop %%ebx" );
+    // the value of return will be in %eax already
   }
 
   void visitCaseImpl( CaseImpl *p ) {
@@ -577,26 +575,27 @@ public:
     string instruction = "";
     // accpet the lhs and expr so that address of lhs and value
     // of expr will be push to the stack
-    p->m_lhs->accept( this );
     p->m_call->accept( this );
+    // push the return of function call
+    fprintf( m_outputfile, "pushl %%eax\n" );
+    p->m_lhs->accept( this );
     #ifdef DEBUG
     fprintf( m_outputfile, "\n#Start to function assign\n" );
     #endif
-    // return of function call in %ebx, address of lhs in %eax
+    // return of function call in %eax, address of lhs in %ebx
+    fprintf( m_outputfile, "pop %%ebx\n" );
     fprintf( m_outputfile, "pop %%eax\n" );
     // size of the expr is 1, now there are 2 cases
-    // if it is a char array or string, we need to use the movb
-    // otherwise, movl is fine since we reserve 4 byte for char
-    // and const char variable
-    if ( lhs_type == bt_char_array || lhs_type == bt_2d_char_array ||
-         lhs_type == bt_string ) {
-      fprintf( m_outputfile, "movb %%bl, 0(%%eax)\n" );
+    // if it is a char, use movb since char is one byte, otherwise
+    // use movl to move 4 byte
+    if ( lhs_type == bt_char || lhs_type == bt_const_char ) {
+      fprintf( m_outputfile, "movb %%al, 0(%%ebx)\n" );
     } else {
-      fprintf( m_outputfile, "movl %%ebx, 0(%%eax)\n" );
+      fprintf( m_outputfile, "movl %%eax, 0(%%ebx)\n" );
     }
 
     #ifdef DEBUG
-    fprintf( m_outputfile, "\n#End assign\n" );
+    fprintf( m_outputfile, "\n#End function assign\n" );
     #endif
   }
 
@@ -631,6 +630,11 @@ public:
   }
 
   void visitIf_with_else( If_with_else *p ) {
+    fprintf(m_outputfile, "pushl %%ebp\n");
+    fprintf(m_outputfile, "movl %%esp, %%ebp\n");
+    string temp = "sub $" + std::to_string(m_st->scopesize(p->m_attribute.m_scope)) +
+      ", %esp\n\n";
+    fprintf(m_outputfile, "%s", temp.c_str());
     p->m_expr->accept(this);
     #ifdef DEBUG
     fprintf( m_outputfile, "\n#Start If with else\n" );
@@ -655,6 +659,8 @@ public:
     visit_stat_can_return( p->m_stat_can_return_list_2 );
     instruction = "if_else_end" + labelNum+":\n\n";
     fprintf(m_outputfile, "%s",instruction.c_str());
+    fprintf(m_outputfile, "movl %%ebp, %%esp\n");
+    fprintf(m_outputfile, "pop %%ebp\n");
     #ifdef DEBUG
     fprintf( m_outputfile, "#End if with else\n" );
     #endif
@@ -1317,7 +1323,6 @@ public:
 
   // should push up the address of the array element
   void visitArrayElement( ArrayElement *p ) {
-    std::cout<<"visit arrayelement\n";
     // 2 cases, array or string
     p->visit_children( this );
     Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );

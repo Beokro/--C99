@@ -1,3 +1,4 @@
+// expect 99
 char main() {
   char c[ 2 ][ 3 ] = { { 'a', 'b', 'c' }, { 'd', 'e', 'f' } };
   char cc = c[ 0 ][ 2 ];

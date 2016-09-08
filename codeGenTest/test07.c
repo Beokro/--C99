@@ -1,3 +1,4 @@
+// expect 97
 struct temp {
   int a;
   int b;
