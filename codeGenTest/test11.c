@@ -1,5 +1,6 @@
+// expect 100
 char test( char c, int a ) {
-  if ( c == 'a' ) {
+  if ( c == 'b' ) {
     c = 'd';
   } else {
     c = 'z';

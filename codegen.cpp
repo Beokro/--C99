@@ -185,7 +185,6 @@ private:
       fprintf(m_outputfile, "%s",temp.c_str());
     }
     fprintf(m_outputfile, "movl %%ebp, %%ecx\n");
-    lexical_distance-=nest_level;
     for(int i =0; i<lexical_distance; i++){
       // keep going back until we at the same lexical level as the variabl
       fprintf(m_outputfile, "movl 0(%%ecx), %%ecx\n");
@@ -209,8 +208,7 @@ private:
     fprintf( m_outputfile, "%s", temp.c_str() );
   }
 
-  void emit_epilogue()
-  {
+  void emit_epilogue() {
     // resotre the callee save registers
     fprintf( m_outputfile, "pop %%edi\n" );
     fprintf( m_outputfile, "pop %%esi\n" );
@@ -220,6 +218,19 @@ private:
     fprintf( m_outputfile, "pop %%ebp\n" );
     // end of procedure, retunr to caller if it exist
     fprintf( m_outputfile, "ret\n\n" );
+  }
+
+  void emit_simple_prologue( unsigned int size_locals ) {
+    string instruction = "sub $" + std::to_string( size_locals) + ", %esp\n\n";
+    fprintf(m_outputfile, "pushl %%ebp\n");
+    fprintf(m_outputfile, "movl %%esp, %%ebp\n");
+    fprintf(m_outputfile, "%s", instruction.c_str());
+
+  }
+
+  void emit_simple_epilogue() {
+    fprintf(m_outputfile, "movl %%ebp, %%esp\n");
+    fprintf(m_outputfile, "pop %%ebp\n");
   }
 
   void visit_stat_can_return( std::list<Stat_can_return_ptr> *stat_list ) {
@@ -604,11 +615,12 @@ public:
   }
 
   void visitFunction_call( Function_call *p ) {
-
+    p->visit_children(this);
   }
 
   // Control flow
   void visitIf_no_else( If_no_else *p ) {
+    emit_simple_prologue( m_st->scopesize(p->m_attribute.m_scope) );
     // check the if condition
     p->m_expr->accept( this );
     #ifdef DEBUG
@@ -627,14 +639,11 @@ public:
     #ifdef DEBUG
     fprintf( m_outputfile, "#End If no else\n" );
     #endif
+    emit_simple_epilogue();
   }
 
   void visitIf_with_else( If_with_else *p ) {
-    fprintf(m_outputfile, "pushl %%ebp\n");
-    fprintf(m_outputfile, "movl %%esp, %%ebp\n");
-    string temp = "sub $" + std::to_string(m_st->scopesize(p->m_attribute.m_scope)) +
-      ", %esp\n\n";
-    fprintf(m_outputfile, "%s", temp.c_str());
+    emit_simple_prologue( m_st->scopesize(p->m_attribute.m_scope) );
     p->m_expr->accept(this);
     #ifdef DEBUG
     fprintf( m_outputfile, "\n#Start If with else\n" );
@@ -659,14 +668,14 @@ public:
     visit_stat_can_return( p->m_stat_can_return_list_2 );
     instruction = "if_else_end" + labelNum+":\n\n";
     fprintf(m_outputfile, "%s",instruction.c_str());
-    fprintf(m_outputfile, "movl %%ebp, %%esp\n");
-    fprintf(m_outputfile, "pop %%ebp\n");
     #ifdef DEBUG
     fprintf( m_outputfile, "#End if with else\n" );
     #endif
+    emit_simple_epilogue();
   }
 
   void visitWhile_loop( While_loop *p ) {
+    emit_simple_prologue( m_st->scopesize(p->m_attribute.m_scope) );
     p->m_expr->accept( this );
     #ifdef DEBUG
     fprintf( m_outputfile, "\n#Start While Loop\n" );
@@ -694,9 +703,11 @@ public:
     #ifdef DEBUG
     fprintf( m_outputfile, "#End while loop\n" );
     #endif
+    emit_simple_epilogue();
   }
 
   void visitDo_while( Do_while *p ) {
+    emit_simple_prologue( m_st->scopesize(p->m_attribute.m_scope) );
     #ifdef DEBUG
     fprintf( m_outputfile, "\n#Start do while\n" );
     #endif
@@ -716,6 +727,7 @@ public:
     #ifdef DEBUG
     fprintf( m_outputfile, "#End do while\n" );
     #endif
+    emit_simple_epilogue();
   }
 
   void visitFor_loop( For_loop *p ) {
@@ -1235,7 +1247,7 @@ public:
   }
 
   void visitStringLit( StringLit *p ) {
-
+    // no going to use it anyway
   }
 
   void visitNullLit( NullLit *p ) {
@@ -1273,11 +1285,11 @@ public:
   }
 
   void visitECall( ECall *p ) {
-
+    p->visit_children(this);
   }
 
   void visitEmpty( Empty *p ) {
-
+    // do nothing
   }
 
   void visitVariable( Variable *p ) {
