@@ -546,7 +546,20 @@ public:
   }
 
   void visitCaseImpl( CaseImpl *p ) {
-
+    string labelNum = std::to_string( new_label() );
+    string instruction = "";
+    // %eax indicate if last case pass
+    // %ebx indicate that if current caase match
+    fprintf( m_outputfile, "pop %%eax\n");
+    fprintf( m_outputfile, "pop %%ebx\n");
+    // if last case pass, execute the statements
+    fprintf( m_outputfile, "cmp $0, %%eax\n");
+    instruction = "jne case_start" + labelNum;
+    fprintf( m_outputfile, "%s", instruction.c_str() );
+    // if this case fails, don't execute
+    fprintf( m_outputfile, "cmp $0, %%ebx\n");
+    instruction = "je case_end" + labelNum;
+    fprintf( m_outputfile, "%s", instruction.c_str() );
   }
 
   void visitPProcedure( PProcedure *p ) {
@@ -796,7 +809,7 @@ public:
   }
 
   void visitSwitch( Switch *p ) {
-
+    
   }
 
   void visitBreak( Break *p ) {
