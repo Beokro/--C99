@@ -558,11 +558,45 @@ public:
   }
 
   void visitInit_new( Init_new *p ) {
-
+    // must be one of the 5 base type
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    int offset = s->get_offset() + 4;
+    string instruction = "";
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#start visit init new\n");
+    #endif
+    // accept the expr so the value will be push to stack
+    p->m_expr->accept( this );
+    fprintf( m_outputfile, "pop %%eax\n");
+    // don't need to use ecx because init new must be in samee lexical level
+    instruction = "movl %eax, -" + std::to_string( offset ) + "(%ebp)\n";
+    fprintf( m_outputfile, "%s",instruction.c_str() );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#end visit init new\n");
+    #endif
+    return;
   }
 
   void visitInit_old( Init_old *p ) {
-
+    // must be one of the 5 base type
+    Symbol * s = m_st->lookup( p->m_attribute.m_scope, p->m_symname->spelling() );
+    int offset = s->get_offset() + 4;
+    int lexical_distance = m_st->lexical_distance( s->get_scope(), p->m_attribute.m_scope );
+    string instruction = "";
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#start visit init new\n");
+    #endif
+    // accept the expr so the value will be push to stack
+    p->m_expr->accept( this );
+    fprintf( m_outputfile, "pop %%eax\n");
+    get_same_level( lexical_distance );
+    // don't need to use ecx because init new must be in samee lexical level
+    instruction = "movl %eax, -" + std::to_string( offset ) + "(%ecx)\n";
+    fprintf( m_outputfile, "%s",instruction.c_str() );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#end visit init new\n");
+    #endif
+    return;
   }
 
   void visitNStat( NStat *p ) {
@@ -723,7 +757,6 @@ public:
     fprintf(m_outputfile, "cmp $0, %%eax\n");
     instruction = "jne loop_start" + labelNum+"\n\n";
     fprintf(m_outputfile, "%s",instruction.c_str());
-    fprintf(m_outputfile, "%s",instruction.c_str());
     #ifdef DEBUG
     fprintf( m_outputfile, "#End do while\n" );
     #endif
@@ -731,7 +764,35 @@ public:
   }
 
   void visitFor_loop( For_loop *p ) {
+    string labelNum = std::to_string(new_label());
+    string instruction;
+    emit_simple_prologue( m_st->scopesize(p->m_attribute.m_scope) );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start for loop\n" );
+    #endif
 
+    // do the init
+    p->m_init->accept( this );
+    // loop body start with comparsion, end with incre
+    instruction = "loop_start" + labelNum+":\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    // do the comparesion
+    p->m_expr->accept( this );
+    fprintf(m_outputfile, "pop %%eax\n");
+    fprintf(m_outputfile, "cmp $0, %%eax\n");
+    instruction = "je loop_end" + labelNum+"\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    visit_stat_can_return( p->m_stat_can_return_list );
+    // incre the variable
+    p->m_incre->accept( this );
+    instruction = "jmp loop_start" + labelNum+"\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    instruction = "loop_end" + labelNum+":\n\n";
+    fprintf(m_outputfile, "%s",instruction.c_str());
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End for loop\n" );
+    #endif
+    emit_simple_epilogue();
   }
 
   void visitSwitch( Switch *p ) {
