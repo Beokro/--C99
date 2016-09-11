@@ -1,3 +1,4 @@
+// expect 11011
 int main() {
   int a = 78;
   int b = 0;

@@ -549,16 +549,66 @@ public:
     string labelNum = std::to_string( new_label() );
     string instruction = "";
     // %eax indicate if last case pass
-    // %ebx indicate that if current caase match
-    fprintf( m_outputfile, "pop %%eax\n");
-    fprintf( m_outputfile, "pop %%ebx\n");
+    fprintf( m_outputfile, "pop %%eax\n"); 
     // if last case pass, execute the statements
     fprintf( m_outputfile, "cmp $0, %%eax\n");
-    instruction = "jne case_start" + labelNum;
+    // push the $0 to indicate that current match fails
+    // of course we don't know it for now, but it match
+    // success, execute code will replace this 0 with 1
+    fprintf( m_outputfile, "pushl $0\n");
+    instruction = "jne case_start" + labelNum + "\n";
     fprintf( m_outputfile, "%s", instruction.c_str() );
+
+    // push the case's expr to stak
+    p->m_expr->accept( this );
+    /*
+      current stack:
+             %%esp
+             value need to be compare
+             $0
+             case's expr
+     */
+
+    // get case's expr to %eax, value that need to be comapre to %ebx
+    // stack shouldn't have any more content after esp
+    fprintf( m_outputfile, "pop %%eax\n");
+    fprintf( m_outputfile, "pop %%ebx\n");
+    fprintf( m_outputfile, "pop %%ebx\n");
+    // push the value that need to be compare back to stack
+    fprintf( m_outputfile, "pushl %%ebx\n");
+
+    /*
+      current stack:
+      %%esp
+      value need to be compare
+    */
+
     // if this case fails, don't execute
-    fprintf( m_outputfile, "cmp $0, %%ebx\n");
-    instruction = "je case_end" + labelNum;
+    fprintf( m_outputfile, "cmp %%eax, %%ebx\n");
+    // push the $0 to indicate that current match fails
+    // of course we don't know it for now, but it match
+    // success, execute code will replace this 0 with 1
+    fprintf( m_outputfile, "pushl $0\n");
+    instruction = "jne case_end" + labelNum +  "\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
+
+    // start of the case content
+    instruction = "case_start" + labelNum + ":\n";
+    fprintf( m_outputfile, "%s", instruction.c_str() );
+    // first pop the $0 on the stack, push $1 to indicate that
+    // current match success
+    fprintf( m_outputfile, "pop %%eax\n");
+    fprintf( m_outputfile, "pushl $1\n");
+
+    /*
+      current stack:
+      %%esp
+      value need to be compare
+      $1
+    */
+
+    visit_stat_can_return( p->m_stat_can_return_list );
+    instruction = "case_end" + labelNum + ":\n";
     fprintf( m_outputfile, "%s", instruction.c_str() );
   }
 
@@ -809,7 +859,30 @@ public:
   }
 
   void visitSwitch( Switch *p ) {
-    
+    CaseImpl * caseImpl;
+    #ifdef DEBUG
+    fprintf( m_outputfile, "\n#Start switch\n" );
+    #endif
+    // push the value that need to be comare to the stack
+    p->m_expr->accept( this );
+    // indicate that last match didn't pass
+    fprintf( m_outputfile, "pushl $0\n" );
+    for ( auto iter = p->m_case_list->begin();
+          iter != p->m_case_list->end();
+          iter++ ){
+      caseImpl = dynamic_cast< CaseImpl * >( *iter );
+      if ( caseImpl != NULL ) {
+        caseImpl->accept( this );
+      }
+    }
+    // now handle the default case
+    // first clear the stack by pop twice
+    fprintf( m_outputfile, "pop %%eax\n" );
+    fprintf( m_outputfile, "pop %%eax\n" );
+    visit_stat_can_return( p->m_stat_can_return_list );
+    #ifdef DEBUG
+    fprintf( m_outputfile, "#End switch\n" );
+    #endif
   }
 
   void visitBreak( Break *p ) {
